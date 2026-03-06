@@ -1,0 +1,893 @@
+milestones:
+  - title: "Week 5 – Auth + Experience Core"
+    due_date: "2026-03-07"
+    description: "Infrastructure setup plus authentication, RBAC, schema setup, and core experience flow"
+
+  - title: "Week 6 – Docker + Fragment Upload"
+    due_date: "2026-03-13"
+    description: "Docker milestone plus fragment upload implementation and README"
+
+  - title: "Week 7–8 – MVP Completion"
+    due_date: "2026-03-27"
+    description: "Core MVP completion, schema milestone, testing, polish, and feature freeze"
+
+  - title: "Final Submission"
+    due_date: "2026-04-10"
+    description: "Final polish, smoke testing, video export, and release tagging"
+
+users:
+  chantal: "chantal.delcarmen"
+  stephanie: "stephanie.sevilla"
+  taiwu: "chen.taiwu"
+  jessica: "jessica.thomas1"
+  jericho: "jericho.huelar"
+  jacob: "jacob.situ"
+
+issues:
+  # WEEK 5
+  - title: "[Design] Finalize high-fidelity Figma mockups"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "stephanie"
+    labels:
+      - "status::done"
+      - "area::design"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Completed before implementation sprint.
+
+      Deliverables
+      - Finalize high-fidelity Figma mockups
+      - Confirm overall interface direction
+
+  - title: "[Design] Define mobile and desktop breakpoints"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "stephanie"
+    labels:
+      - "status::done"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Completed before implementation sprint.
+
+      Chrome DevTools validation targets
+      - 393x852 (iPhone 14 Pro)
+      - 375x667 (iPhone SE)
+      - 768x1024 (iPad)
+      - 1440x900 (Desktop)
+
+  - title: "[Frontend] Initialize and stabilize React project"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::high"
+      - "type::chore"
+    description: |
+      Set up the React app foundation for AfterGlow.
+
+      Acceptance criteria
+      - Project runs locally
+      - Base routing works
+      - Shared environment setup confirmed
+
+  - title: "[Frontend] Define frontend folder structure"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Define frontend architecture and organization.
+
+      Acceptance criteria
+      - Clear folders for pages, components, hooks, data, and utilities
+      - Team agrees on structure before building more screens
+
+  - title: "[Frontend] Map guided reliving flow state transitions"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Define the UI and interaction states for the guided reliving flow.
+
+      Include
+      - Context
+      - Peak
+      - Afterglow
+      - Entry and exit states
+
+  - title: "[Backend] Initialize and stabilize NestJS backend"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jessica"
+    labels:
+      - "status::ready"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Set up the NestJS backend foundation.
+
+      Acceptance criteria
+      - Server runs locally
+      - Base config structure exists
+      - Environment configuration is wired
+
+  - title: "[Backend] Define RBAC structure for User Reviewer Admin"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Define the RBAC model for the platform.
+
+      Roles
+      - User
+      - Reviewer
+      - Admin
+
+      Acceptance criteria
+      - Role responsibilities documented
+      - Ready for guard implementation
+
+  - title: "[Database] Initialize Supabase project"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jericho"
+    labels:
+      - "status::ready"
+      - "area::database"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Initialize the Supabase project for AfterGlow.
+
+      Acceptance criteria
+      - Project created
+      - Credentials stored securely in env
+      - Local connectivity validated
+
+  - title: "[Database] Draft and refine relational schema"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jericho"
+    labels:
+      - "status::ready"
+      - "area::database"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Draft the schema for AfterGlow data relationships.
+
+      Main entities
+      - Experience
+      - Fragment
+      - Reflection
+
+  - title: "[Database] Draft ERD for Experience Fragment Reflection"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Create ERD documentation for the system schema.
+
+      Acceptance criteria
+      - Relationship diagram completed
+      - Matches current planned schema
+
+  - title: "[Media] Scaffold fragment upload structure"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "taiwu"
+    labels:
+      - "status::ready"
+      - "area::backend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      Set up the structure for fragment upload support.
+
+      Include
+      - Photo
+      - Video
+      - Text
+
+  - title: "[DevOps] Draft docker-compose base"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jacob"
+    labels:
+      - "status::ready"
+      - "area::devops"
+      - "priority::high"
+      - "type::chore"
+    description: |
+      Draft docker-compose configuration for the app stack.
+
+      Acceptance criteria
+      - Baseline services defined
+      - Team can build on top of it in Week 6
+
+  - title: "[DevOps] Validate containers communicate locally"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Confirm services can communicate inside Docker locally.
+
+      Acceptance criteria
+      - Containers can reach expected services
+      - No obvious local networking blockers
+
+  - title: "[Backend] Implement authentication with Supabase and JWT"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Implement the authentication layer for the backend.
+
+      Acceptance criteria
+      - Supabase auth integration
+      - JWT handling
+      - Ready for frontend integration
+
+  - title: "[Backend] Implement NestJS role guards"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Implement role guards to enforce RBAC in NestJS.
+
+      Acceptance criteria
+      - Guard logic is applied to protected routes
+      - Matches defined role model
+
+  - title: "[Database] Implement finalized schema in database"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Implement the finalized relational schema in the database.
+
+      Acceptance criteria
+      - Required tables created
+      - Core relations in place
+
+  - title: "[Database] Apply RLS policies in Postgres"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Apply row level security policies to match role and ownership rules.
+
+      Acceptance criteria
+      - RLS policies documented
+      - Policies tested on core flows
+
+  - title: "[Frontend] Build Experience CRUD UI"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Build the interface for creating and managing experiences.
+
+      Include
+      - Create
+      - Edit
+      - Delete
+      - Core display states
+
+  - title: "[Frontend] Connect frontend to backend authentication"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Connect the frontend auth flow to backend and Supabase auth handling.
+
+      Acceptance criteria
+      - Login flow works
+      - Protected flow wiring started
+
+  - title: "[DevOps] Refine Docker configuration"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::chore"
+    description: |
+      Refine Docker setup after initial baseline is drafted.
+
+      Focus
+      - Stability
+      - Developer usability
+      - Clear config separation
+
+  - title: "[DevOps] Ensure no secrets are committed"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::chore"
+    description: |
+      Ensure project configuration does not expose secrets.
+
+      Acceptance criteria
+      - Env strategy documented
+      - Compose files do not hardcode secrets
+      - Repo checked for leaks
+
+  - title: "[Presentation] Decide technical presentation focus"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Decide technical presentation emphasis.
+
+      Candidate focus
+      - NestJS
+      - RLS
+      - Docker
+
+  - title: "[Presentation] Assign technical presentation speaking roles"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Assign speaking sections for the technical presentation.
+
+  - title: "[Presentation] Outline technical presentation slide structure"
+    milestone: "Week 5 – Auth + Experience Core"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::low"
+      - "type::task"
+    description: |
+      Draft slide flow and high-level structure for the technical presentation.
+
+  # WEEK 6
+  - title: "[Media] Implement photo upload fully"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "taiwu"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Implement complete support for photo fragment upload.
+
+      Acceptance criteria
+      - Upload works end to end
+      - Storage path is handled correctly
+      - Associated metadata saved
+
+  - title: "[Media] Attach fragments to Experience"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "taiwu"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Ensure uploaded fragments are properly linked to their parent Experience.
+
+  - title: "[Backend] Enforce role permissions server-side"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Enforce authorization rules on the server side only.
+
+      Acceptance criteria
+      - Permissions do not rely on client-side checks
+      - Unauthorized paths are blocked
+
+  - title: "[Backend] Test direct API bypass attempts"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Test for attempts to bypass UI restrictions through direct API calls.
+
+  - title: "[Frontend] Connect frontend to fragment APIs"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Connect upload-related frontend flows to fragment APIs.
+
+  - title: "[DevOps] Finalize docker-compose configuration"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::chore"
+    description: |
+      Finalize docker-compose for milestone submission.
+
+      Acceptance criteria
+      - Works locally
+      - Services are wired
+      - Usable for demo setup
+
+  - title: "[DevOps] Tag docker milestone"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Create and push the docker milestone tag for submission.
+
+  - title: "[DevOps] Submit Docker milestone to D2L"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Submit the Docker milestone deliverable to D2L.
+
+  - title: "[Documentation] Create project README"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::documentation"
+    description: |
+      Create README covering
+      - Project overview
+      - Tech stack
+      - Setup instructions
+      - Env documentation
+      - Demo accounts
+      - Docker run instructions
+
+  - title: "[Presentation] Draft technical presentation slides"
+    milestone: "Week 6 – Docker + Fragment Upload"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Draft technical presentation slides.
+
+      Include
+      - Architecture diagram
+      - Auth flow
+      - RLS explanation
+      - Life without comparison
+
+  # WEEK 7-8 MVP
+  - title: "[Frontend] Implement 3-step guided reliving flow"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Implement the guided reliving flow.
+
+      Steps
+      - Context
+      - Peak
+      - Afterglow
+
+  - title: "[Backend] Enforce anchor requirement server-side"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Enforce the anchor requirement on the server side only.
+
+  - title: "[Frontend] Implement reflection capture"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      Implement reflection input and capture flow for the experience sequence.
+
+  - title: "[Database] Validate relational constraints"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Validate schema constraints and relational integrity.
+
+  - title: "[Database] Ensure Experience Fragment integrity"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Validate the Experience to Fragment relationship integrity under normal flows.
+
+  - title: "[DevOps] Add error handling and reconnect handling"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Improve reliability for demo readiness.
+
+      Include
+      - Error handling
+      - Reconnect handling
+
+  - title: "[Presentation] Build live demo scenario"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Build the technical presentation demo scenario.
+
+      Include
+      - Anchor enforcement demo
+      - Role restriction demo
+      - Multi-user demo plan
+
+  - title: "[Presentation] Outline group showcase script"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::low"
+      - "type::task"
+    description: |
+      Outline the showcase/demo narrative for the group video and presentation.
+
+  - title: "[Database] Final schema script"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Finalize the database schema script for submission.
+
+  - title: "[Database] Final seed script for 3 demo users"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::database"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      Create final seed script supporting 3 demo users for testing and demo purposes.
+
+  - title: "[DevOps] Tag schema milestone"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Create and push the schema milestone tag.
+
+  - title: "[DevOps] Submit schema milestone"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Submit the schema milestone deliverable.
+
+  - title: "[DevOps] Multi-user testing with 3 simultaneous accounts"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Validate the system under multi-user conditions using 3 simultaneous accounts.
+
+  - title: "[DevOps] Docker rebuild validation"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Confirm Docker rebuilds remain stable and predictable.
+
+  - title: "[Design] UI refinement pass"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Run a focused UI polish pass before feature freeze.
+
+  - title: "[Frontend] Polish loading and empty states"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      Improve UX for incomplete, loading, and empty application states.
+
+  - title: "[Presentation] Technical presentation freeze and rehearsal"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Freeze technical presentation content.
+
+      Include
+      - Full rehearsal
+      - Demo stability testing
+      - No new features after freeze
+
+  - title: "[Video] Record draft showcase video"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Record the first draft of the showcase video.
+
+  - title: "[Presentation] Deliver technical presentation"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Deliver the technical presentation on April 2 at 9:45 AM.
+
+  - title: "[Video] Re-record polished showcase video"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Re-record the showcase video after presentation refinements.
+
+  - title: "[DevOps] Validate mobile and role-switching demo"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Validate that the demo works on mobile and across role switching scenarios.
+
+  - title: "[Media] Implement short video fragment upload"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "taiwu"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::low"
+      - "type::feature"
+    description: |
+      Nice to have only if MVP is stable.
+
+      Do not start if
+      - RLS is unstable
+      - Anchor enforcement is buggy
+      - Multi-user testing is failing
+
+  - title: "[Frontend] Implement optional landscape immersion mode"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::low"
+      - "type::feature"
+    description: |
+      Nice to have only if MVP is stable.
+
+      Do not start if
+      - RLS is unstable
+      - Anchor enforcement is buggy
+      - Multi-user testing is failing
+
+  # FINAL SUBMISSION
+  - title: "[DevOps] Run full system smoke test"
+    milestone: "Final Submission"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Run end-to-end smoke testing.
+
+      Cover
+      - Auth
+      - Role separation
+      - Persistence across restart
+      - Clean Docker rebuild
+
+  - title: "[Design] Final UI polish"
+    milestone: "Final Submission"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Final UI cleanup pass before submission.
+
+  - title: "[Frontend] Refine micro-interactions"
+    milestone: "Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      Add final micro-interaction polish where appropriate.
+
+  - title: "[Video] Export final submission videos"
+    milestone: "Final Submission"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::design"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Final export deliverables
+      - seng513-showcase-pg-7.mp4
+      - seng513-tech-demo-pg-7.mp4
+
+  - title: "[DevOps] Tag final release Release-1.0"
+    milestone: "Final Submission"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Create and push the final release tag.
+
+  - title: "[Submission] Leave upload buffer before April 10"
+    milestone: "Final Submission"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Ensure final uploads and submission happen with time buffer before the deadline.
