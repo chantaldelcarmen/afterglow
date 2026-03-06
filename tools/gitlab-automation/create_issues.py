@@ -1,3 +1,19 @@
+# create_issues
+#
+# This script reads the project task configuration files and automatically
+# creates GitLab issues for the Afterglow project board. It assigns milestones,
+# labels, and team members to each issue to ensure the GitLab issue tracker
+# reflects the planned project timeline and responsibilities.
+#
+# The goal is to keep issue creation consistent and reproducible so the
+# project board can be regenerated or updated without manually creating
+# dozens of issues in GitLab.
+
+# AI Usage Notice
+# AI tools were used to assist with organizing the project timeline and generating
+# initial draft task descriptions for the issue tracker. All tasks were reviewed,
+# edited, and finalized by the project team. AI was used as a planning aid.
+
 import os
 import sys
 import time
@@ -166,7 +182,34 @@ def create_issue(project_id: int, issue_data: dict, milestone_ids: dict, user_id
     return issue
 
 
-def validate_labels(project_id: int, yaml_issues: list):
+def create_label(project_id: int, name: str, color: str = "#428BCA"):
+    """Create a label in GitLab with the given name and color."""
+    payload = {
+        "name": name,
+        "color": color,
+    }
+    label = api("POST", f"/projects/{project_id}/labels", json=payload)
+    print(f"Created label: {name} (color: {color})")
+    return label
+
+
+def get_label_color(label_name: str) -> str:
+    """Return a sensible default color based on label prefix."""
+    label_colors = {
+        "type:": "#5CB85C",      # green for type
+        "priority:": "#D9534F",  # red for priority
+        "area:": "#428BCA",      # blue for area
+        "status:": "#F0AD4E",    # orange for status
+    }
+    
+    for prefix, color in label_colors.items():
+        if label_name.startswith(prefix):
+            return color
+    
+    return "#7F8C8D"  # gray default
+
+
+def validate_labels(project_id: int, yaml_issues: list, auto_create: bool = True):
     existing_labels = {label["name"] for label in get_all_project_labels(project_id)}
     missing = set()
 
@@ -179,8 +222,17 @@ def validate_labels(project_id: int, yaml_issues: list):
         print("These labels are referenced in YAML but do not exist in GitLab:")
         for label in sorted(missing):
             print(f"- {label}")
-        print("\nCreate them first, then run the script again.")
-        sys.exit(1)
+        
+        if auto_create:
+            print("\nCreating missing labels...")
+            for label in sorted(missing):
+                color = get_label_color(label)
+                create_label(project_id, label, color)
+                existing_labels.add(label)
+            print("All labels created successfully.\n")
+        else:
+            print("\nCreate them first, then run the script again.")
+            sys.exit(1)
 
 
 def main(yaml_path: str):

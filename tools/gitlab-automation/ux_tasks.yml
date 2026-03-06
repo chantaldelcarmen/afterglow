@@ -1,0 +1,98 @@
+# ux_tasks.yml
+# Frontend feature ownership tasks for Stephanie (Experience Library UI)
+
+# AI Usage Notice
+# AI tools were used to assist with organizing the project timeline and generating
+# initial draft task descriptions for the issue tracker. All tasks were reviewed,
+# edited, and finalized by the project team. AI was used as a planning aid.
+
+users:
+  stephanie: "stephanie.sevilla"
+
+issues:
+
+  - title: "[Frontend] Implement ExperienceCard component"
+    description: |
+      Implement the reusable ExperienceCard React component used to display
+      individual experiences within the library view.
+
+      Responsibilities:
+      - build card layout using project design tokens
+      - display title, date, and location hierarchy
+      - support thumbnail image
+      - implement tap/click navigation to ExperienceDetail
+      - ensure responsive layout for mobile-first design
+
+      Acceptance criteria:
+      - component renders correctly from experience data
+      - mobile layout is visually consistent with the prototype
+      - card navigates to the correct experience detail page
+    assignee: "stephanie"
+    labels:
+      - area::frontend
+      - type::feature
+      - priority::medium
+    milestone: "Week 5 – Auth + Experience Core"
+
+  - title: "[Frontend] Implement Experience Library view"
+    description: |
+      Implement the main Experience Library screen where users can browse
+      their saved experiences.
+
+      Responsibilities:
+      - render list/grid of experiences
+      - integrate ExperienceCard component
+      - support scrolling behavior
+      - ensure mobile-first layout consistency
+
+      Acceptance criteria:
+      - experiences render dynamically from data source
+      - navigation from card to ExperienceDetail works
+      - layout functions properly on mobile viewport
+    assignee: "stephanie"
+    labels:
+      - area::frontend
+      - type::feature
+      - priority::medium
+    milestone: "Week 5 – Auth + Experience Core"
+
+  - title: "[Frontend] Implement experience search and filtering"
+    description: |
+      Implement search or filtering functionality for browsing experiences.
+
+      Responsibilities:
+      - add search input to library view
+      - filter experiences by title or keyword
+      - update displayed experiences dynamically
+
+      Acceptance criteria:
+      - filtering updates results without page reload
+      - search works on mobile layout
+      - results update immediately when query changes
+    assignee: "stephanie"
+    labels:
+      - area::frontend
+      - type::feature
+      - priority::medium
+    milestone: "Week 6 – Docker + Fragment Upload"
+
+  - title: "[Frontend] Implement library loading and empty states"
+    description: |
+      Implement visual states for the Experience Library when loading data
+      or when no experiences exist.
+
+      Responsibilities:
+      - display loading state while experiences are fetched
+      - implement empty state UI when library has no experiences
+      - ensure layout remains consistent with design system
+
+      Acceptance criteria:
+      - loading indicator appears during API calls
+      - empty state appears when experience list is empty
+      - UI remains responsive and visually consistent
+    assignee: "stephanie"
+    labels:
+      - area::frontend
+      - type::task
+      - priority::medium
+    milestone: "Week 6 – Docker + Fragment Upload"

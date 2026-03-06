@@ -1,3 +1,8 @@
+# AI Usage Notice
+# AI tools were used to assist with organizing the project timeline and generating
+# initial draft task descriptions for the issue tracker. All tasks were reviewed,
+# edited, and finalized by the project team. AI was used as a planning aid.
+
 milestones:
   - title: "Week 5 – Auth + Experience Core"
     due_date: "2026-03-07"
