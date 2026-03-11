@@ -3,7 +3,7 @@ services:
     frontend:
         build: 
             context: ./frontend
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile-frontend
         container_name: react-frontend
         restart: unless-stopped
         networks:
@@ -11,13 +11,13 @@ services:
         ports:
             - "3000:3000"
         depends_on:
-            - backend:
+            backend:
                 condition: service_healthy
 
     backend:
         build:
             context: ./backend
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile-backend
         container_name: nestjs-backend
         restart: unless-stopped
         env_file:
