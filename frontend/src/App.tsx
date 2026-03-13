@@ -1,27 +1,12 @@
-import { useState, useEffect } from 'react'
-import supabase from './utils/supabase'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 
-function Page() {
-  const [todos, setTodos] = useState([])
-
-  useEffect(() => {
-    function getTodos() {
-      const { data: todos } = await supabase.from('todos').select()
-
-      if (todos.length > 1) {
-        setTodos(todos)
-      }
-    }
-
-    getTodos()
-  }, [])
-
+export default function App() {
   return (
-    <div>
-      {todos.map((todo) => (
-        <li key={todo}>{todo}</li>
-      ))}
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-export default Page
