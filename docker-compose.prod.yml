@@ -1,0 +1,11 @@
+services:
+  frontend:
+    environment:
+      - NODE_ENV=production
+      - DEBUG=0
+
+  backend:
+    environment:
+      - NODE_ENV=production
+      - DEBUG=0
+    command: ["npm", "run", "start:prod"]
