@@ -8,8 +8,8 @@ services:
       - DEBUG=1
 
   backend:
-    volumnes:
-      - ./backend:/app
+    volumes:
+      - ./backend/api:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development

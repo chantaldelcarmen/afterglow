@@ -19,7 +19,7 @@ services:
 
     backend:
         build:
-            context: ./backend
+            context: ./backend/api
             dockerfile: Dockerfile-backend
             args:
                 - PORT=${PORT}
@@ -35,11 +35,11 @@ services:
         volumes:
             - cache:/app/node_modules
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:${PORT}/health"]
+            test: ["CMD", "wget", "-qO-", "http://localhost:${PORT}/health"]
             interval: 10s
             timeout: 5s
             retries: 5
-            start_period: 10s
+            start_period: 30s
 
 networks:
     client: {}
