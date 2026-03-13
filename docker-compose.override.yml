@@ -1,0 +1,16 @@
+services:
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=1
+
+  backend:
+    volumes:
+      - ./backend/api:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=1

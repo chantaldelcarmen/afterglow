@@ -1,0 +1,49 @@
+name: afterglow-react-nest-supabase
+services:
+    frontend:
+        build: 
+            context: ./frontend
+            dockerfile: Dockerfile-frontend
+            args:
+                - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+                - VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=${VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY}
+        container_name: react-frontend
+        restart: unless-stopped
+        networks:
+            - client
+        ports:
+            - "3000:3000"
+        depends_on:
+            backend:
+                condition: service_healthy
+
+    backend:
+        build:
+            context: ./backend/api
+            dockerfile: Dockerfile-backend
+            args:
+                - PORT=${PORT}
+        container_name: nestjs-backend
+        restart: unless-stopped
+        env_file:
+            - .env
+        networks:
+            - client
+            - server
+        ports:
+            - "${PORT}:${PORT}"
+        volumes:
+            - cache:/app/node_modules
+        healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:${PORT}/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
+
+networks:
+    client: {}
+    server: {}
+
+volumes:
+    cache: {}
