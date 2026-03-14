@@ -123,3 +123,7 @@ Labels are organized by:
 - status (backlog, in-progress, review, done)
 
 Initial issues were generated from the project timeline using a small automation script in `tools/gitlab-automation`.
+
+---
+
+> This project uses AI assistance (Claude, Anthropic, claude-sonnet-4-6) for development support including debugging, code review, and documentation. All AI-generated or AI-assisted content has been reviewed by the team.
