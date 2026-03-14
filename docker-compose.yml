@@ -3,7 +3,7 @@ services:
     frontend:
         build: 
             context: ./frontend
-            dockerfile: Dockerfile-frontend
+            dockerfile: Dockerfile
             args:
                 - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
                 - VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=${VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY}
@@ -20,7 +20,7 @@ services:
     backend:
         build:
             context: ./backend/api
-            dockerfile: Dockerfile-backend
+            dockerfile: Dockerfile
             args:
                 - PORT=${PORT}
         container_name: nestjs-backend
