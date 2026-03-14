@@ -25,6 +25,7 @@ Team: PG-7
 Frontend
 - React
 - TypeScript
+- Vite
 
 Backend
 - NestJS
@@ -40,33 +41,36 @@ DevOps
 
 ## Project Structure
 
-frontend/  
+frontend/
 React UI and interaction flows
 
-backend/  
+backend/
 NestJS API and business logic
 
-tools/  
+tools/
 project tooling (GitLab issue automation)
-
-docker/  
-docker configuration for running services locally
 
 ---
 
 ## Running the project
 
-Install dependencies
+Requires Docker Desktop installed and running.
+
+1. Get the `.env` file from the team (shared via D2L or secure channel) and place it in the project root.
+
+2. Build and start all services:
 ```
-npm install
+docker compose up --build
 ```
 
-Start the development server
-```
-npm run dev
-```
+3. Access the app:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:3001
 
-Docker can also be used to run the full stack locally.
+4. Stop the app:
+```
+docker compose down
+```
 
 ---
 
