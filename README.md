@@ -54,22 +54,43 @@ project tooling (GitLab issue automation)
 
 ## Running the project
 
-Requires Docker Desktop installed and running.
+### Prerequisites
 
-1. Get the `.env` file from the team (shared via D2L or secure channel) and place it in the project root.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running — Docker Desktop must be open before running any `docker` commands, but you don't need to do anything in the UI
+- Windows users: WSL2 must be enabled (Docker Desktop will prompt you if it isn't)
 
-2. Build and start all services:
+### Setup
+
+1. Clone the repository:
+```
+git clone https://csgit.ucalgary.ca/chantal.delcarmen/seng513-202601-pg7.git
+cd seng513-202601-pg7
+```
+
+2. Get the `.env` file from the team (shared via D2L or secure channel) and place it in the project root.
+
+3. Build and start all services:
 ```
 docker compose up --build
 ```
 
-3. Access the app:
+4. Access the app:
 - Frontend: http://localhost:3000
 - Backend: http://localhost:3001
 
-4. Stop the app:
+5. Stop the app:
 ```
 docker compose down
+```
+
+### Common commands
+
+```
+docker compose up -d            # run in background (detached)
+docker compose logs -f          # follow logs from all services
+docker compose logs -f backend  # follow logs from a specific service
+docker compose restart          # restart all services
+docker compose down -v          # stop and remove volumes (fresh start)
 ```
 
 ---
