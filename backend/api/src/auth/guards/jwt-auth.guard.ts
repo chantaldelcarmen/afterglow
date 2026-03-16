@@ -7,22 +7,40 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
+    const authHeader = request.headers.authorization as string | undefined;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Missing or invalid authorization header');
     }
 
-    const token = authHeader.replace('Bearer ', '');
+    const token = authHeader.replace('Bearer ', '').trim();
 
-    const { data, error } = await this.supabase.getClient().auth.getUser(token);
-
-    if (error || !data.user) {
-      throw new UnauthorizedException();
+    if (!token) {
+      throw new UnauthorizedException('Missing access token');
     }
 
-    request.user = data.user;
+    try {
+      const supabase = this.supabase.getClient();
+      const { data, error } = await supabase.auth.getUser(token);
 
-    return true;
+      console.log('getUser data:', data);
+      console.log('getUser error:', error);
+
+      if (error || !data?.user) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
+
+      request.user = {
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.user_metadata?.role ?? null,
+      };
+
+      return true;
+    } catch (err){
+      console.error('JWT guard error:',err);
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  
   }
 }
