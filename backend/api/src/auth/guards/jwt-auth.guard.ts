@@ -23,9 +23,6 @@ export class JwtAuthGuard implements CanActivate {
       const supabase = this.supabase.getClient();
       const { data, error } = await supabase.auth.getUser(token);
 
-      console.log('getUser data:', data);
-      console.log('getUser error:', error);
-
       if (error || !data?.user) {
         throw new UnauthorizedException('Invalid or expired token');
       }
