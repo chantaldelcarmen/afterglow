@@ -30,12 +30,10 @@ export class JwtAuthGuard implements CanActivate {
       request.user = {
         id: data.user.id,
         email: data.user.email,
-        role: data.user.user_metadata?.role ?? null,
       };
 
       return true;
-    } catch (err){
-      console.error('JWT guard error:',err);
+    } catch{
       throw new UnauthorizedException('Invalid or expired token');
     }
   
