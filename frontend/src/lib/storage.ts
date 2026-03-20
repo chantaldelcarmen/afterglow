@@ -1,44 +1,38 @@
-import type { Fragment } from '../types/fragment';
+import supabase from '../utils/supabase';
+import type { FragmentInsert } from '../types/fragment';
 
-const TEMP_USER_ID = '00000000-0000-0000-0000-000000000000';
+const BUCKET = 'fragments';
 
 export async function uploadFragmentFile(
   file: File,
+  userId: string,
   experienceId: string,
   fragmentId: string,
 ): Promise<{ storagePath: string; publicUrl: string }> {
-  // Stub: returns a local object URL for preview
-  const publicUrl = URL.createObjectURL(file);
   const ext = file.name.split('.').pop() ?? 'bin';
-  const storagePath = `${TEMP_USER_ID}/${experienceId}/${fragmentId}.${ext}`;
-  return { storagePath, publicUrl };
+  const storagePath = `${userId}/${experienceId}/${fragmentId}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(storagePath, file, { contentType: file.type, upsert: false });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
+
+  return { storagePath, publicUrl: data.publicUrl };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function deleteFragmentFile(storagePath: string): Promise<void> {
-  // Stub: no-op until Supabase Storage is wired
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .remove([storagePath]);
+  if (error) throw error;
 }
 
-export function buildFragment(
-  experienceId: string,
-  fragmentId: string,
-  file: File,
-  storagePath: string,
-  publicUrl: string,
-  caption: string | null,
-): Fragment {
-  return {
-    id: fragmentId,
-    experience_id: experienceId,
-    user_id: TEMP_USER_ID,
-    type: 'photo',
-    storage_path: storagePath,
-    storage_url: publicUrl,
-    caption,
-    content: null,
-    is_anchor: false,
-    file_size: file.size,
-    mime_type: file.type,
-    created_at: new Date().toISOString(),
-  };
+export async function saveFragmentMetadata(
+  fragment: FragmentInsert,
+): Promise<void> {
+  const { error } = await supabase.from('fragments').insert(fragment);
+  if (error) throw error;
 }
