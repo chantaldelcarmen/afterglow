@@ -27,9 +27,17 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('Invalid or expired token');
       }
 
+      // Fetch the user's role from the profiles table
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
       request.user = {
         id: data.user.id,
         email: data.user.email,
+        role: profileError ? null : profile?.role
       };
 
       return true;

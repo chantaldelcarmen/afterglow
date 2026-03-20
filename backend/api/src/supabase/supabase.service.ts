@@ -8,7 +8,7 @@ export class SupabaseService {
 
   constructor(private config: ConfigService) {
     const url = this.config.get<string>('SUPABASE_URL');
-    const key = this.config.get<string>('SUPABASE_PUBLISHABLE_DEFAULT_KEY');
+    const key = this.config.get<string>('SUPABASE_SERVICE_KEY');
 
     if (!url || !key) {
         throw new Error('Missing Supabase environment variables');
