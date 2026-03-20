@@ -1,0 +1,70 @@
+# CI/CD pipeline tasks for Jacob
+# Run with: python tools/gitlab-automation/create_issues.py tools/gitlab-automation/tasks.cicd.yaml
+
+users:
+  jacob: "jacob.situ"
+
+issues:
+  - title: "[DevOps] Replace placeholder CI/CD pipeline with real build stage"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      The current .gitlab-ci.yml uses echo commands and sleep as placeholders.
+      Replace the build stage with real commands.
+
+      Deliverables
+      - Run `npm install` in backend/api
+      - Run `npm run build` to compile the NestJS app
+      - Fail the pipeline if the build fails
+
+  - title: "[DevOps] Add real test execution to CI pipeline"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      Replace the placeholder unit-test-job with actual test execution.
+
+      Deliverables
+      - Run `npm test` in backend/api as part of the test stage
+      - Pipeline should fail if any tests fail
+      - Runs on every MR and push to main
+
+  - title: "[DevOps] Add ESLint to CI pipeline"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Replace the placeholder lint-test-job with real linting.
+
+      Deliverables
+      - Run ESLint against the backend/api source
+      - Pipeline should fail on lint errors
+      - Runs in parallel with the test stage
+
+  - title: "[DevOps] Scope CI jobs to only run on relevant file changes"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::devops"
+      - "priority::low"
+      - "type::task"
+    description: |
+      Avoid running the full pipeline on unrelated changes (e.g. doc edits).
+
+      Deliverables
+      - Use GitLab `rules` or `only/changes` to scope backend jobs to backend/ changes
+      - Scope frontend jobs to frontend/ changes when frontend CI is added
