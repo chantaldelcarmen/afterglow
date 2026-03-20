@@ -1,7 +1,7 @@
 -- ============================================================
 -- ENUMS
 -- ============================================================
-create type public.user_role as enum ('user', 'reviewer', 'admin');
+create type public.user_role as enum ('user', 'platform_reviewer', 'admin');
 create type public.fragment_type as enum ('photo', 'video', 'audio', 'text');
 
 -- ============================================================
@@ -181,7 +181,7 @@ create policy "system_flags: reviewer read" on public.system_flags
   for select using (
     exists (
       select 1 from public.profiles p
-      where p.id = auth.uid() and p.role in ('reviewer', 'admin')
+      where p.id = auth.uid() and p.role in ('platform_reviewer', 'admin')
     )
   );
 
@@ -190,7 +190,7 @@ create policy "system_flags: reviewer update" on public.system_flags
   for update using (
     exists (
       select 1 from public.profiles p
-      where p.id = auth.uid() and p.role in ('reviewer', 'admin')
+      where p.id = auth.uid() and p.role in ('platform_reviewer', 'admin')
     )
   );
 
