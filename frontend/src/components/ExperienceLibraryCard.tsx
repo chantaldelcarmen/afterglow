@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { Experience } from "../types/experience";
 
 type Props = {
@@ -5,8 +6,14 @@ type Props = {
 };
 
 export default function ExperienceLibraryCard({ experience }: Props) {
+    const navigate = useNavigate();
+
   return (
-    <div className="relative overflow-hidden rounded-[28px] h-56 bg-white/10 border border-white/10 shadow-lg">
+    <button
+      type="button"
+      onClick={() => navigate(`/experience/${experience.id}`)}
+      className="relative h-56 overflow-hidden rounded-[28px] border border-white/10 bg-white/10 text-left shadow-lg transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/40"
+    >
       <img
         src={experience.imageUrl}
         alt={experience.title}
@@ -21,6 +28,6 @@ export default function ExperienceLibraryCard({ experience }: Props) {
         </h3>
         <p className="mt-2 text-lg text-white/80">{experience.date}</p>
       </div>
-    </div>
+    </button>
   );
 }

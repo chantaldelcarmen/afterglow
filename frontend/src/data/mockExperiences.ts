@@ -35,3 +35,7 @@ export const mockExperiences: Experience[] = [
     year: 2024,
   },
 ];
+
+export function getExperienceById(id: string) {
+  return mockExperiences.find((experience) => experience.id === id);
+}
