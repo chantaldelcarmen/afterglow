@@ -102,3 +102,9 @@
   --shadow-button-hero: 0 2px 10px rgba(0,0,0,0.35), 0 0 20px rgba(246,237,227,0.30);
   --shadow-button-hero-hover: 0 4px 16px rgba(0,0,0,0.35), 0 0 30px rgba(246,237,227,0.45);
 }
+
+@layer base {
+  body {
+    background-color: var(--color-surface-bg);
+  }
+}
