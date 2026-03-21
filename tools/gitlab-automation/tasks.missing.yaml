@@ -1,0 +1,95 @@
+# Missing tasks identified during sprint review on 2026-03-19
+# Run with: python tools/gitlab-automation/create_issues.py tools/gitlab-automation/tasks.missing.yaml
+
+users:
+  chantal: "chantal.delcarmen"
+  jessica: "jessica.thomas1"
+  jericho: "jericho.huelar"
+
+issues:
+  - title: "[Frontend] Implement login and signup page"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      No login or signup page exists yet. This is required for any authenticated flow.
+
+      Deliverables
+      - Login page with email/password form
+      - Signup page with email/password form
+      - Connect to Supabase auth (sign in / sign up)
+      - Redirect to home on successful login
+      - Show error message on failed login
+
+  - title: "[Frontend] Implement logout functionality"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Users have no way to log out. Required for auth flow completeness and for testing role switching.
+
+      Deliverables
+      - Logout button accessible from the main UI
+      - Clears session/token on logout
+      - Redirects to login page after logout
+
+  - title: "[Frontend] Implement frontend route guards based on role"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      The backend enforces role-based access but the frontend has no route protection.
+      Users could navigate to pages they shouldn't have access to.
+
+      Deliverables
+      - Redirect unauthenticated users to login page
+      - Redirect users to a 403/unauthorized page if they access a route above their role
+      - Works for user, platform_reviewer, and admin roles
+
+  - title: "[Frontend] Connect authentication state to frontend"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jessica"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Auth state (current user, token, role) needs to be managed globally in the frontend
+      so all components can access it.
+
+      Deliverables
+      - Store JWT token on login
+      - Expose current user and role to the app
+      - Handle token expiry (redirect to login)
+      - Attach token to all API requests as Authorization header
+
+  - title: "[Backend] Add global error handling middleware"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Currently API errors return raw NestJS stack traces. A global exception filter
+      is needed to return consistent, clean error responses.
+
+      Deliverables
+      - Implement a NestJS global exception filter
+      - Return consistent error shape: { statusCode, message, error }
+      - Handle 400, 401, 403, 404, 500 cases
+      - No stack traces exposed in production responses
