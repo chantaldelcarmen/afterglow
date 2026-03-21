@@ -1,0 +1,309 @@
+# Sprint tasks identified during sprint review on 2026-03-19
+# Covers missing backend API endpoints, frontend screens, auth flow, and Patterns page
+# Run with: python tools/gitlab-automation/create_issues.py tools/gitlab-automation/tasks.sprint.yaml
+
+users:
+  chantal: "chantal.delcarmen"
+  stephanie: "stephanie.sevilla"
+  taiwu: "chen.taiwu"
+  jessica: "jessica.thomas1"
+  jericho: "jericho.huelar"
+  jacob: "jacob.situ"
+
+issues:
+  # ─── FRONTEND: CHANTAL ────────────────────────────────────────────────────
+
+  - title: "[Frontend] Set up Tailwind design system tokens"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::task"
+    description: |
+      The app has a specific dark purple/black aesthetic with gradient blurs and custom typography.
+      Without defining these as Tailwind tokens, each developer will implement colors differently
+      and nothing will match the mockups.
+
+      Deliverables
+      - Configure custom color palette in Tailwind (background, surface, accent, text colors)
+      - Define font families and sizes used in mockups
+      - Add gradient and blur utility classes
+      - Document the tokens so the team knows what to use
+
+  - title: "[Frontend] Implement bottom navigation component"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      The bottom nav bar appears on every screen in the mockup (home, library, patterns, profile icons).
+      Must be implemented before most other screens can be completed.
+
+      Deliverables
+      - Bottom nav with icons for Home, Library, Patterns, Profile
+      - Active state styling
+      - Navigates to correct route on tap
+
+  - title: "[Frontend] Implement login and signup page"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      No login or signup page exists yet. Required for any authenticated flow.
+
+      Deliverables
+      - Login page with email/password form matching mockup
+      - Signup page with email/password form
+      - Connect to Supabase auth (sign in / sign up)
+      - Redirect to home on successful login
+      - Show error message on failed login
+
+  - title: "[Frontend] Implement logout functionality"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Users have no way to log out. Required for auth flow and role-switching testing.
+
+      Deliverables
+      - Logout option accessible from profile page
+      - Clears session/token on logout
+      - Redirects to login page after logout
+
+  - title: "[Frontend] Implement frontend route guards based on role"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Frontend has no route protection. Users could navigate to pages they shouldn't access.
+
+      Deliverables
+      - Redirect unauthenticated users to login page
+      - Redirect users to unauthorized page if they access a route above their role
+      - Works for user, platform_reviewer, and admin roles
+
+  - title: "[Frontend] Connect authentication state to frontend"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "chantal"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Auth state (current user, token, role) needs to be managed globally so all components can access it.
+
+      Deliverables
+      - Store JWT token on login
+      - Expose current user and role globally to the app
+      - Handle token expiry (redirect to login)
+      - Attach token to all API requests as Authorization header
+
+  # ─── FRONTEND: STEPHANIE ──────────────────────────────────────────────────
+
+  - title: "[Frontend] Implement home/dashboard screen"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      The home screen is the main landing page after login per the mockup.
+
+      Deliverables
+      - Continue Reliving section (last visited experience)
+      - Recently Relived section (grid of recent experiences)
+      - Surprise Me button (opens a random experience)
+      - Connects to real experience data from API
+
+  - title: "[Frontend] Implement emotion tags on experience creation"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "stephanie"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      The create experience form in the mockup includes emotion tag selection
+      (Joy, Nostalgic, Calm, Bittersweet, Overwhelmed, Grateful, Anxious).
+
+      Deliverables
+      - Multi-select emotion tag picker on create experience form
+      - Selected tags are saved with the experience
+      - Tags display on experience detail page
+
+  # ─── FRONTEND: TAIWU ──────────────────────────────────────────────────────
+
+  - title: "[Frontend] Implement profile page"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "taiwu"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      Profile page per mockup shows display name, email, experience and fragment counts, and a settings button.
+
+      Deliverables
+      - Display name and email from auth/profiles
+      - Experience count and fragment count
+      - Settings button (can be placeholder for MVP)
+      - Logout button
+
+  # ─── BACKEND: JERICHO ─────────────────────────────────────────────────────
+
+  - title: "[Backend] Implement Experience CRUD API endpoints"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      No experience endpoints exist yet. This is the core backend feature the frontend depends on.
+
+      Deliverables
+      - POST /experiences -- create experience
+      - GET /experiences -- list authenticated user's experiences
+      - GET /experiences/:id -- get single experience
+      - PATCH /experiences/:id -- update experience
+      - DELETE /experiences/:id -- delete experience
+      - All routes protected by JwtAuthGuard
+      - Returns proper error responses
+
+  - title: "[Backend] Implement Reflection API endpoints"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Reflection capture is a core part of the reliving flow. Needs backend support.
+
+      Deliverables
+      - POST /experiences/:id/reflections -- create reflection
+      - GET /experiences/:id/reflections -- list reflections for an experience
+      - All routes protected by JwtAuthGuard
+
+  - title: "[Backend] Implement Patterns aggregation API endpoints"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      The Patterns page needs aggregated stats from the user's experience data.
+
+      Deliverables
+      - GET /patterns -- returns aggregated stats for the authenticated user
+      - Most active month (count of experiences per month)
+      - Most frequent emotion tag
+      - Most visited location
+      - Happiest time of day (based on experience dates)
+
+  - title: "[Backend] Add global error handling middleware"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jericho"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::medium"
+      - "type::task"
+    description: |
+      Currently API errors return raw NestJS stack traces.
+      A global exception filter is needed for consistent, clean error responses.
+
+      Deliverables
+      - Implement a NestJS global exception filter
+      - Return consistent error shape: { statusCode, message, error }
+      - Handle 400, 401, 403, 404, 500 cases
+      - No stack traces exposed in production responses
+
+  # ─── BACKEND: JACOB ───────────────────────────────────────────────────────
+
+  - title: "[Backend] Implement Fragment API endpoints"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      Fragment endpoints are needed for Taiwu's photo/video upload work to connect to the backend.
+
+      Deliverables
+      - POST /experiences/:id/fragments -- attach fragment to experience
+      - GET /experiences/:id/fragments -- list fragments for experience
+      - DELETE /experiences/:id/fragments/:fragmentId -- remove fragment
+      - PATCH /experiences/:id/fragments/:fragmentId/anchor -- mark as anchor fragment
+      - All routes protected by JwtAuthGuard
+
+  - title: "[Backend] Implement AI Reflection of the Month endpoint"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "jacob"
+    labels:
+      - "status::backlog"
+      - "area::backend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      The Patterns page includes an AI-generated monthly reflection paragraph powered by Claude.
+      This endpoint collects the user's experience data for the month and sends it to the Claude API.
+
+      Hard cut-off: if core app is not fully connected by end of Week 8, this feature is deferred.
+
+      Deliverables
+      - GET /patterns/ai-reflection -- returns AI-generated reflection for current month
+      - Collects user experiences, emotions, locations, and reflections for the month
+      - Sends summarized data to Claude API with a well-crafted prompt
+      - Returns generated reflection text to frontend
+      - Cached per user per month to avoid repeated API calls
+
+  # ─── FRONTEND: PATTERNS PAGE ──────────────────────────────────────────────
+
+  - title: "[Frontend] Implement Patterns page"
+    milestone: "Week 7–8 – MVP Completion"
+    assignee: "taiwu"
+    labels:
+      - "status::backlog"
+      - "area::frontend"
+      - "priority::medium"
+      - "type::feature"
+    description: |
+      The Patterns page shows emotional pattern stats and an AI-generated monthly reflection.
+      Depends on Jericho's patterns endpoint and Jacob's AI reflection endpoint.
+
+      Hard cut-off: if backend endpoints are not ready by end of Week 8, use mock data for demo.
+
+      Deliverables
+      - Stats cards: most active month, most frequent emotion, most visited place, happiest time of day
+      - AI Reflection of the Month section
+      - Connects to real /patterns and /patterns/ai-reflection endpoints
+      - Graceful fallback if AI reflection is unavailable
