@@ -1,53 +1,91 @@
-# Generated from GitLab's built-in CI/CD template
-# https://gitlab.com/...
 
-
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/#stages
-#
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/development/cicd/templates/
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
   - deploy
 
-build-job:       # This job runs in the build stage, which runs first.
+
+default:
+  cache:
+    key:
+      files:
+        - 'backend/api/package-lock.json'
+    paths:
+      - 'backend/api/node_modules/'
+
+
+build:       # This job runs in the build stage, which runs first to make nestjs backend runs
   stage: build
+  image: node:22-alpine
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - cd backend/api
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - 'backend/api/dist'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
+unit-tests:   # This job runs in the test stage (unit tests in backend/api/src)
+  stage: test   
+  image: node:22-alpine
   script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
+    - cd backend/api
+    - npm ci
+    - npm run test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
+
+
+e2e-tests:    # runs e2e tests in backend/api/test
+  stage: test
+  image: node:22-alpine
+  script:
+    - cd backend/api
+    - npm ci
+    - npm run test:e2e
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH 
+
+###
+#smoke-tests:  # runs playwright to run e2e smoke tests
+#  stage: test
+#  image: mcr.microsoft.com/playwright:v1.58.2-noble
+#  script:
+#    - cd backend
+#    - npm ci
+#    - npx playwright test e2e/smoke
+#  rules:
+#    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+#    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
+
+
+eslint:   # This job also runs in the test stage in parallel with e2e testing
+  stage: test    
+  image: node:22-alpine
+  dependencies: []
+  script:
+    - cd backend/api
+    - npm ci
+    - npx eslint .
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
+
 
 deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  stage: deploy 
   environment: production
+  needs: [build]
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
+  rules:
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH

@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 
 @Injectable()
@@ -10,7 +15,9 @@ export class JwtAuthGuard implements CanActivate {
     const authHeader = request.headers.authorization as string | undefined;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid authorization header');
+      throw new UnauthorizedException(
+        'Missing or invalid authorization header',
+      );
     }
 
     const token = authHeader.replace('Bearer ', '').trim();
@@ -37,13 +44,12 @@ export class JwtAuthGuard implements CanActivate {
       request.user = {
         id: data.user.id,
         email: data.user.email,
-        role: profileError ? null : profile?.role
+        role: profileError ? null : profile?.role,
       };
 
       return true;
-    } catch{
+    } catch {
       throw new UnauthorizedException('Invalid or expired token');
     }
-  
   }
 }
