@@ -1,5 +1,3 @@
-
-
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
@@ -15,7 +13,7 @@ default:
       - 'backend/api/node_modules/'
 
 
-build:       # This job runs in the build stage, which runs first to make nestjs backend runs
+build-job:       # This job runs in the build stage, which runs first to make nestjs backend runs
   stage: build
   image: node:22-alpine
   script:
@@ -25,27 +23,37 @@ build:       # This job runs in the build stage, which runs first to make nestjs
   artifacts:
     paths:
       - 'backend/api/dist'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
 
 
-unit-tests:   # This job runs in the test stage (unit tests in backend/api/src)
+unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/src)
   stage: test   
   image: node:22-alpine
   script:
     - cd backend/api
     - npm ci
     - npm run test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
 
 
-e2e-tests:    # runs e2e tests in backend/api/test
+e2e-tests-job:    # runs e2e tests in backend/api/test
   stage: test
   image: node:22-alpine
   script:
     - cd backend/api
     - npm ci
     - npm run test:e2e
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
 
-###
-#smoke-tests:  # runs playwright to run e2e smoke tests
+
+### frontend -> backend
+#smoke-tests:  # runs playwright to run e2e smoke tests (needs docker compose up first)
 #  stage: test
 #  image: mcr.microsoft.com/playwright:v1.58.2-noble
 #  script:
@@ -54,10 +62,11 @@ e2e-tests:    # runs e2e tests in backend/api/test
 #    - npx playwright test e2e/smoke
 #  rules:
 #    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-#    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
+#    - if: $CI_COMMIT_BRANCH == 'main'
 
 
-eslint:   # This job also runs in the test stage in parallel with e2e testing
+# eslint is allowed to fail but will give warnings
+eslint-job:   # This job also runs in the test stage in parallel with e2e testing
   stage: test    
   image: node:22-alpine
   dependencies: []
@@ -66,6 +75,10 @@ eslint:   # This job also runs in the test stage in parallel with e2e testing
     - npm ci
     - npx eslint .
   allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_BRANCH == 'main'
 
 
 deploy-job:      # This job runs in the deploy stage.
@@ -76,4 +89,4 @@ deploy-job:      # This job runs in the deploy stage.
     - echo "Deploying application..."
     - echo "Application successfully deployed."
   rules:
-    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_BRANCH == 'main'

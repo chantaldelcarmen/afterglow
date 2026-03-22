@@ -21,8 +21,6 @@ describe('HealthController (unit)', () => {
   });
 
   it('health check should return status ok (200)', async () => {
-        await request(app.getHttpServer())
-        .get('/health')
-        .expect({ status: 'ok' });
-    });
+    await request(app.getHttpServer()).get('/health').expect({ status: 'ok' });
+  });
 });
