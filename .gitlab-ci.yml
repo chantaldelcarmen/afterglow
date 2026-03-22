@@ -84,7 +84,7 @@ eslint-job:   # This job also runs in the test stage in parallel with e2e testin
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy 
   environment: production
-  needs: [build]
+  needs: [build-job]
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
