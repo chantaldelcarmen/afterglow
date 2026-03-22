@@ -25,9 +25,6 @@ build:       # This job runs in the build stage, which runs first to make nestjs
   artifacts:
     paths:
       - 'backend/api/dist'
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
 
 
 unit-tests:   # This job runs in the test stage (unit tests in backend/api/src)
@@ -37,9 +34,6 @@ unit-tests:   # This job runs in the test stage (unit tests in backend/api/src)
     - cd backend/api
     - npm ci
     - npm run test
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
 
 
 e2e-tests:    # runs e2e tests in backend/api/test
@@ -49,9 +43,6 @@ e2e-tests:    # runs e2e tests in backend/api/test
     - cd backend/api
     - npm ci
     - npm run test:e2e
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH 
 
 ###
 #smoke-tests:  # runs playwright to run e2e smoke tests
@@ -75,9 +66,6 @@ eslint:   # This job also runs in the test stage in parallel with e2e testing
     - npm ci
     - npx eslint .
   allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH
 
 
 deploy-job:      # This job runs in the deploy stage.
