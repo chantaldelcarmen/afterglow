@@ -2,7 +2,10 @@ import { useState, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
+import { getFragmentsByExperience } from '../lib/storage';
+import type { Fragment } from '../types/fragment';
 import PhotoUpload from '../components/PhotoUpload';
+import FragmentGallery from '../components/FragmentGallery';
 
 interface Experience {
   id: string;
@@ -17,6 +20,7 @@ export default function Upload() {
   const [newTitle, setNewTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [fragments, setFragments] = useState<Fragment[]>([]);
 
   const loadExperiences = useCallback(async () => {
     if (!user) return;
@@ -27,6 +31,15 @@ export default function Upload() {
       setError(err instanceof Error ? err.message : 'Failed to load experiences');
     }
   }, [user]);
+
+  const loadFragments = useCallback(async (expId: string) => {
+    try {
+      const data = await getFragmentsByExperience(expId);
+      setFragments(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load fragments');
+    }
+  }, []);
 
   if (user && !loaded) {
     setLoaded(true);
@@ -61,7 +74,12 @@ export default function Upload() {
 
         <select
           value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
+          onChange={(e) => {
+            const id = e.target.value;
+            setSelectedId(id);
+            if (id) loadFragments(id);
+            else setFragments([]);
+          }}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         >
           <option value="">-- Choose an experience --</option>
@@ -96,8 +114,18 @@ export default function Upload() {
           <PhotoUpload
             experienceId={selectedId}
             userId={user.id}
-            onUploaded={loadExperiences}
+            onUploaded={() => {
+              loadExperiences();
+              loadFragments(selectedId);
+            }}
           />
+        </section>
+      )}
+
+      {selectedId && (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">Uploaded Fragments</h2>
+          <FragmentGallery fragments={fragments} />
         </section>
       )}
     </div>
