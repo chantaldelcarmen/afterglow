@@ -1,1 +1,110 @@
 @import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Font sizes */
+  --text-h1: 30px;
+  --text-h2: 20px;
+  --text-h3: 18px;
+  --text-body: 14px;
+  --text-body-sm: 12px;
+
+  /* Brand */
+  --color-brand-purple: #783CA0;
+  --color-brand-deep: #16001F;
+  --color-brand-midnight: #0D000F;
+
+  /* Surfaces */
+  --color-surface-bg: var(--color-brand-deep);
+  --color-surface-bg-outer: var(--color-brand-midnight);
+  --color-surface-glass: rgba(255,255,255,0.04);
+  --color-surface-glass-border: rgba(255,255,255,0.12);
+  --color-surface-glass-card: rgba(255,255,255,0.08);
+  --color-surface-glass-card-border: rgba(255,255,255,0.10);
+  --color-surface-glass-card-border-hover: rgba(255,255,255,0.30);
+  --color-surface-nav: rgba(50,20,50,1);
+  --color-surface-nav-border: rgba(255,255,255,0.10);
+
+  /* Text */
+  --color-text-primary: #F6EDE3;
+  --color-text-on-image: #F5F5F0;
+  --color-text-title-glow: #EFE6DD;
+  --color-text-muted: rgba(200,180,210,0.75);
+  --color-text-muted-dim: rgba(200,180,210,0.65);
+  --color-text-nav-inactive: rgba(246,237,227,0.5);
+  --color-text-nav-active: #F6EDE3;
+
+  /* Accents */
+  --color-accent-pink: #E576AC;
+  --color-accent-gold: #F0C164;
+  --color-accent-lavender: #788BE5;
+  --color-accent-turquoise: #82EBD9;
+  --color-accent-coral: #E57678;
+  --color-accent-purple-tint-top: rgba(120,60,160,0.85);
+  --color-accent-purple-tint-mid: rgba(90,40,140,0.90);
+  --color-accent-purple-tint-bottom: rgba(60,20,100,0.95);
+  --color-accent-fade-darkest: rgba(20,5,30,0.95);
+  --color-accent-fade-dark: rgba(40,15,50,0.80);
+  --color-accent-fade-medium: rgba(60,25,70,0.50);
+
+  /* Buttons */
+  --color-button-primary-bg: rgba(150,60,150,0.12);
+  --color-button-primary-bg-hover: rgba(150,60,150,0.20);
+  --color-button-primary-border: rgba(200,150,220,0.25);
+  --color-button-primary-border-hover: rgba(220,180,240,0.40);
+  --color-button-primary-glow: rgba(180,120,200,0.20);
+  --color-button-primary-glow-hover: rgba(200,140,220,0.30);
+  --color-button-warm-bg: rgba(246,237,227,0.12);
+  --color-button-warm-border: rgba(200,150,220,0.35);
+  --color-button-warm-glow: rgba(180,120,200,0.20);
+  --color-button-plum-bg: rgba(140,80,180,0.35);
+  --color-button-plum-bg-hover: rgba(150,90,190,0.50);
+  --color-button-plum-border: rgba(200,150,220,0.30);
+  --color-button-plum-border-hover: rgba(220,180,240,0.45);
+  --color-button-plum-glow: rgba(180,120,200,0.20);
+  --color-button-plum-glow-hover: rgba(200,140,220,0.30);
+
+  /* Borders */
+  --color-border-glass: rgba(255,255,255,0.12);
+
+  /* Glows */
+  --color-glow-primary: #9333EA;
+  --color-glow-secondary: #C084FC;
+
+}
+
+/* Gradients and shadows */
+:root {
+  --gradient-image-purple-overlay: linear-gradient(
+    180deg,
+    rgba(120,60,160,0.85) 0%,
+    rgba(90,40,140,0.90) 70%,
+    rgba(60,20,100,0.95) 100%
+  );
+
+  --gradient-image-bottom-fade: linear-gradient(
+    to top,
+    rgba(20,5,30,0.95) 0%,
+    rgba(40,15,50,0.80) 25%,
+    rgba(60,25,70,0.50) 45%,
+    transparent 70%
+  );
+
+  --shadow-text: 0 2px 8px rgba(0,0,0,0.8);
+  --shadow-text-strong: 0 3px 12px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,1);
+  --shadow-title-glow: 0 0 18px rgba(220,170,130,0.7), 0 0 21px rgba(220,170,130,0.5), 0 0 24px rgba(220,170,130,0.3);
+
+  --shadow-card: 0 2px 10px rgba(0,0,0,0.35), 0 0 18px rgba(0,0,0,0.45);
+  --shadow-button: 0 2px 10px rgba(0,0,0,0.35), 0 0 18px rgba(246,237,227,0.25);
+  --shadow-button-hero: 0 2px 10px rgba(0,0,0,0.35), 0 0 20px rgba(246,237,227,0.30);
+  --shadow-button-hero-hover: 0 4px 16px rgba(0,0,0,0.35), 0 0 30px rgba(246,237,227,0.45);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-surface-bg);
+  }
+}
