@@ -3,14 +3,22 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { SupabaseService } from '../src/supabase/supabase.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
+  const mockDb = {
+    getClient: jest.fn(),
+  };
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(SupabaseService)
+      .useValue(mockDb)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();

@@ -8,6 +8,6 @@ import { RolesGuard } from './guards/roles.guard';
   imports: [SupabaseModule],
   controllers: [AuthController],
   providers: [JwtAuthGuard, RolesGuard],
-  exports: [JwtAuthGuard, RolesGuard]
+  exports: [JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}
