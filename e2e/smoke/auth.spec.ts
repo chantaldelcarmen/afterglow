@@ -5,20 +5,22 @@ import { profiles } from '../utils/profiles';
 test.describe('Testing auth flows', {}, () => {
 
     test('user is able to sign in to user dashboard', async ({ page }) => {
-        await page.goto('/signin');
+        await page.goto('http://localhost:3000/signin');
 
-        await page.fill('input[name=email]', profiles.user.email);
-        await page.fill('input[name=password]', profiles.user.password);
+        await page.fill('#email', profiles.user.email);
+        await page.fill('#password', profiles.user.password);
 
         await Promise.all([
             await page.click('button[type=submit]'),
-            await expect(page).toHaveURL('/dashboard')
+            
+            // change to dashboard when available
+            await expect(page).toHaveURL('http://localhost:3000')
         ]);
 
     });
 
     test('user is able to sign up', async({ page }) => {
-        await page.goto('/signup');
+        await page.goto('http://localhost:3000/signup');
     });
 
 });
