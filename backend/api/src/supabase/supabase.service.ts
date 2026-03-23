@@ -11,11 +11,10 @@ export class SupabaseService {
     const key = this.config.get<string>('SUPABASE_SERVICE_KEY');
 
     if (!url || !key) {
-        throw new Error('Missing Supabase environment variables');
+      throw new Error('Missing Supabase environment variables');
     }
 
-    this.client = createClient(url,key);
-
+    this.client = createClient(url, key);
   }
 
   getClient(): SupabaseClient {
