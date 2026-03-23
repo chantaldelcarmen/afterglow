@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExperiencesService } from './experiences.service';
 import { CreateExperienceDto } from './dto/create-experience.dto';
 import { UpdateExperienceDto } from './dto/update-experience.dto';
+import { Experience } from './experiences.interface';
 
 @Controller('experiences')
 @UseGuards(JwtAuthGuard)
@@ -24,7 +25,7 @@ export class ExperiencesController {
    * Create a new experience for the authenticated user.
    */
   @Post()
-  create(@Req() req: any, @Body() dto: CreateExperienceDto) {
+  create(@Req() req: any, @Body() dto: CreateExperienceDto): Promise<Experience> {
     return this.experiencesService.create(req.user.id, dto);
   }
 
@@ -33,7 +34,7 @@ export class ExperiencesController {
    * Get all experiences belonging to the authenticated user.
    */
   @Get()
-  findAll(@Req() req: any) {
+  findAll(@Req() req: any): Promise<Experience[]> {
     return this.experiencesService.findAll(req.user.id);
   }
 
@@ -42,7 +43,7 @@ export class ExperiencesController {
    * Get a single experience by ID belonging to the authenticated user.
    */
   @Get(':id')
-  findOne(@Req() req: any, @Param('id') id: string) {
+  findOne(@Req() req: any, @Param('id') id: string): Promise<Experience> {
     return this.experiencesService.findOne(req.user.id, id);
   }
 
@@ -55,7 +56,7 @@ export class ExperiencesController {
     @Req() req: any,
     @Param('id') id: string,
     @Body() dto: UpdateExperienceDto,
-  ) {
+  ): Promise<Experience> {
     return this.experiencesService.update(req.user.id, id, dto);
   }
 
@@ -64,7 +65,7 @@ export class ExperiencesController {
    * Delete an experience belonging to the authenticated user.
    */
   @Delete(':id')
-  remove(@Req() req: any, @Param('id') id: string) {
+  remove(@Req() req: any, @Param('id') id: string): Promise<{ message: string }> {
     return this.experiencesService.remove(req.user.id, id);
   }
 }
