@@ -8,7 +8,6 @@ import { CreateExperienceDto } from './dto/create-experience.dto';
 import { UpdateExperienceDto } from './dto/update-experience.dto';
 import { Experience } from './experiences.interface';
 
-
 @Injectable()
 export class ExperiencesService {
   constructor(private readonly supabase: SupabaseService) {}

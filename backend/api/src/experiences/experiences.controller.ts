@@ -25,7 +25,10 @@ export class ExperiencesController {
    * Create a new experience for the authenticated user.
    */
   @Post()
-  create(@Req() req: any, @Body() dto: CreateExperienceDto): Promise<Experience> {
+  create(
+    @Req() req: { user: { id: string } },
+    @Body() dto: CreateExperienceDto,
+  ): Promise<Experience> {
     return this.experiencesService.create(req.user.id, dto);
   }
 
@@ -34,7 +37,7 @@ export class ExperiencesController {
    * Get all experiences belonging to the authenticated user.
    */
   @Get()
-  findAll(@Req() req: any): Promise<Experience[]> {
+  findAll(@Req() req: { user: { id: string } }): Promise<Experience[]> {
     return this.experiencesService.findAll(req.user.id);
   }
 
@@ -43,7 +46,10 @@ export class ExperiencesController {
    * Get a single experience by ID belonging to the authenticated user.
    */
   @Get(':id')
-  findOne(@Req() req: any, @Param('id') id: string): Promise<Experience> {
+  findOne(
+    @Req() req: { user: { id: string } },
+    @Param('id') id: string,
+  ): Promise<Experience> {
     return this.experiencesService.findOne(req.user.id, id);
   }
 
@@ -53,7 +59,7 @@ export class ExperiencesController {
    */
   @Patch(':id')
   update(
-    @Req() req: any,
+    @Req() req: { user: { id: string } },
     @Param('id') id: string,
     @Body() dto: UpdateExperienceDto,
   ): Promise<Experience> {
@@ -65,7 +71,10 @@ export class ExperiencesController {
    * Delete an experience belonging to the authenticated user.
    */
   @Delete(':id')
-  remove(@Req() req: any, @Param('id') id: string): Promise<{ message: string }> {
+  remove(
+    @Req() req: { user: { id: string } },
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
     return this.experiencesService.remove(req.user.id, id);
   }
 }
