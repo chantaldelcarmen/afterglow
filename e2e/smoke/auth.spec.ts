@@ -5,7 +5,7 @@ import { profiles } from '../utils/profiles';
 test.describe('Testing auth flows', {}, () => {
 
     test('user is able to sign in to user dashboard', async ({ page }) => {
-        await page.goto('/login');
+        await page.goto('/signin');
 
         await page.fill('input[name=email]', profiles.user.email);
         await page.fill('input[name=password]', profiles.user.password);
