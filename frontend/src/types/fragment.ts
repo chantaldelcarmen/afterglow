@@ -1,21 +1,24 @@
-export type FragmentType = 'photo' | 'video' | 'text';
+export type FragmentType = 'photo' | 'video' | 'audio' | 'text';
 
 export interface Fragment {
   id: string;
   experience_id: string;
-  user_id: string;
   type: FragmentType;
-  storage_path: string | null;
-  storage_url: string | null;
   caption: string | null;
-  content: string | null;
-  is_anchor: boolean;
-  file_size: number | null;
-  mime_type: string | null;
+  storage_path: string | null;
+  text_context: string | null;
   created_at: string;
 }
 
+export interface FragmentInsert {
+  experience_id: string;
+  type: FragmentType;
+  caption: string | null;
+  storage_path: string | null;
+  text_context: string | null;
+}
+
 export interface UploadProgress {
-  status: 'idle' | 'validating' | 'uploading' | 'done' | 'error';
+  status: 'idle' | 'validating' | 'uploading' | 'saving' | 'done' | 'error';
   error: string | null;
 }
