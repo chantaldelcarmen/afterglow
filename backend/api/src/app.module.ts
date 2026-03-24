@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HealthController } from './health/health.controller';
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
-import { ExperiencesModule } from './experiences/experiences.module';
+import { FragmentsModule } from './fragments/fragments.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { ExperiencesModule } from './experiences/experiences.module';
     }),
     SupabaseModule,
     AuthModule,
-    ExperiencesModule,
+    FragmentsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
