@@ -23,7 +23,10 @@ export default function ExperienceLibraryCard({ experience }: Props) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
       <div className="absolute bottom-0 left-0 p-4 text-[#F8EBDD]">
-        <h3 className="text-2xl leading-tight font-semibold drop-shadow-md">
+        <h3 
+          className="text-2xl leading-tight font-semibold drop-shadow-md"
+          style={{ fontFamily: '"Playfair Display", serif' }}
+        >
           {experience.title}
         </h3>
         <p className="mt-2 text-lg text-white/80">{experience.date}</p>
