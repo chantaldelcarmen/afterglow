@@ -12,7 +12,7 @@ export default function ExperienceLibraryCard({ experience }: Props) {
     <button
       type="button"
       onClick={() => navigate(`/experience/${experience.id}`)}
-      className="relative h-56 overflow-hidden rounded-[28px] border border-white/10 bg-white/10 text-left shadow-lg transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/40"
+      className="relative h-52 overflow-hidden rounded-[28px] border border-white/10 bg-white/10 text-left shadow-[0_0_18px_rgba(255,230,150,0.08)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_32px_rgba(255,230,150,0.22)] focus:outline-none focus:ring-2 focus:ring-white/40"
     >
       <img
         src={experience.imageUrl}

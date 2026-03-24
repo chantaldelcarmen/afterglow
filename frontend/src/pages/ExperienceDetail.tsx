@@ -1,5 +1,4 @@
 import { Link, useParams } from "react-router-dom";
-import BottomNav from "../components/BottomNav";
 import { getExperienceById } from "../data/mockExperiences";
 
 export default function ExperienceDetail() {
@@ -8,22 +7,19 @@ export default function ExperienceDetail() {
 
   if (!experience) {
     return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top_right,_rgba(120,119,255,0.28),_transparent_25%),radial-gradient(circle_at_bottom_left,_rgba(255,120,180,0.25),_transparent_30%),linear-gradient(180deg,_#17001F_0%,_#1B0326_100%)] text-[#F8EBDD] flex justify-center">
-        <div className="w-full max-w-[430px] px-6 pt-8 pb-28">
+      <>
           <p className="text-center text-xl">Experience not found.</p>
           <div className="mt-6 text-center">
             <Link to="/library" className="text-white/80 underline">
               Back to library
             </Link>
           </div>
-        </div>
-        <BottomNav />
-      </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_right,_rgba(120,119,255,0.28),_transparent_25%),radial-gradient(circle_at_bottom_left,_rgba(255,120,180,0.25),_transparent_30%),linear-gradient(180deg,_#17001F_0%,_#1B0326_100%)] text-[#F8EBDD] flex justify-center">
+    <>
       <div className="w-full max-w-[430px] px-6 pt-8 pb-28">
         <div className="mb-8 flex justify-center">
           <div className="h-9 w-40 rounded-full bg-black" />
@@ -38,7 +34,7 @@ export default function ExperienceDetail() {
           </Link>
         </div>
 
-        <h1 className="text-center text-6xl font-semibold tracking-tight">
+        <h1 className="playfair text-center text-5xl font-semibold tracking-tight text-[#F8EBDD] drop-shadow-[0_0_25px_rgba(255,230,150,0.6)]">
           Afterglow
         </h1>
 
@@ -87,8 +83,6 @@ export default function ExperienceDetail() {
           </p>
         </section>
       </div>
-
-      <BottomNav />
-    </main>
+    </>
   );
 }

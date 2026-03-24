@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import ExperienceLibraryCard from "../components/ExperienceLibraryCard";
 import { mockExperiences } from "../data/mockExperiences";
+import { Search } from "lucide-react";
 
 export default function ExperienceLibrary() {
   const [search, setSearch] = useState("");
@@ -17,13 +18,14 @@ export default function ExperienceLibrary() {
           <div className="h-9 w-40 rounded-full bg-black" />
         </div>
 
-        <h1 className="playfair text-center text-6xl font-semibold tracking-tight text-[#F8EBDD] drop-shadow-[0_0_25px_rgba(255,230,150,0.6)]">
+        <h1 className="playfair text-center text-5xl font-semibold tracking-tight text-[#F8EBDD] drop-shadow-[0_0_25px_rgba(255,230,150,0.6)]">
           Afterglow
         </h1>
 
-        <div className="mt-10">
-          <div className="rounded-full border border-white/15 bg-white/10 px-5 py-4 backdrop-blur-md">
-            <input
+        <div className="mt-8">
+          <div className="flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-5 py-4 backdrop-blur-md">
+            <Search className="h-4 w-4 text-white/45" />
+            <input 
               type="text"
               placeholder="search experiences..."
               value={search}
