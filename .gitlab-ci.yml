@@ -13,7 +13,7 @@ default:
       - 'backend/api/node_modules/'
 
 
-build-job:       # This job runs in the build stage, which runs first to make nestjs backend runs
+build-backend-job:       # This job runs in the build stage, which runs when any non-doc changes happen in backend
   stage: build
   image: node:22-alpine
   script:
@@ -25,7 +25,32 @@ build-job:       # This job runs in the build stage, which runs first to make ne
       - 'backend/api/dist'
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push'
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'      # exclude any doc changes in backend
+        - '!backend/**/README*'
+      when: on_success
+    - when: never
+
+
+build-frontend-job:     # This job runs in build stage, when any non-doc changes happen in the frontend
+  stage: build
+  image: node:22-alpine
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - 'frontend/dist'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'push'
+      changes:
+        - 'frontend/**/*'
+        - '!frontend/**/*.md'   # exclude any doc changes in frontend
+        - '!frontend/**/README*'
+      when: on_success
+    - when: never
 
 
 unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/src)
@@ -66,7 +91,7 @@ e2e-tests-job:    # runs e2e tests in backend/api/test
 
 
 # eslint is allowed to fail but will give warnings
-eslint-job:   # This job also runs in the test stage in parallel with e2e testing
+eslint-backend-job:   # This job also runs in the test stage in parallel with e2e testing
   stage: test    
   image: node:22-alpine
   dependencies: []
@@ -80,10 +105,10 @@ eslint-job:   # This job also runs in the test stage in parallel with e2e testin
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 
-deploy-job:      # This job runs in the deploy stage.
+deploy-job:      # This job runs in the deploy stage, using artifacts from frontend + backend builds
   stage: deploy 
   environment: production
-  needs: [build-job]
+  needs: [build-backend-job, build-frontend-job]
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
