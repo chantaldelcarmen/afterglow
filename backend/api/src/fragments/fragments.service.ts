@@ -56,7 +56,6 @@ export class FragmentsService {
     return { storagePath, publicUrl: data.publicUrl };
   }
 
-
   /*
     Selects all columns of the fragments associated with an experience
     */
@@ -83,7 +82,6 @@ export class FragmentsService {
       return fragments ?? [];
     }
   }
-
 
   /*
     Remove fragment from 1. bucket and 2. table
@@ -126,7 +124,6 @@ export class FragmentsService {
     return { message: 'Fragment deleted successfully' };
   }
 
-
   /*
     Updates anchor_fragment_id for an experience to set a new anchor point
     Assigns a fragment the anchor status
@@ -167,7 +164,6 @@ export class FragmentsService {
     }
   }
 
-
   // helper function to confirm ownership
   async findOne(userId: string, id: string): Promise<Experience> {
     const supabase = this.supabaseService.getClient();
@@ -183,7 +179,6 @@ export class FragmentsService {
     return data;
   }
 }
-
 
 /* 
 Helper function to determine fragment media type
