@@ -1,6 +1,6 @@
 # RBAC Roles
 
-## experience_creator
+## user
 - Create, edit, delete own experiences
 - Add fragments
 - Mark anchor fragment
