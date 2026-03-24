@@ -1,6 +1,6 @@
 export type Fragment = {
   id: string;
-  type: "photo" | "memory";
+  type: "photo" | "video" | "audio" | "text";
   content: string;
   imageUrl?: string;
 };
