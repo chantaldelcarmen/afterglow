@@ -9,17 +9,8 @@ type SupabaseExperienceRow = {
   experience_date: string | null;
 };
 
-export async function getExperiences(): Promise<Experience[]> {
-  const { data, error } = await supabase
-    .from("experiences")
-    .select("*");
-
-  if (error) {
-    console.error("Supabase fetch error:", error);
-    throw new Error("Failed to fetch experiences");
-  }
-
-  return (data as SupabaseExperienceRow[]).map((item) => ({
+function mapExperience(item: SupabaseExperienceRow): Experience {
+  return {
     id: item.id,
     title: item.title,
     date: item.experience_date ?? "",
@@ -31,5 +22,33 @@ export async function getExperiences(): Promise<Experience[]> {
     description: item.description ?? "",
     tags: [],
     fragments: [],
-  }));
+  };
+}
+
+export async function getExperiences(): Promise<Experience[]> {
+  const { data, error } = await supabase
+    .from("experiences")
+    .select("*");
+
+  if (error) {
+    console.error("Supabase fetch error:", error);
+    throw new Error("Failed to fetch experiences");
+  }
+
+  return (data as SupabaseExperienceRow[]).map(mapExperience);
+}
+
+export async function getExperienceById(id: string): Promise<Experience> {
+  const { data, error } = await supabase
+    .from("experiences")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Supabase fetch by id error:", error);
+    throw new Error("Failed to fetch experience");
+  }
+
+  return mapExperience(data as SupabaseExperienceRow);
 }

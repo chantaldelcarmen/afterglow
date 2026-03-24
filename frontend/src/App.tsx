@@ -6,11 +6,15 @@ import ExperienceDetail from "./pages/ExperienceDetail";
 import CreateExperience from "./pages/CreateExperience";
 import Reflections from "./pages/Reflections";
 import Profile from "./pages/Profile";
+import { SignIn } from "./pages/SignIn";
+// import Upload from "./pages/Upload";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+          <Route path="/signin" element={<SignIn />} />
+        
           <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/library" element={<ExperienceLibrary />} />

@@ -1,9 +1,38 @@
 import { Link, useParams } from "react-router-dom";
-import { getExperienceById } from "../data/mockExperiences";
+import { useEffect, useState } from "react";
+//import { getExperienceById } from "../data/mockExperiences";
+import { getExperienceById } from "../services/experienceService";
+import type { Experience } from "../types/experience";
 
 export default function ExperienceDetail() {
   const { id } = useParams();
-  const experience = id ? getExperienceById(id) : undefined;
+   const [experience, setExperience] = useState<Experience | null>(null);
+  const [loading, setLoading] = useState(true);
+
+   useEffect(() => {
+    async function loadExperience() {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await getExperienceById(id);
+        setExperience(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadExperience();
+  }, [id]);
+
+  if (loading) {
+    return <p className="text-center text-xl">Loading...</p>;
+  }
+
 
   if (!experience) {
     return (
@@ -21,9 +50,7 @@ export default function ExperienceDetail() {
   return (
     <>
       <div className="w-full max-w-[430px] px-6 pt-8 pb-28">
-        <div className="mb-8 flex justify-center">
-          <div className="h-9 w-40 rounded-full bg-black" />
-        </div>
+        
 
         <div className="mb-6">
           <Link
@@ -39,11 +66,13 @@ export default function ExperienceDetail() {
         </h1>
 
         <div className="mt-8 overflow-hidden rounded-[28px] bg-white/10 shadow-lg">
+          {experience.imageUrl ? (
           <img
             src={experience.imageUrl}
             alt={experience.title}
             className="h-72 w-full object-cover"
           />
+          ) : null}
 
           <div className="bg-black/20 p-6">
             <h2 className="text-5xl leading-tight font-semibold">
@@ -64,6 +93,7 @@ export default function ExperienceDetail() {
           <h3 className="text-4xl font-semibold">About this moment</h3>
           <p className="mt-3 text-lg text-white/75">{experience.date}</p>
 
+          {/*TODO: fix this hardcoded stuff */}
           <div className="mt-4 flex flex-wrap gap-3">
             <span className="rounded-full bg-white/10 px-4 py-2 text-sm text-white/90">
               Peaceful
@@ -77,9 +107,7 @@ export default function ExperienceDetail() {
           </div>
 
           <p className="mt-5 text-lg leading-relaxed text-white/85">
-            This is a placeholder detail description for now. Later, this should
-            come from the backend so each experience has its own full story,
-            location, tags, and fragments.
+             {experience.description || "No description yet."}
           </p>
         </section>
       </div>
