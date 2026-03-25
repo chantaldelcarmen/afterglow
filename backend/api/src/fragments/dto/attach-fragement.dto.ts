@@ -6,6 +6,6 @@ export class AttachFragmentDto {
   @IsString()
   caption?: string;
   @IsOptional()
-  @IsString() 
+  @IsString()
   text_context?: string;
 }

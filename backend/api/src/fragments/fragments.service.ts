@@ -37,7 +37,8 @@ export class FragmentsService {
       .from('fragments')
       .upload(storagePath, file.buffer);
 
-    if (uploadError) throw new InternalServerErrorException(uploadError.message);
+    if (uploadError)
+      throw new InternalServerErrorException(uploadError.message);
 
     // inserting fragment data into 'fragments' table
     const { error: dbError } = await supabase.from('fragments').insert({
@@ -112,7 +113,8 @@ export class FragmentsService {
       .from('fragments')
       .remove([fragmentPath.storage_path]);
 
-    if (bucketError) throw new InternalServerErrorException(bucketError.message);
+    if (bucketError)
+      throw new InternalServerErrorException(bucketError.message);
 
     // 3. delete fragment from 'fragments' table
     const { error: tableError } = await supabase
