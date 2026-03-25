@@ -1,5 +1,11 @@
 // optional fields in db not set by serverside
+import { IsOptional, IsString } from 'class-validator';
+
 export class AttachFragmentDto {
-  caption?: string | null;
-  text_context?: string | null;
+  @IsOptional()
+  @IsString()
+  caption?: string;
+  @IsOptional()
+  @IsString() 
+  text_context?: string;
 }

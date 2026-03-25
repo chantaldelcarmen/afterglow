@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,7 +37,7 @@ export class FragmentsService {
       .from('fragments')
       .upload(storagePath, file.buffer);
 
-    if (uploadError) throw new Error(uploadError.message);
+    if (uploadError) throw new InternalServerErrorException(uploadError.message);
 
     // inserting fragment data into 'fragments' table
     const { error: dbError } = await supabase.from('fragments').insert({
@@ -47,7 +48,7 @@ export class FragmentsService {
       storage_path: storagePath,
     });
 
-    if (dbError) throw new Error(dbError.message);
+    if (dbError) throw new InternalServerErrorException(dbError.message);
 
     const { data } = supabase.storage
       .from('fragments')
@@ -77,7 +78,7 @@ export class FragmentsService {
       .returns<Fragment[]>();
 
     if (fragError) {
-      throw new Error(fragError.message);
+      throw new InternalServerErrorException(fragError.message);
     } else {
       return fragments ?? [];
     }
@@ -111,7 +112,7 @@ export class FragmentsService {
       .from('fragments')
       .remove([fragmentPath.storage_path]);
 
-    if (bucketError) throw new Error(bucketError.message);
+    if (bucketError) throw new InternalServerErrorException(bucketError.message);
 
     // 3. delete fragment from 'fragments' table
     const { error: tableError } = await supabase
@@ -120,7 +121,7 @@ export class FragmentsService {
       .eq('id', fragmentId)
       .eq('experience_id', experienceId);
 
-    if (tableError) throw new Error(tableError.message);
+    if (tableError) throw new InternalServerErrorException(tableError.message);
     return { message: 'Fragment deleted successfully' };
   }
 
@@ -156,7 +157,7 @@ export class FragmentsService {
       .single<Experience>();
 
     if (error) {
-      throw new Error(error.message);
+      throw new InternalServerErrorException(error.message);
     } else if (!data) {
       throw new ForbiddenException('Access denied');
     } else {
