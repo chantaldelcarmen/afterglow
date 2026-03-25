@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { v4 as uuidv4 } from 'uuid';
 import { AttachFragmentDto } from './dto/attach-fragement.dto';
 import { Fragment } from './fragments.interface';
