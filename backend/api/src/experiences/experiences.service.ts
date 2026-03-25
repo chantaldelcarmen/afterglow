@@ -1,6 +1,6 @@
 import {
-  ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -20,7 +20,7 @@ export class ExperiencesService {
       .select()
       .single<Experience>();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -33,7 +33,7 @@ export class ExperiencesService {
       .order('created_at', { ascending: false })
       .returns<Experience[]>();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -43,11 +43,10 @@ export class ExperiencesService {
       .from('experiences')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single<Experience>();
 
     if (error || !data) throw new NotFoundException('Experience not found');
-    if (data.user_id !== userId) throw new ForbiddenException('Access denied');
-
     return data;
   }
 
@@ -64,10 +63,11 @@ export class ExperiencesService {
       .from('experiences')
       .update(dto)
       .eq('id', id)
+      .eq('user_id', userId)
       .select()
       .single<Experience>();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -78,9 +78,10 @@ export class ExperiencesService {
       .getClient()
       .from('experiences')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', userId);
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return { message: 'Experience deleted successfully' };
   }
 }
