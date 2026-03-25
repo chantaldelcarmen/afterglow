@@ -53,7 +53,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : String(exception),
       );
     } else {
-      this.logger.error(`${request.method} ${request.url} → ${statusCode}`);
+      this.logger.error(`${request.method} ${request.url} → ${statusCode}: ${exception instanceof Error ? exception.message : String(exception)}`);
     }
 
     const errorResponse: ErrorResponse = {
