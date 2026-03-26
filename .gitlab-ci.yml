@@ -6,7 +6,6 @@ stages:          # List of stages for jobs, and their order of execution
 
 default:
   image: node:22-alpine
-  pull_policy: if-not-present
   cache:
     key:
       files:
@@ -17,6 +16,7 @@ default:
 
 build-backend-job:       # This job runs in the build stage, which runs when any non-doc changes happen in backend
   stage: build
+  pull_policy: if-not-present
   script:
     - cd backend/api
     - npm ci
@@ -42,6 +42,7 @@ build-backend-job:       # This job runs in the build stage, which runs when any
 
 build-frontend-job:     # This job runs in build stage, when any non-doc changes happen in the frontend
   stage: build
+  pull_policy: if-not-present
   script:
     - cd frontend
     - npm ci
@@ -72,7 +73,8 @@ build-frontend-job:     # This job runs in build stage, when any non-doc changes
 
 
 unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/src)
-  stage: test   
+  stage: test
+  pull_policy: if-not-present
   script:
     - cd backend/api
     - npm ci
@@ -84,6 +86,7 @@ unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/s
 
 e2e-tests-job:    # runs e2e tests in backend/api/test
   stage: test
+  pull_policy: if-not-present
   script:
     - cd backend/api
     - npm ci
@@ -108,7 +111,8 @@ e2e-tests-job:    # runs e2e tests in backend/api/test
 
 # eslint is allowed to fail but will give warnings
 eslint-backend-job:   # This job also runs in the test stage in parallel with e2e testing
-  stage: test    
+  stage: test
+  pull_policy: if-not-present
   dependencies: []
   script:
     - cd backend/api
