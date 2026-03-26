@@ -7,7 +7,7 @@
 - Create reflections
 - Cannot access reviewer/admin routes
 
-## reviewer
+## platform_reviewer
 - Access reviewer routes
 - View system metadata
 - Cannot access private experiences

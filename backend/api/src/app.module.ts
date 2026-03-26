@@ -6,6 +6,7 @@ import { HealthController } from './health/health.controller';
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { FragmentsModule } from './fragments/fragments.module';
+import { ExperiencesModule } from './experiences/experiences.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FragmentsModule } from './fragments/fragments.module';
     SupabaseModule,
     AuthModule,
     FragmentsModule,
+    ExperiencesModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
