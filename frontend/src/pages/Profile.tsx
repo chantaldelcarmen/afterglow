@@ -3,17 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
 import { useAuth } from "../utils/AuthContext";
 import { getUserExperiences } from "../lib/experience";
+import { getFragments } from "../lib/storage";
 
 export function Profile() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [experienceCount, setExperienceCount] = useState<number>(0);
+  const [fragmentCount, setFragmentCount] = useState<number>(0);
 
   useEffect(() => {
     if (!user) return;
     getUserExperiences(user.id)
-      .then((data) => setExperienceCount(data.length))
-      .catch(() => setExperienceCount(0));
+      .then(async (experiences) => {
+        setExperienceCount(experiences.length);
+        const counts = await Promise.all(
+          experiences.map((exp) => getFragments(exp.id).then((f) => f.length).catch(() => 0))
+        );
+        setFragmentCount(counts.reduce((sum, n) => sum + n, 0));
+      })
+      .catch(() => {
+        setExperienceCount(0);
+        setFragmentCount(0);
+      });
   }, [user]);
 
   if (loading) return null;
@@ -78,7 +89,7 @@ export function Profile() {
               className="text-2xl font-semibold"
               style={{ color: "var(--color-accent-coral)" }}
             >
-              --
+              {fragmentCount}
             </span>
             <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
           </div>
