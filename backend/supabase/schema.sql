@@ -1,18 +1,28 @@
--- ============================================================
+-- ================================================================
+--  PRIVATE SCHEMA
+-- ================================================================
+
+create schema if not exists private;
+
+-- ================================================================
+--  PUBLIC SCHEMA
+-- ================================================================
+
+-- =====
 -- ENUMS
--- ============================================================
+-- =====
 create type public.user_role as enum ('user', 'platform_reviewer', 'admin');
 create type public.fragment_type as enum ('photo', 'video', 'audio', 'text');
 
--- ============================================================
+-- ========
 -- PROFILES
--- ============================================================
+-- ========
 create table public.profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
   role          public.user_role not null default 'user',
-  display_name  text                           -- nullable
+  display_name  text
 );
 
 -- Auto-create profile row when a new auth user signs up
@@ -127,11 +137,14 @@ alter table public.fragments     enable row level security;
 alter table public.reflections   enable row level security;
 alter table public.system_flags  enable row level security;
 
--- ── Profiles RLS Policies ─────────────────────────────────────────────────
+-- Profiles RLS Policies: 
 
 -- Users can read and update their own profile
-create policy "profiles: own read/write" on public.profiles
-  for all using (auth.uid() = id);
+create policy "profiles: own read" on public.profiles
+  for select using (auth.uid() = id);
+
+create policy "profiles: own update" on public.profiles
+  for update using (auth.uid() = id);
 
 -- Admins can read all profiles
 create policy "profiles: admin read all" on public.profiles
