@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
-import { getFragmentsByExperience } from '../lib/storage';
+import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
@@ -34,7 +34,7 @@ export default function Upload() {
 
   const loadFragments = useCallback(async (expId: string) => {
     try {
-      const data = await getFragmentsByExperience(expId);
+      const data = await getFragments(expId);
       setFragments(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load fragments');
@@ -113,7 +113,6 @@ export default function Upload() {
           <h2 className="text-lg font-semibold">Photo</h2>
           <PhotoUpload
             experienceId={selectedId}
-            userId={user.id}
             onUploaded={() => {
               loadExperiences();
               loadFragments(selectedId);
