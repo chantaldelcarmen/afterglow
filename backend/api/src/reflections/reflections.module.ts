@@ -6,6 +6,6 @@ import { SupabaseModule } from 'src/supabase/supabase.module';
 @Module({
   imports: [SupabaseModule],
   controllers: [ReflectionsController],
-  providers: [ReflectionsService]
+  providers: [ReflectionsService],
 })
 export class ReflectionsModule {}
