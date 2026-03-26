@@ -17,7 +17,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FragmentsService } from './fragments.service';
-import { AttachFragmentDto } from './dto/attach-fragement.dto';
+import { AttachFragmentDto } from './dto/attach-fragment.dto';
 
 @Controller('experiences')
 @UseGuards(JwtAuthGuard, RolesGuard)

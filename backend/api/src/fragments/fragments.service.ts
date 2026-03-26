@@ -3,10 +3,11 @@ import {
   NotFoundException,
   ForbiddenException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { v4 as uuidv4 } from 'uuid';
-import { AttachFragmentDto } from './dto/attach-fragement.dto';
+import { AttachFragmentDto } from './dto/attach-fragment.dto';
 import { Fragment } from './fragments.interface';
 import { Experience } from '../experiences/experiences.interface';
 
@@ -27,7 +28,10 @@ export class FragmentsService {
     // check ownership
     await this.findOne(userId, experienceId);
 
+    // guard for file existance
+    if (!file) throw new BadRequestException('File is required');
     const ext = file.originalname.split('.').pop() ?? 'bin';
+
     const fragmentId = uuidv4();
     const storagePath = `${userId}/${experienceId}/${fragmentId}.${ext}`;
     const type = fragmentType(file);
@@ -108,15 +112,7 @@ export class FragmentsService {
     if (pathError || !fragmentPath)
       throw new NotFoundException('Fragment not found');
 
-    // 2. delete fragment from 'fragments' storage bucket
-    const { error: bucketError } = await supabase.storage
-      .from('fragments')
-      .remove([fragmentPath.storage_path]);
-
-    if (bucketError)
-      throw new InternalServerErrorException(bucketError.message);
-
-    // 3. delete fragment from 'fragments' table
+    // 2. delete fragment from 'fragments' table
     const { error: tableError } = await supabase
       .from('fragments')
       .delete()
@@ -124,6 +120,15 @@ export class FragmentsService {
       .eq('experience_id', experienceId);
 
     if (tableError) throw new InternalServerErrorException(tableError.message);
+
+    // 3. delete fragment from 'fragments' storage bucket
+    const { error: bucketError } = await supabase.storage
+      .from('fragments')
+      .remove([fragmentPath.storage_path]);
+
+    if (bucketError)
+      throw new InternalServerErrorException(bucketError.message);
+
     return { message: 'Fragment deleted successfully' };
   }
 
