@@ -3,6 +3,7 @@
 -- ================================================================
 
 create schema if not exists private;
+revoke all on schema private from public;
 
 -- ================================================================
 --  PUBLIC SCHEMA
@@ -129,6 +130,15 @@ create trigger system_flags_updated_at
   for each row execute procedure public.set_updated_at();
 
 -- ============================================================
+-- PRIVATE HELPERS
+-- ============================================================
+
+create or replace function private.get_my_role()
+returns text language sql security definer stable as $$
+  select role::text from public.profiles where id = auth.uid()
+$$;
+
+-- ============================================================
 -- ROW-LEVEL SECURITY
 -- ============================================================
 alter table public.profiles      enable row level security;
@@ -144,25 +154,21 @@ create policy "profiles: own read" on public.profiles
   for select using (auth.uid() = id);
 
 create policy "profiles: own update" on public.profiles
-  for update using (auth.uid() = id);
+  for update using (auth.uid() = id) with check (
+    auth.uid() = id
+    and role = (select role from public.profiles where id = auth.uid())
+  );
 
--- Admins can read all profiles
+-- Admins can read, update, and delete all profiles
 create policy "profiles: admin read all" on public.profiles
-  for select using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  for select using (private.get_my_role() = 'admin');
 
--- Admins can update any profile (e.g. assign roles)
 create policy "profiles: admin update all" on public.profiles
-  for update using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  for update using (private.get_my_role() = 'admin')
+  with check (private.get_my_role() = 'admin');
+
+create policy "profiles: admin delete all" on public.profiles
+  for delete using (private.get_my_role() = 'admin');
 
 -- ── Experiences RLS Policies ───────────────────────────────────────────────
 
