@@ -40,9 +40,9 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
--- ============================================================
+-- ===========
 -- EXPERIENCES
--- ============================================================
+-- ===========
 create table public.experiences (
   id                  uuid primary key default gen_random_uuid(),
   created_at          timestamptz not null default now(),
@@ -50,10 +50,10 @@ create table public.experiences (
   title               text not null,
   description         text,                    -- nullable
   location            text,                    -- nullable
-  experience_date     text,                    -- nullable (flexible date string)
-  is_draft            boolean not null default false,
+  experience_date     date,                    -- nullable
+  is_draft            boolean not null default true,
   user_id             uuid not null references public.profiles(id) on delete cascade,
-  anchor_fragment_id  uuid,                    -- FK added after fragments table; nullable
+  anchor_fragment_id  uuid,                    -- nullable
   start_date          date,                    -- nullable
   end_date            date                     -- nullable
 );
@@ -71,12 +71,39 @@ create table public.fragments (
   created_at     timestamptz not null default now()
 );
 
--- Now safe to add the anchor FK back to experiences
 alter table public.experiences
   add constraint fk_anchor_fragment
   foreign key (anchor_fragment_id)
   references public.fragments(id)
   on delete set null;
+
+alter table public.experiences
+  add constraint experiences_published_requires_anchor
+  check (is_draft = true or anchor_fragment_id is not null);
+
+alter table public.experiences
+  add constraint experiences_date_range_check
+  check (start_date is null or end_date is null or start_date <= end_date);
+
+create or replace function public.validate_anchor_fragment()
+returns trigger language plpgsql as $$
+begin
+  if new.anchor_fragment_id is not null then
+    if not exists (
+      select 1 from public.fragments f
+      where f.id = new.anchor_fragment_id
+        and f.experience_id = new.id
+    ) then
+      raise exception 'anchor_fragment_id must belong to this experience';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger experiences_anchor_check
+  before insert or update on public.experiences
+  for each row execute procedure public.validate_anchor_fragment();  
 
 -- ============================================================
 -- REFLECTIONS
@@ -170,11 +197,32 @@ create policy "profiles: admin update all" on public.profiles
 create policy "profiles: admin delete all" on public.profiles
   for delete using (private.get_my_role() = 'admin');
 
--- ── Experiences RLS Policies ───────────────────────────────────────────────
+-- Experiences RLS Policies:
 
--- Users can fully manage their own experiences
-create policy "experiences: owner all" on public.experiences
-  for all using (auth.uid() = user_id);
+-- Owners can manage experiences
+create policy "experiences: owner select" on public.experiences
+  for select using (auth.uid() = user_id);
+
+create policy "experiences: owner insert" on public.experiences
+  for insert with check (auth.uid() = user_id);
+
+create policy "experiences: owner update" on public.experiences
+  for update using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "experiences: owner delete" on public.experiences
+  for delete using (auth.uid() = user_id);
+
+-- Admins can read and delete experiences
+create policy "experiences: admin read all" on public.experiences
+  for select using (private.get_my_role() = 'admin');
+
+create policy "experiences: admin delete all" on public.experiences
+  for delete using (private.get_my_role() = 'admin');
+
+-- Reviewers can read experiences
+create policy "experiences: reviewer select" on public.experiences
+  for select using (private.get_my_role() = 'platform_reviewer');
 
 -- ── Fragments RLS Policies ─────────────────────────────────────────────────
 
