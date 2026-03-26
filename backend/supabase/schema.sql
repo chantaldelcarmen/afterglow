@@ -58,9 +58,9 @@ create table public.experiences (
   end_date            date                     -- nullable
 );
 
--- ============================================================
+-- =========
 -- FRAGMENTS
--- ============================================================
+-- =========
 create table public.fragments (
   id             uuid primary key default gen_random_uuid(),
   experience_id  uuid not null references public.experiences(id) on delete cascade,
@@ -85,8 +85,8 @@ alter table public.experiences
   add constraint experiences_date_range_check
   check (start_date is null or end_date is null or start_date <= end_date);
 
-create or replace function public.validate_anchor_fragment()
-returns trigger language plpgsql as $$
+create or replace function private.validate_anchor_fragment()
+returns trigger language plpgsql security definer as $$
 begin
   if new.anchor_fragment_id is not null then
     if not exists (
@@ -103,8 +103,16 @@ $$;
 
 create trigger experiences_anchor_check
   before insert or update on public.experiences
-  for each row execute procedure public.validate_anchor_fragment();  
+  for each row execute procedure private.validate_anchor_fragment();
 
+alter table public.fragments
+  add constraint fragments_type_fields_check
+  check (
+    (type = 'text' and storage_path is null and text_context is not null)
+    or
+    (type != 'text' and storage_path is not null and text_context is null)
+  );
+  
 -- ============================================================
 -- REFLECTIONS
 -- ============================================================
@@ -224,16 +232,63 @@ create policy "experiences: admin delete all" on public.experiences
 create policy "experiences: reviewer select" on public.experiences
   for select using (private.get_my_role() = 'platform_reviewer');
 
--- ── Fragments RLS Policies ─────────────────────────────────────────────────
+-- Fragments RLS Policies:
 
--- Accessible only if the requesting user owns the parent experience
-create policy "fragments: owner all" on public.fragments
-  for all using (
+-- Owners can manage fragments of experiences
+create policy "fragments: owner select" on public.fragments
+  for select using (
     exists (
       select 1 from public.experiences e
-      where e.id = experience_id and e.user_id = auth.uid()
+      where e.id = experience_id
+        and e.user_id = auth.uid()
     )
   );
+
+create policy "fragments: owner insert" on public.fragments
+  for insert with check (
+    exists (
+      select 1 from public.experiences e
+      where e.id = experience_id
+        and e.user_id = auth.uid()
+    )
+  );
+
+create policy "fragments: owner update" on public.fragments
+  for update
+  using (
+    exists (
+      select 1 from public.experiences e
+      where e.id = experience_id
+        and e.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.experiences e
+      where e.id = experience_id
+        and e.user_id = auth.uid()
+    )
+  );
+
+create policy "fragments: owner delete" on public.fragments
+  for delete using (
+    exists (
+      select 1 from public.experiences e
+      where e.id = experience_id
+        and e.user_id = auth.uid()
+    )
+  );
+
+-- Admins can read and delete fragments
+create policy "fragments: admin select" on public.fragments
+  for select using (private.get_my_role() = 'admin');
+
+create policy "fragments: admin delete" on public.fragments
+  for delete using (private.get_my_role() = 'admin');
+
+-- Reviewers can read fragments
+create policy "fragments: reviewer select" on public.fragments
+  for select using (private.get_my_role() = 'platform_reviewer');
 
 -- ── Reflections RLS Policies ───────────────────────────────────────────────
 
