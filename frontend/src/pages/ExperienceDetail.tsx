@@ -8,6 +8,7 @@ export default function ExperienceDetail() {
   const { id } = useParams();
    const [experience, setExperience] = useState<Experience | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
    useEffect(() => {
     async function loadExperience() {
@@ -21,6 +22,7 @@ export default function ExperienceDetail() {
         setExperience(data);
       } catch (err) {
         console.error(err);
+        setError("Could not load experience.");
       } finally {
         setLoading(false);
       }
@@ -33,6 +35,9 @@ export default function ExperienceDetail() {
     return <p className="text-center text-xl">Loading...</p>;
   }
 
+  if (error) {
+    return <p className="mt-8 text-red-300">{error}</p>;
+  }
 
   if (!experience) {
     return (

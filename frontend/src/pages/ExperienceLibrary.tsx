@@ -15,7 +15,6 @@ export default function ExperienceLibrary() {
     async function loadExperiences() {
       try {
         const data = await getExperiences();
-        console.log("SUPABASE EXPERIENCES:", data);
         setExperiences(data);
       } catch (err) {
         console.error(err);
