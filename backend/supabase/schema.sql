@@ -73,9 +73,10 @@ create table public.fragments (
 
 alter table public.experiences
   add constraint fk_anchor_fragment
-  foreign key (anchor_fragment_id)
-  references public.fragments(id)
-  on delete set null;
+    foreign key (anchor_fragment_id)
+    references public.fragments(id)
+    on delete set null
+    deferrable initially deferred;
 
 alter table public.experiences
   add constraint experiences_published_requires_anchor
@@ -314,9 +315,12 @@ create policy "reflections: admin select" on public.reflections
 create policy "reflections: admin delete" on public.reflections
   for delete using (private.get_my_role() = 'admin');
 
+create policy "reflections: reviewer select" on public.reflections
+  for select using (private.get_my_role() = 'platform_reviewer');
+
 -- System Flags RLS Policies:
 
--- Reviewers and admins can read all flags
+-- Reviewers and admins can read, update, and insert flags
 create policy "system_flags: reviewer read" on public.system_flags
   for select using (
     private.get_my_role() in ('platform_reviewer', 'admin')
@@ -335,5 +339,5 @@ create policy "system_flags: reviewer insert" on public.system_flags
     private.get_my_role() in ('platform_reviewer', 'admin')
   );
 
-create policy "system_flags: reviewer delete" on public.system_flags
-  for delete using (private.get_my_role() in ('platform_reviewer', 'admin'));
+create policy "system_flags: admin delete" on public.system_flags
+  for delete using (private.get_my_role() = 'admin');
