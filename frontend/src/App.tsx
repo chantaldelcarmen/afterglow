@@ -14,7 +14,6 @@ import Upload from "./pages/Upload";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { EditExperience } from "./pages/EditExperience";
-import { Library } from "./pages/Library";
 import { Insights } from "./pages/Insights";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { PlatformReviewer } from "./pages/PlatformReviewer";

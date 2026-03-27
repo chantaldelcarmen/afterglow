@@ -23,7 +23,7 @@ export const mockExperiences: Experience[] = [
       },
       {
         id: "f2",
-        type: "memory",
+        type: "text",
         content:
           '"The city lights reflected in your eyes as we talked about everything and nothing. I remember thinking this is exactly where I\'m supposed to be."',
       },
