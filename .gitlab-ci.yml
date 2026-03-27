@@ -5,6 +5,7 @@ stages:          # List of stages for jobs, and their order of execution
 
 
 default:
+  image: node:22-alpine
   cache:
     key:
       files:
@@ -13,9 +14,8 @@ default:
       - 'backend/api/node_modules/'
 
 
-build-job:       # This job runs in the build stage, which runs first to make nestjs backend runs
+build-backend-job:       # This job runs in the build stage, which runs when any non-doc changes happen in backend
   stage: build
-  image: node:22-alpine
   script:
     - cd backend/api
     - npm ci
@@ -25,12 +25,53 @@ build-job:       # This job runs in the build stage, which runs first to make ne
       - 'backend/api/dist'
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'      # exclude any doc changes in backend
+        - '!backend/**/README*'
+      when: on_success
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'   # exclude any doc changes in backend
+        - '!backend/**/README*'
+      when: on_success
+    - when: never
+
+
+build-frontend-job:     # This job runs in build stage, when any non-doc changes happen in the frontend
+  stage: build
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  cache:
+    key:
+      files:
+        - 'frontend/package-lock.json'
+    paths:
+      - 'frontend/node_modules/'
+  artifacts:
+    paths:
+      - 'frontend/dist'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'push'
+      changes:
+        - 'frontend/**/*'
+        - '!frontend/**/*.md'   # exclude any doc changes in frontend
+        - '!frontend/**/README*'
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'frontend/**/*'
+        - '!frontend/**/*.md'   # exclude any doc changes in frontend
+        - '!frontend/**/README*'
+      when: on_success
+    - when: never
 
 
 unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/src)
-  stage: test   
-  image: node:22-alpine
+  stage: test
   script:
     - cd backend/api
     - npm ci
@@ -42,7 +83,6 @@ unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/s
 
 e2e-tests-job:    # runs e2e tests in backend/api/test
   stage: test
-  image: node:22-alpine
   script:
     - cd backend/api
     - npm ci
@@ -66,9 +106,8 @@ e2e-tests-job:    # runs e2e tests in backend/api/test
 
 
 # eslint is allowed to fail but will give warnings
-eslint-job:   # This job also runs in the test stage in parallel with e2e testing
-  stage: test    
-  image: node:22-alpine
+eslint-backend-job:   # This job also runs in the test stage in parallel with e2e testing
+  stage: test
   dependencies: []
   script:
     - cd backend/api
@@ -80,12 +119,17 @@ eslint-job:   # This job also runs in the test stage in parallel with e2e testin
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy 
+deploy-job:      # This job runs in the deploy stage, using artifacts from frontend + backend builds
+  stage: deploy
   environment: production
-  needs: [build-job]
+  needs:
+    - job: build-backend-job
+      optional: true
+    - job: build-frontend-job
+      optional: true
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'
+    - when: never

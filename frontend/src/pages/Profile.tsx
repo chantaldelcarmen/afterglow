@@ -1,83 +1,129 @@
-import { LogOut, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { H2, Body, BodySmall } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
+import { useAuth } from "../utils/AuthContext";
+import { getUserExperiences } from "../lib/experience";
+import { getFragments } from "../lib/storage";
 
-const mockProfile = {
-  name: "Sarah Mitchell",
-  email: "sarah.mitchell@example.com",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
-  experiencesCount: 14,
-  fragmentsCount: 56,
-};
+export function Profile() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [experienceCount, setExperienceCount] = useState<number>(0);
+  const [fragmentCount, setFragmentCount] = useState<number>(0);
 
-export default function Profile() {
+  useEffect(() => {
+    if (!user) return;
+    getUserExperiences(user.id)
+      .then(async (experiences) => {
+        setExperienceCount(experiences.length);
+        const counts = await Promise.all(
+          experiences.map((exp) => getFragments(exp.id).then((f) => f.length).catch(() => 0))
+        );
+        setFragmentCount(counts.reduce((sum, n) => sum + n, 0));
+      })
+      .catch(() => {
+        setExperienceCount(0);
+        setFragmentCount(0);
+      });
+  }, [user]);
+
+  if (loading) return null;
+  if (!user) {
+    navigate("/signin");
+    return null;
+  }
+
+  const displayName = user.user_metadata?.full_name ?? user.email ?? "User";
+  const email = user.email ?? "";
+
   return (
-    <div className="min-h-screen px-6 pt-8 pb-28 text-[#F8EBDD]">
-      {/*TODO: make spaceing for title better.*/}
-      <h1 className="playfair text-center text-5xl font-semibold tracking-tight text-[#F8EBDD] drop-shadow-[0_0_25px_rgba(255,230,150,0.6)]">
-        Afterglow
-      </h1>
+    <div className="h-full flex flex-col px-6 pb-8 space-y-8 overflow-y-auto">
+      <AppLogo />
 
-      <div className="mt-10 flex flex-col items-center">
-        <div className="h-28 w-28 overflow-hidden rounded-full border border-white/20 shadow-[0_0_25px_rgba(255,240,200,0.25)]">
-          <img
-            src={mockProfile.avatarUrl}
-            alt={mockProfile.name}
-            className="h-full w-full object-cover"
+      {/* Profile section */}
+      <section className="space-y-4">
+        <H2>Your Profile</H2>
+
+        {/* Avatar + name */}
+        <div className="flex flex-col items-center space-y-3 py-4">
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold"
+            style={{
+              background: "var(--color-button-plum-bg)",
+              border: "2px solid var(--color-surface-glass-card-border)",
+            }}
+          >
+            <span style={{ color: "var(--color-text-primary)" }}>
+              {displayName[0].toUpperCase()}
+            </span>
+          </div>
+          <div className="text-center">
+            <Body style={{ color: "var(--color-text-primary)" }}>{displayName}</Body>
+            <BodySmall style={{ color: "var(--color-text-muted)" }}>{email}</BodySmall>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div
+          className="flex rounded-2xl overflow-hidden"
+          style={{
+            background: "var(--color-surface-glass-card)",
+            border: "1px solid var(--color-surface-glass-card-border)",
+          }}
+        >
+          <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+            <span
+              className="text-2xl font-semibold"
+              style={{ color: "var(--color-accent-gold)" }}
+            >
+              {experienceCount}
+            </span>
+            <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
+          </div>
+          <div
+            className="w-px self-stretch"
+            style={{ background: "var(--color-surface-glass-card-border)" }}
           />
-        </div>
-
-        <h2 className="playfair mt-6 text-center text-4xl font-semibold leading-tight">
-          {mockProfile.name}
-        </h2>
-
-        <p className="mt-2 text-center text-lg text-white/80">
-          {mockProfile.email}
-        </p>
-      </div>
-
-      <section className="mt-8 rounded-[28px] border border-white/10 bg-white/10 px-8 py-6 backdrop-blur-md shadow-[0_0_25px_rgba(255,220,180,0.08)]">
-        <div className="grid grid-cols-2 gap-4 text-center">
-          <div>
-            <p className="text-5xl font-medium text-[#F0D36D]">
-              {mockProfile.experiencesCount}
-            </p>
-            <p className="mt-2 text-lg text-white/65">Experiences</p>
-          </div>
-
-          <div>
-            <p className="text-5xl font-medium text-[#F28B8B]">
-              {mockProfile.fragmentsCount}
-            </p>
-            <p className="mt-2 text-lg text-white/65">Fragments</p>
+          <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+            <span
+              className="text-2xl font-semibold"
+              style={{ color: "var(--color-accent-coral)" }}
+            >
+              {fragmentCount}
+            </span>
+            <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
           </div>
         </div>
       </section>
 
-      <section className="mt-8">
-        <h3 className="playfair text-3xl font-semibold">Settings</h3>
-
-        <div className="mt-5 space-y-4">
-          <button
-            type="button"
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/10 px-6 py-4 text-xl font-medium text-white/90 backdrop-blur-md shadow-[0_0_18px_rgba(255,220,180,0.06)] transition hover:bg-white/15"
-          >
-            <LogOut className="h-5 w-5" />
-            Log Out
-          </button>
-
-          <button
-            type="button"
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/10 px-6 py-4 text-xl font-medium text-white/90 backdrop-blur-md shadow-[0_0_18px_rgba(255,220,180,0.06)] transition hover:bg-white/15"
-          >
-            <Trash2 className="h-5 w-5" />
-            Delete Account
-          </button>
-        </div>
+      {/* Settings button */}
+      <section className="space-y-3">
+        <H2>Settings</H2>
+        <button
+          onClick={() => navigate("/settings")}
+          className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
+          style={{
+            background: "var(--color-button-plum-bg)",
+            borderColor: "var(--color-button-plum-border)",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
+            e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "var(--color-button-plum-bg)";
+            e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
+          }}
+        >
+          <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
+        </button>
       </section>
 
-      <p className="mt-8 px-4 text-center text-base leading-relaxed text-white/55">
-        Your memories are precious. We&apos;re committed to keeping your data
-        private and secure.
+      {/* Privacy note */}
+      <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
+        Your memories are precious. We're committed to keeping your data private and secure.
       </p>
     </div>
   );

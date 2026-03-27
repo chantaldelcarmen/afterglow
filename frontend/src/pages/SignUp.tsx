@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { H2, Body, BodySmall, Subtitle } from "../components/Typography";
+import { H2, Body, BodySmall } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
 import supabase from "../utils/supabase";
 
@@ -13,19 +13,31 @@ const inputStyle = {
   boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
 };
 
-export function SignIn() {
+export function SignUp() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } },
+    });
 
     if (error) {
       setError(error.message);
@@ -36,20 +48,46 @@ export function SignIn() {
     setLoading(false);
   };
 
+  const focusStyle = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)";
+    e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border-hover)";
+  };
+
+  const blurStyle = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
+    e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
+  };
+
   return (
     <div className="h-full flex flex-col justify-center space-y-3 overflow-hidden">
-      <form onSubmit={handleSignIn} className="w-full max-w-md mx-auto space-y-4 px-6">
+      <form onSubmit={handleSignUp} className="w-full max-w-md mx-auto space-y-4 px-6">
         <AppLogo />
-        <H2 className="text-center mb-6">Welcome Back</H2>
-        <Subtitle className="text-center">
-          A private space to relive your most meaningful moments.
-        </Subtitle>
+        <H2 className="text-center mb-6">Create Account</H2>
 
         {error && (
           <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>
             {error}
           </p>
         )}
+
+        {/* Full Name */}
+        <div>
+          <label htmlFor="fullName" className="block mb-2">
+            <BodySmall style={{ color: "var(--color-text-muted)" }}>Full Name</BodySmall>
+          </label>
+          <input
+            id="fullName"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Full Name"
+            required
+            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
+            style={inputStyle}
+            onFocus={focusStyle}
+            onBlur={blurStyle}
+          />
+        </div>
 
         {/* Email */}
         <div>
@@ -65,14 +103,8 @@ export function SignIn() {
             required
             className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
             style={inputStyle}
-            onFocus={(e) => {
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)";
-              e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border-hover)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
-              e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
-            }}
+            onFocus={focusStyle}
+            onBlur={blurStyle}
           />
         </div>
 
@@ -90,18 +122,31 @@ export function SignIn() {
             required
             className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
             style={inputStyle}
-            onFocus={(e) => {
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)";
-              e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border-hover)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
-              e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
-            }}
+            onFocus={focusStyle}
+            onBlur={blurStyle}
           />
         </div>
 
-        {/* Sign In Button */}
+        {/* Confirm Password */}
+        <div>
+          <label htmlFor="confirmPassword" className="block mb-2">
+            <BodySmall style={{ color: "var(--color-text-muted)" }}>Confirm Password</BodySmall>
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
+            style={inputStyle}
+            onFocus={focusStyle}
+            onBlur={blurStyle}
+          />
+        </div>
+
+        {/* Create Account Button */}
         <button
           type="submit"
           disabled={loading}
@@ -123,24 +168,29 @@ export function SignIn() {
           }}
         >
           <Body style={{ color: "var(--color-text-primary)" }}>
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Creating account..." : "Create Account"}
           </Body>
         </button>
 
-        {/* Sign Up Link */}
-        <div className="text-center pt-4">
+        {/* Sign In Link */}
+        <div className="text-center pt-2">
           <Body style={{ color: "var(--color-text-muted)" }}>
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <button
               type="button"
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/signin")}
               className="transition-all duration-300 hover:underline"
               style={{ color: "var(--color-text-primary)" }}
             >
-              Sign up
+              Sign in
             </button>
           </Body>
         </div>
+
+        {/* Privacy note */}
+        <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
+          By creating an account, you agree to keep your memories private and secure. We never share your data.
+        </p>
       </form>
     </div>
   );

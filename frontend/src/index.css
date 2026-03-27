@@ -172,6 +172,6 @@
 
 @layer base {
   body {
-    background-color: var(--color-surface-bg);
+    background-color: transparent;
   }
 }
