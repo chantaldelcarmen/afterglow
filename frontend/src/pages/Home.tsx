@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { H1, H2, Body, BodySmall } from "../components/Typography";
+import { H2, Body, BodySmall } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
 import { GlassButton } from "../components/GlassButton";
 import { useAuth } from "../utils/AuthContext";
 import { apiFetch } from "../lib/api";
@@ -51,8 +52,8 @@ export default function Home() {
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
-        <H1 className="md:hidden">Afterglow</H1>
-        <H2 className="mt-1">Welcome Back</H2>
+        <AppLogo />
+        <H2>Welcome Back</H2>
         <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
           Your emotional memories, preserved and waiting
         </BodySmall>

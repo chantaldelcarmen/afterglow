@@ -7,10 +7,13 @@ import Upload from "./pages/Upload";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { EditExperience } from "./pages/EditExperience";
+import { AmbientBackground } from "./components/AmbientBackground";
+import { BottomNav } from "./components/BottomNav";
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AmbientBackground>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/create-experience" element={<CreateExperience />}/>
@@ -21,6 +24,8 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/experience/:id/edit" element={<EditExperience />} />
       </Routes>
+      <BottomNav />
+      </AmbientBackground>
     </BrowserRouter>
   );
 }
