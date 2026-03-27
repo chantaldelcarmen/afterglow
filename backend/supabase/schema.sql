@@ -222,10 +222,7 @@ create policy "experiences: owner update" on public.experiences
 create policy "experiences: owner delete" on public.experiences
   for delete using (auth.uid() = user_id);
 
--- Admins can read and delete experiences
-create policy "experiences: admin read all" on public.experiences
-  for select using (private.get_my_role() = 'admin');
-
+-- Admins can delete experiences
 create policy "experiences: admin delete all" on public.experiences
   for delete using (private.get_my_role() = 'admin');
 
@@ -280,10 +277,7 @@ create policy "fragments: owner delete" on public.fragments
     )
   );
 
--- Admins can read and delete fragments
-create policy "fragments: admin select" on public.fragments
-  for select using (private.get_my_role() = 'admin');
-
+-- Admins can delete fragments
 create policy "fragments: admin delete" on public.fragments
   for delete using (private.get_my_role() = 'admin');
 
@@ -308,10 +302,7 @@ create policy "reflections: owner update" on public.reflections
 create policy "reflections: owner delete" on public.reflections
   for delete using (auth.uid() = user_id);
 
--- Admins can read and delete reflections
-create policy "reflections: admin select" on public.reflections
-  for select using (private.get_my_role() = 'admin');
-
+-- Admins can delete reflections
 create policy "reflections: admin delete" on public.reflections
   for delete using (private.get_my_role() = 'admin');
 
