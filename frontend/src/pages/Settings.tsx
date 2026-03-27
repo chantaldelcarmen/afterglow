@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { H1, H2, Body } from "../components/Typography";
+import { H2, Body } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
 import supabase from "../utils/supabase";
 
 export function Settings() {
@@ -11,8 +12,8 @@ export function Settings() {
   };
 
   return (
-    <div className="h-full flex flex-col px-6 py-8 space-y-8 overflow-y-auto">
-      <H1 className="text-center">Afterglow</H1>
+    <div className="h-full flex flex-col px-6 pb-8 space-y-8 overflow-y-auto">
+      <AppLogo />
 
       <section className="space-y-3">
         <H2>Settings</H2>

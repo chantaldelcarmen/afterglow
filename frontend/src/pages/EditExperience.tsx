@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { H2, Body, BodySmall } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
@@ -102,9 +103,10 @@ export function EditExperience() {
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
+      <div className="sticky top-0 z-20 pb-4 px-6">
         {/* Mobile Header */}
         <div className="md:hidden">
+          <AppLogo />
           <H2 className="px-1">Edit Experience</H2>
           <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
             Update your memory
