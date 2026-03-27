@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-
-
-export default function Home() {
-  return <h1 className="text-center text-5xl text-white">Home</h1>;
-=======
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
@@ -202,5 +196,4 @@ export default function Home() {
       </div>
     </div>
   );
->>>>>>> origin/main
 }

@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AppLayout from "./components/AppLayout";
+//import AppLayout from "./components/AppLayout";
 import Home from "./pages/Home";
 import ExperienceLibrary from "./pages/ExperienceLibrary";
 import ExperienceDetail from "./pages/ExperienceDetail";
 import CreateExperience from "./pages/CreateExperience";
-import Reflections from "./pages/Reflections";
-import Profile from "./pages/Profile";
+//import Reflections from "./pages/Reflections";
+//import Profile from "./pages/Profile";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
 import { ForgotPassword } from "./pages/ForgotPassword";
@@ -27,12 +27,13 @@ export default function App() {
       <AmbientBackground>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/library" element={<Library />} />
+          <Route path="/library" element={<ExperienceLibrary/>}/>
           <Route path="/insights" element={<Insights />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/create-experience" element={<CreateExperience />} />
           <Route path="/experience/:id/edit" element={<EditExperience />} />
+          <Route path="/experience/:id" element={<ExperienceDetail />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
