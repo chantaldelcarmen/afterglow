@@ -6,6 +6,7 @@ import { SignUp } from "./pages/SignUp";
 import Upload from "./pages/Upload";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
+import { EditExperience } from "./pages/EditExperience";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/upload" element={<Upload />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/experience/:id/edit" element={<EditExperience />} />
       </Routes>
     </BrowserRouter>
   );
