@@ -53,7 +53,11 @@ export class FragmentsService {
       storage_path: storagePath,
     });
 
-    if (dbError) throw new InternalServerErrorException(dbError.message);
+    if (dbError) {
+      // remove from bucket if error after tring to insert into table
+      await supabase.storage.from('fragments').remove([storagePath]);
+      throw new InternalServerErrorException(dbError.message);
+    }
 
     const { data } = supabase.storage
       .from('fragments')
@@ -112,6 +116,15 @@ export class FragmentsService {
     if (pathError || !fragmentPath)
       throw new NotFoundException('Fragment not found');
 
+    // get experience anchor
+    const { data: experience, error: anchError } = await supabase
+      .from('experiences')
+      .select('anchor_fragment_id')
+      .eq('id', experienceId)
+      .single();
+
+    if (anchError) throw new InternalServerErrorException(anchError.message);
+
     // 2. delete fragment from 'fragments' table
     const { error: tableError } = await supabase
       .from('fragments')
@@ -129,6 +142,29 @@ export class FragmentsService {
     if (bucketError)
       throw new InternalServerErrorException(bucketError.message);
 
+    // 4. update anchor fragment if it was deleted here
+    if (experience.anchor_fragment_id === fragmentId) {
+      const { data: newFrag, error: newFragError } = await supabase
+        .from('fragments')
+        .select('id')
+        .eq('experience_id', experienceId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (newFragError)
+        throw new InternalServerErrorException(newFragError.message);
+
+      const { error: newAnchError } = await supabase
+        .from('experiences')
+        .update({ anchor_fragment_id: newFrag?.id ?? null })
+        .eq('id', experienceId)
+        .eq('user_id', userId);
+
+      if (newAnchError)
+        throw new InternalServerErrorException(newAnchError.message);
+    }
+
     return { message: 'Fragment deleted successfully' };
   }
 
@@ -142,6 +178,9 @@ export class FragmentsService {
     fragmentId: string,
   ): Promise<Experience> {
     const supabase = this.supabaseService.getClient();
+
+    // check ownership first
+    await this.findOne(userId, experienceId);
 
     // check fragment exists and belongs to experience
     const { data: fragData, error: fragError } = await supabase
@@ -179,10 +218,11 @@ export class FragmentsService {
       .from('experiences')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single<Experience>();
 
-    if (error || !data) throw new NotFoundException('Experience not found');
-    if (data.user_id !== userId) throw new ForbiddenException('Access denied');
+    if (error) throw new ForbiddenException('Access denied');
+    if (!data) throw new NotFoundException('Experience not found');
 
     return data;
   }
