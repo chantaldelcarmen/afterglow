@@ -1,18 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { H1, H2, Body } from "../components/Typography";
-import supabase from "../utils/supabase";
-
+import { H2, Body } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
 export function Settings() {
   const navigate = useNavigate();
 
-  const handleLogOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/signin");
+  const handleLogOut = () => {
+    navigate("/logout");
   };
 
   return (
-    <div className="h-full flex flex-col px-6 py-8 space-y-8 overflow-y-auto">
-      <H1 className="text-center">Afterglow</H1>
+    <div className="h-full flex flex-col px-6 pb-8 space-y-8 overflow-y-auto">
+      <AppLogo />
 
       <section className="space-y-3">
         <H2>Settings</H2>
