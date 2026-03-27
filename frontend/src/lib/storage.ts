@@ -8,15 +8,14 @@ export async function uploadFragment(
   experienceId: string,
   file: File,
   caption?: string,
-): Promise<{ storagePath: string; publicUrl: string }> {
+): Promise<void> {
   const form = new FormData();
   form.append('file', file);
   if (caption) form.append('caption', caption);
-  const res = await apiFetch(`/experiences/${experienceId}/fragments`, {
+  await apiFetch(`/experiences/${experienceId}/fragments`, {
     method: 'POST',
     body: form,
   });
-  return res.json();
 }
 
 export async function getFragments(
@@ -35,7 +34,13 @@ export async function deleteFragment(
   });
 }
 
-export function getFragmentPublicUrl(storagePath: string): string {
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
-  return data.publicUrl;
+export async function getFragmentSignedUrl(
+  storagePath: string,
+): Promise<string | null> {
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(storagePath, 60 * 60);
+
+  if (error) return null;
+  return data.signedUrl;
 }
