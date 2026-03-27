@@ -1,15 +1,14 @@
 import { useState, useRef } from 'react';
 import type { UploadProgress } from '../types/fragment';
 import { validatePhotoFile } from '../lib/validation';
-import { uploadFragmentFile, saveFragmentMetadata } from '../lib/storage';
+import { uploadFragment } from '../lib/storage';
 
 interface PhotoUploadProps {
   experienceId: string;
-  userId: string;
   onUploaded?: () => void;
 }
 
-export default function PhotoUpload({ experienceId, userId, onUploaded }: PhotoUploadProps) {
+export default function PhotoUpload({ experienceId, onUploaded }: PhotoUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
@@ -36,17 +35,7 @@ export default function PhotoUpload({ experienceId, userId, onUploaded }: PhotoU
 
     try {
       setProgress({ status: 'uploading', error: null });
-      const fragmentId = crypto.randomUUID();
-      const { storagePath } = await uploadFragmentFile(file, userId, experienceId, fragmentId);
-
-      setProgress({ status: 'saving', error: null });
-      await saveFragmentMetadata({
-        experience_id: experienceId,
-        type: 'photo',
-        caption: caption.trim() || null,
-        storage_path: storagePath,
-        text_context: null,
-      });
+      await uploadFragment(experienceId, file, caption.trim() || undefined);
 
       setProgress({ status: 'done', error: null });
       setFile(null);
@@ -61,7 +50,7 @@ export default function PhotoUpload({ experienceId, userId, onUploaded }: PhotoU
     }
   }
 
-  const isUploading = progress.status === 'uploading' || progress.status === 'saving';
+  const isUploading = progress.status === 'uploading';
 
   return (
     <div className="space-y-4">
