@@ -66,7 +66,6 @@ export class ReflectionsService {
     };
 
     if (error || !data) {
-      console.error(error);
       throw new InternalServerErrorException('Failed to create reflection');
     }
 
