@@ -107,11 +107,10 @@ create trigger experiences_anchor_check
   for each row execute procedure private.validate_anchor_fragment();
 
 alter table public.fragments
-  add constraint fragments_type_fields_check
-  check (
-    (type = 'text' and storage_path is null and text_context is not null)
+  add constraint fragments_type_fields_check check (
+    (type = 'text' and text_context is not null)
     or
-    (type != 'text' and storage_path is not null and text_context is null)
+    (type != 'text' and storage_path is not null)
   );
 
 -- ===========
@@ -123,7 +122,7 @@ create table public.reflections (
   user_id         uuid not null references public.profiles(id) on delete cascade,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
-  reflection_text text
+  reflection_text text not null
 );
 
 -- ============
@@ -226,10 +225,6 @@ create policy "experiences: owner delete" on public.experiences
 create policy "experiences: admin delete all" on public.experiences
   for delete using (private.get_my_role() = 'admin');
 
--- Reviewers can read experiences
-create policy "experiences: reviewer select" on public.experiences
-  for select using (private.get_my_role() = 'platform_reviewer');
-
 -- Fragments RLS Policies:
 
 -- Owners can manage fragments of experiences
@@ -281,10 +276,6 @@ create policy "fragments: owner delete" on public.fragments
 create policy "fragments: admin delete" on public.fragments
   for delete using (private.get_my_role() = 'admin');
 
--- Reviewers can read fragments
-create policy "fragments: reviewer select" on public.fragments
-  for select using (private.get_my_role() = 'platform_reviewer');
-
 -- Reflections RLS Policies:
 
 -- Owners can manage reflections of experiences
@@ -306,8 +297,6 @@ create policy "reflections: owner delete" on public.reflections
 create policy "reflections: admin delete" on public.reflections
   for delete using (private.get_my_role() = 'admin');
 
-create policy "reflections: reviewer select" on public.reflections
-  for select using (private.get_my_role() = 'platform_reviewer');
 
 -- System Flags RLS Policies:
 
