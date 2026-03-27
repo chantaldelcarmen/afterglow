@@ -112,17 +112,17 @@ alter table public.fragments
     or
     (type != 'text' and storage_path is not null and text_context is null)
   );
-  
--- ============================================================
+
+-- ===========
 -- REFLECTIONS
--- ============================================================
+-- ===========
 create table public.reflections (
   id              uuid primary key default gen_random_uuid(),
   experience_id   uuid not null references public.experiences(id) on delete cascade,
-  user_id         uuid references public.profiles(id) on delete set null,  -- nullable per ERD
+  user_id         uuid not null references public.profiles(id) on delete cascade,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
-  reflection_text text                          -- nullable
+  reflection_text text
 );
 
 -- ============================================================
@@ -290,12 +290,30 @@ create policy "fragments: admin delete" on public.fragments
 create policy "fragments: reviewer select" on public.fragments
   for select using (private.get_my_role() = 'platform_reviewer');
 
--- ── Reflections RLS Policies ───────────────────────────────────────────────
+-- Reflections RLS Policies:
 
--- Users can manage reflections they authored
-create policy "reflections: owner all" on public.reflections
-  for all using (auth.uid() = user_id);
+-- Owners can manage reflections of experiences
+create policy "reflections: owner select" on public.reflections
+  for select using (auth.uid() = user_id);
 
+create policy "reflections: owner insert" on public.reflections
+  for insert with check (auth.uid() = user_id);
+
+create policy "reflections: owner update" on public.reflections
+  for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "reflections: owner delete" on public.reflections
+  for delete using (auth.uid() = user_id);
+
+-- Admins can read and delete reflections
+create policy "reflections: admin select" on public.reflections
+  for select using (private.get_my_role() = 'admin');
+
+create policy "reflections: admin delete" on public.reflections
+  for delete using (private.get_my_role() = 'admin');
+  
 -- ── System Flags RLS Policies ─────────────────────────────────────────────
 
 -- Reviewers and admins can read all flags
