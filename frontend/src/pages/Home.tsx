@@ -51,7 +51,7 @@ export default function Home() {
   return (
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
+      <div className="sticky top-0 z-20 pb-4 px-6">
         <AppLogo />
         <H2>Welcome Back</H2>
         <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
