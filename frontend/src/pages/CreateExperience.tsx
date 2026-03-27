@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { H2, Body, BodySmall } from "../components/Typography";
+import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
   "Joy",
@@ -40,6 +41,8 @@ export function CreateExperience() {
   const [description, setDescription] = useState("");
   const [emotionTags, setEmotionTags] = useState<string[]>([]);
   const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleEmotionToggle = (tag: string) => {
     setEmotionTags((prev) =>
@@ -47,10 +50,27 @@ export function CreateExperience() {
     );
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!title.trim() || !date.trim()) return;
-    // TODO: wire up to API when backend experiences endpoint is ready
-    navigate("/upload-fragments");
+    setError("");
+    setLoading(true);
+    try {
+      await apiFetch("/experiences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          experience_date: date,
+          location: location.trim() || undefined,
+          description: description.trim() || undefined,
+        }),
+      });
+      navigate("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create experience");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFormValid = !!title.trim() && !!date.trim();
@@ -208,6 +228,13 @@ export function CreateExperience() {
             </div>
           </div>
 
+          {/* Error */}
+          {error && (
+            <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>
+              {error}
+            </p>
+          )}
+
           {/* Buttons */}
           <div className="pt-6 space-y-3">
             {/* Cancel - mobile only */}
@@ -232,7 +259,7 @@ export function CreateExperience() {
             {/* Create Experience */}
             <button
               onClick={handleCreate}
-              disabled={!isFormValid}
+              disabled={!isFormValid || loading}
               className="w-full rounded-full border backdrop-blur-xl px-6 py-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: "var(--color-button-plum-bg)",
@@ -245,7 +272,7 @@ export function CreateExperience() {
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}
             >
-              <Body style={{ color: "var(--color-text-primary)" }}>Create Experience</Body>
+              <Body style={{ color: "var(--color-text-primary)" }}>{loading ? "Creating..." : "Create Experience"}</Body>
             </button>
           </div>
 
