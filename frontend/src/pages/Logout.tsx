@@ -17,16 +17,16 @@ export function Logout() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="min-h-screen flex flex-col">
       <AppLogo />
 
-      <div className="w-full max-w-sm mx-auto px-6 text-center">
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm mx-auto px-6 text-center pb-24">
         {/* Logout Icon */}
         <div
-          className="w-20 h-20 rounded-full flex items-center justify-center mb-6 mx-auto"
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
           style={{
-            background: "var(--color-surface-glass)",
-            border: "2px solid var(--color-text-primary)",
+            background: "var(--color-surface-glass-card)",
+            border: "1px solid var(--color-surface-glass-card-border)",
             boxShadow: "0 0 24px var(--color-button-warm-glow)",
           }}
         >

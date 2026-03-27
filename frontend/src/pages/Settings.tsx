@@ -1,14 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { H2, Body } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
-import supabase from "../utils/supabase";
-
 export function Settings() {
   const navigate = useNavigate();
 
-  const handleLogOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/signin");
+  const handleLogOut = () => {
+    navigate("/logout");
   };
 
   return (
