@@ -1,7 +1,6 @@
 import {
-  BadRequestException,
-  ForbiddenException,
   Injectable,
+  BadRequestException,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -45,11 +44,10 @@ export class ExperiencesService {
       .from('experiences')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single<Experience>();
 
     if (error || !data) throw new NotFoundException('Experience not found');
-    if (data.user_id !== userId) throw new ForbiddenException('Access denied');
-
     return data;
   }
 
@@ -73,6 +71,7 @@ export class ExperiencesService {
       .from('experiences')
       .update(dto)
       .eq('id', id)
+      .eq('user_id', userId)
       .select()
       .single<Experience>();
 
@@ -87,7 +86,8 @@ export class ExperiencesService {
       .getClient()
       .from('experiences')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', userId);
 
     if (error) throw new InternalServerErrorException(error.message);
     return { message: 'Experience deleted successfully' };
