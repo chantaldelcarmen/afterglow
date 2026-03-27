@@ -125,21 +125,21 @@ create table public.reflections (
   reflection_text text
 );
 
--- ============================================================
+-- ============
 -- SYSTEM FLAGS
--- ============================================================
+-- ============
 create table public.system_flags (
   id           bigint primary key generated always as identity,
-  flagged_user uuid references public.profiles(id) on delete cascade,   -- nullable per ERD
+  flagged_user uuid references public.profiles(id) on delete cascade,   -- nullable
   reviewed_by  uuid references public.profiles(id) on delete set null,  -- nullable
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now(),
   notes        text                             -- nullable
 );
 
--- ============================================================
+-- ===================
 -- UPDATED_AT TRIGGERS
--- ============================================================
+-- ===================
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
 begin
@@ -164,18 +164,18 @@ create trigger system_flags_updated_at
   before update on public.system_flags
   for each row execute procedure public.set_updated_at();
 
--- ============================================================
+-- ===============
 -- PRIVATE HELPERS
--- ============================================================
+-- ===============
 
 create or replace function private.get_my_role()
 returns text language sql security definer stable as $$
   select role::text from public.profiles where id = auth.uid()
 $$;
 
--- ============================================================
+-- ==================
 -- ROW-LEVEL SECURITY
--- ============================================================
+-- ==================
 alter table public.profiles      enable row level security;
 alter table public.experiences   enable row level security;
 alter table public.fragments     enable row level security;
@@ -313,40 +313,27 @@ create policy "reflections: admin select" on public.reflections
 
 create policy "reflections: admin delete" on public.reflections
   for delete using (private.get_my_role() = 'admin');
-  
--- ── System Flags RLS Policies ─────────────────────────────────────────────
+
+-- System Flags RLS Policies:
 
 -- Reviewers and admins can read all flags
 create policy "system_flags: reviewer read" on public.system_flags
   for select using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role in ('platform_reviewer', 'admin')
-    )
+    private.get_my_role() in ('platform_reviewer', 'admin')
   );
 
--- Reviewers and admins can update flags (e.g. add notes, set reviewed_by)
 create policy "system_flags: reviewer update" on public.system_flags
   for update using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role in ('platform_reviewer', 'admin')
-    )
+    private.get_my_role() in ('platform_reviewer', 'admin')
+  )
+  with check (
+    private.get_my_role() in ('platform_reviewer', 'admin')
   );
 
--- Only admins can insert or delete flags
-create policy "system_flags: admin insert" on public.system_flags
+create policy "system_flags: reviewer insert" on public.system_flags
   for insert with check (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
+    private.get_my_role() in ('platform_reviewer', 'admin')
   );
 
-create policy "system_flags: admin delete" on public.system_flags
-  for delete using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+create policy "system_flags: reviewer delete" on public.system_flags
+  for delete using (private.get_my_role() in ('platform_reviewer', 'admin'));
