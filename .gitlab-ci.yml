@@ -71,7 +71,7 @@ build-frontend-job:     # This job runs in build stage, when any non-doc changes
 
 
 unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/src)
-  stage: test   
+  stage: test
   script:
     - cd backend/api
     - npm ci
@@ -107,7 +107,7 @@ e2e-tests-job:    # runs e2e tests in backend/api/test
 
 # eslint is allowed to fail but will give warnings
 eslint-backend-job:   # This job also runs in the test stage in parallel with e2e testing
-  stage: test    
+  stage: test
   dependencies: []
   script:
     - cd backend/api
@@ -120,7 +120,7 @@ eslint-backend-job:   # This job also runs in the test stage in parallel with e2
 
 
 deploy-job:      # This job runs in the deploy stage, using artifacts from frontend + backend builds
-  stage: deploy 
+  stage: deploy
   environment: production
   needs:
     - job: build-backend-job
