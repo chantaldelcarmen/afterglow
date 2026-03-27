@@ -34,7 +34,7 @@ const inputBlurStyle = {
   borderColor: "var(--color-surface-glass-card-border)",
 };
 
-export function CreateExperience() {
+export default function CreateExperience() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");

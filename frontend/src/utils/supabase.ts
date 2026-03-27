@@ -5,5 +5,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// TODO: standardize one style
+export { supabase };
 export default supabase
         
