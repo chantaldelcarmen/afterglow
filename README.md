@@ -95,6 +95,47 @@ docker compose down -v          # stop and remove volumes (fresh start)
 
 ---
 
+## Database setup
+
+The database is hosted on [Supabase](https://supabase.com). Schema and seed scripts are in `backend/supabase/`.
+
+### Schema
+
+`backend/supabase/schema.sql` defines all tables, enums, constraints, triggers, and RLS policies.
+
+To apply it to a fresh Supabase project:
+
+1. Open your project in the Supabase dashboard
+2. Go to **SQL Editor**
+3. Paste the contents of `backend/supabase/schema.sql` and run it
+
+This only needs to be done once per environment. Do not re-run on an existing database - it will fail on duplicate objects.
+
+### Seeding
+
+`backend/supabase/seed.ts` creates the three test accounts and seeds sample experiences, fragments, reflections, and a system flag for demo purposes.
+
+**Prerequisites:** Node.js and the project `.env` file in the project root (with `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`).
+
+Run from the `backend/api` directory so that `node_modules` are resolved correctly:
+
+```
+cd backend/api
+npx tsx ../supabase/seed.ts
+```
+
+The script is safe to run multiple times - it upserts accounts and clears sample data before re-seeding.
+
+**Test accounts created by the seed:**
+
+| Email | Password | Role |
+|---|---|---|
+| user@afterglow.dev | Afterglow1234! | user |
+| reviewer@afterglow.dev | Afterglow1234! | platform_reviewer |
+| admin@afterglow.dev | Afterglow1234! | admin |
+
+---
+
 ## Git workflow
 
 We are using a simple feature branch workflow.
