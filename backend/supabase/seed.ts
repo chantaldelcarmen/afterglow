@@ -72,12 +72,13 @@ async function seed() {
 
       const { error: profileError } = await supabase
         .from('profiles')
-        .upsert({ id: userId, role: account.role, display_name: account.display_name });
+        .update({ role: account.role, display_name: account.display_name })
+        .eq('id', userId);
 
       if (profileError) {
-        console.error(`Failed to upsert profile for ${account.email}: ${profileError.message}`);
+        console.error(`Failed to update profile for ${account.email}: ${profileError.message}`);
       } else {
-        console.log(`Upserted [${account.role}] ${account.email}`);
+        console.log(`Updated [${account.role}] ${account.email}`);
       }
     } catch (err) {
       console.error(err instanceof Error ? err.message : err);
@@ -215,14 +216,18 @@ async function seed() {
 
   // --- Reflection ---
   if (exp1) {
+    const now = new Date().toISOString();
     const { error: reflError } = await supabase.from('reflections').insert({
       experience_id: exp1.id,
       user_id: testUserId,
       reflection_text:
         'Looking back at this trip, I keep thinking about how rare it is to have a full weekend with no plans. Need to do this more often.',
+      created_at: now,
+      updated_at: now,
     });
 
-    if (!reflError) console.log('Created reflection on Summer Road Trip');
+    if (reflError) console.error('Failed to create reflection:', reflError.message);
+    else console.log('Created reflection on Summer Road Trip');
   }
 
   // --- System flag (for reviewer demo) ---
