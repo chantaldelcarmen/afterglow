@@ -61,8 +61,7 @@ async function seed() {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ role: account.role, display_name: account.display_name })
-      .eq('id', userId);
+      .upsert({ id: userId, role: account.role, display_name: account.display_name });
 
     if (profileError) {
       console.error(`Failed to update profile for ${account.email}: ${profileError.message}`);
