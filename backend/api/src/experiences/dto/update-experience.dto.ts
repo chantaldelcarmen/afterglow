@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class UpdateExperienceDto {
   @IsOptional()
@@ -28,4 +28,9 @@ export class UpdateExperienceDto {
   @IsOptional()
   @IsBoolean()
   is_draft?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  emotion_tags?: string[];
 }
