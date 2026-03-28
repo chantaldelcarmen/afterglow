@@ -56,6 +56,7 @@ create table public.experiences (
   anchor_fragment_id  uuid,                    -- nullable
   start_date          date,                    -- nullable
   end_date            date                     -- nullable
+  emotion_tags        text[] not null default '{}'
 );
 
 -- =========
