@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateReflectionDto } from './dto/create-reflection.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
