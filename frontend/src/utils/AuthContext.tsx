@@ -26,36 +26,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    async function initAuth() {
-      try {
-        const timeout = new Promise<{ data: { session: null } }>((resolve) =>
-          setTimeout(() => resolve({ data: { session: null } }), 5000)
-        );
-        const { data: { session } } = await Promise.race([
-          supabase.auth.getSession(),
-          timeout,
-        ]);
-        if (cancelled) return;
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-        setRole(currentUser ? await fetchRole(currentUser.id) : null);
-      } catch (e) {
-        console.error("[auth] error:", e);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    initAuth();
+    const fallbackTimer = setTimeout(() => {
+      if (!cancelled) setLoading(false);
+    }, 5000);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      clearTimeout(fallbackTimer);
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       setRole(currentUser ? await fetchRole(currentUser.id) : null);
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     });
 
-    return () => { cancelled = true; subscription.unsubscribe(); };
+    return () => {
+      cancelled = true;
+      clearTimeout(fallbackTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
