@@ -7,7 +7,7 @@ export function Unauthorized() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <AppLogo />
       <H2 className="mt-6">Access Denied</H2>
       <Body className="mt-3" style={{ color: "var(--color-text-muted)" }}>

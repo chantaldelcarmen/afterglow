@@ -12,7 +12,7 @@ export function ProtectedRoute({ allowedRoles, children }: Props) {
 
   const roleLoading = !!user && role === null && !!allowedRoles;
 
-  if (loading || roleLoading) return <div className="flex h-screen items-center justify-center text-white/50">Loading...</div>;
+  if (loading || roleLoading) return <div className="fixed inset-0 flex items-center justify-center text-white/50">Loading...</div>;
 
   if (!user) return <Navigate to="/signin" replace />;
 
