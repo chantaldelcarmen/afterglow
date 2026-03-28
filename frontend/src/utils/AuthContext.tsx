@@ -12,12 +12,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({ user: null, role: null, loading: true });
 
 async function fetchRole(userId: string): Promise<string | null> {
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .single();
-  return data?.role ?? null;
+  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
+  const query = supabase.from("profiles").select("role").eq("id", userId).single()
+    .then(({ data }) => data?.role ?? null);
+  return Promise.race([query, timeout]);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -26,20 +24,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    let cancelled = false;
+
+    async function initAuth() {
+      try {
+        const timeout = new Promise<{ data: { session: null } }>((resolve) =>
+          setTimeout(() => resolve({ data: { session: null } }), 5000)
+        );
+        const { data: { session } } = await Promise.race([
+          supabase.auth.getSession(),
+          timeout,
+        ]);
+        if (cancelled) return;
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        setRole(currentUser ? await fetchRole(currentUser.id) : null);
+      } catch (e) {
+        console.error("[auth] error:", e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       setRole(currentUser ? await fetchRole(currentUser.id) : null);
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setRole(currentUser ? await fetchRole(currentUser.id) : null);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => { cancelled = true; subscription.unsubscribe(); };
   }, []);
 
   return (

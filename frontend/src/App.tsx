@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 //import AppLayout from "./components/AppLayout";
 import Home from "./pages/Home";
 import ExperienceLibrary from "./pages/ExperienceLibrary";
@@ -21,6 +21,14 @@ import { Unauthorized } from "./pages/Unauthorized";
 import { AmbientBackground } from "./components/AmbientBackground";
 import { BottomNav } from "./components/BottomNav";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+
+const PUBLIC_PATHS = ["/signin", "/signup", "/forgot-password", "/logout", "/unauthorized"];
+
+function AppNav() {
+  const location = useLocation();
+  if (PUBLIC_PATHS.includes(location.pathname)) return null;
+  return <BottomNav />;
+}
 
 export default function App() {
   return (
@@ -49,7 +57,7 @@ export default function App() {
           <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
         </Routes>
-        <BottomNav />
+        <AppNav />
       </AmbientBackground>
     </BrowserRouter>
   );
