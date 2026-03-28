@@ -102,13 +102,15 @@ export class FragmentsService {
     fragmentId: string,
   ): Promise<{ message: string }> {
     const supabase = this.supabaseService.getClient();
-    
+
     // check ownership first
     const experience = await this.findOne(userId, experienceId);
 
     // check if fragment to be deleted is the anchor, block request
-    if (experience.anchor_fragment_id === fragmentId) 
-      throw new BadRequestException('Cannot delete the anchor fragment. Set a new anchor first.');
+    if (experience.anchor_fragment_id === fragmentId)
+      throw new BadRequestException(
+        'Cannot delete the anchor fragment. Set a new anchor first.',
+      );
 
     // 1. get storage_path from fragments table
     const { data: fragmentPath, error: pathError } = await supabase
