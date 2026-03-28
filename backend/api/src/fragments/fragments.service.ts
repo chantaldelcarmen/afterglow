@@ -102,8 +102,13 @@ export class FragmentsService {
     fragmentId: string,
   ): Promise<{ message: string }> {
     const supabase = this.supabaseService.getClient();
+    
     // check ownership first
-    await this.findOne(userId, experienceId);
+    const experience = await this.findOne(userId, experienceId);
+
+    // check if fragment to be deleted is the anchor, block request
+    if (experience.anchor_fragment_id === fragmentId) 
+      throw new BadRequestException('Cannot delete the anchor fragment. Set a new anchor first.');
 
     // 1. get storage_path from fragments table
     const { data: fragmentPath, error: pathError } = await supabase
@@ -115,15 +120,6 @@ export class FragmentsService {
 
     if (pathError || !fragmentPath)
       throw new NotFoundException('Fragment not found');
-
-    // get experience anchor
-    const { data: experience, error: anchError } = await supabase
-      .from('experiences')
-      .select('anchor_fragment_id')
-      .eq('id', experienceId)
-      .single();
-
-    if (anchError) throw new InternalServerErrorException(anchError.message);
 
     // 2. delete fragment from 'fragments' table
     const { error: tableError } = await supabase
@@ -141,29 +137,6 @@ export class FragmentsService {
 
     if (bucketError)
       throw new InternalServerErrorException(bucketError.message);
-
-    // 4. update anchor fragment if it was deleted here
-    if (experience.anchor_fragment_id === fragmentId) {
-      const { data: newFrag, error: newFragError } = await supabase
-        .from('fragments')
-        .select('id')
-        .eq('experience_id', experienceId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (newFragError)
-        throw new InternalServerErrorException(newFragError.message);
-
-      const { error: newAnchError } = await supabase
-        .from('experiences')
-        .update({ anchor_fragment_id: newFrag?.id ?? null })
-        .eq('id', experienceId)
-        .eq('user_id', userId);
-
-      if (newAnchError)
-        throw new InternalServerErrorException(newAnchError.message);
-    }
 
     return { message: 'Fragment deleted successfully' };
   }
