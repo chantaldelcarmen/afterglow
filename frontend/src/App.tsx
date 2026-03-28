@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 //import AppLayout from "./components/AppLayout";
 import Home from "./pages/Home";
 import ExperienceLibrary from "./pages/ExperienceLibrary";
@@ -17,31 +17,47 @@ import { EditExperience } from "./pages/EditExperience";
 import { Insights } from "./pages/Insights";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { PlatformReviewer } from "./pages/PlatformReviewer";
+import { Unauthorized } from "./pages/Unauthorized";
 import { AmbientBackground } from "./components/AmbientBackground";
 import { BottomNav } from "./components/BottomNav";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+const PUBLIC_PATHS = ["/signin", "/signup", "/forgot-password", "/logout", "/unauthorized"];
+
+function AppNav() {
+  const location = useLocation();
+  if (PUBLIC_PATHS.includes(location.pathname)) return null;
+  return <BottomNav />;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <AmbientBackground>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/library" element={<ExperienceLibrary/>}/>
-          <Route path="/insights" element={<Insights />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/create-experience" element={<CreateExperience />} />
-          <Route path="/experience/:id/edit" element={<EditExperience />} />
-          <Route path="/experience/:id" element={<ExperienceDetail />} />
-          <Route path="/upload" element={<Upload />} />
+          {/* Public routes */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/logout" element={<Logout />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/reviewer" element={<PlatformReviewer />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Authenticated routes */}
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
+          <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
+          <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
+          <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
+          <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+
+          {/* Role-restricted routes */}
+          <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
         </Routes>
-        <BottomNav />
+        <AppNav />
       </AmbientBackground>
     </BrowserRouter>
   );
