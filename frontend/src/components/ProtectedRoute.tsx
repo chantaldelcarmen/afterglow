@@ -10,7 +10,9 @@ type Props = {
 export function ProtectedRoute({ allowedRoles, children }: Props) {
   const { user, role, loading } = useAuth();
 
-  if (loading) return <div className="flex h-screen items-center justify-center text-white/50">Loading...</div>;
+  const roleLoading = !!user && role === null && !!allowedRoles;
+
+  if (loading || roleLoading) return <div className="flex h-screen items-center justify-center text-white/50">Loading...</div>;
 
   if (!user) return <Navigate to="/signin" replace />;
 

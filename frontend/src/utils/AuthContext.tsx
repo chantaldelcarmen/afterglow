@@ -14,7 +14,7 @@ const AuthContext = createContext<AuthContextType>({ user: null, role: null, loa
 async function fetchRole(userId: string): Promise<string | null> {
   const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
   const query = supabase.from("profiles").select("role").eq("id", userId).single()
-    .then(({ data }) => data?.role ?? null);
+    .then(({ data, error }) => { console.log("[fetchRole]", { data, error }); return data?.role ?? null; });
   return Promise.race([query, timeout]);
 }
 
@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       clearTimeout(fallbackTimer);
+      setLoading(true);
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       setRole(currentUser ? await fetchRole(currentUser.id) : null);
