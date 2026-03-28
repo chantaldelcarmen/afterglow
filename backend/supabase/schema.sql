@@ -55,7 +55,7 @@ create table public.experiences (
   user_id             uuid not null references public.profiles(id) on delete cascade,
   anchor_fragment_id  uuid,                    -- nullable
   start_date          date,                    -- nullable
-  end_date            date                     -- nullable
+  end_date            date,                    -- nullable
   emotion_tags        text[] not null default '{}'
 );
 
