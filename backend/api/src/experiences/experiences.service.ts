@@ -59,9 +59,8 @@ export class ExperiencesService {
     // Verify ownership first
     const experience = await this.findOne(userId, id);
 
-    // cannot publish an experience without an anchor set
-    const finalIsDraft = dto.is_draft ?? experience.is_draft;
-    if (finalIsDraft === false && !experience.anchor_fragment_id)
+    // cannot publish an experience without an anchor set (no invalid transitions)
+    if (dto.is_draft === false && !experience.anchor_fragment_id)
       throw new BadRequestException(
         'An anchor fragment must be set before publishing',
       );
