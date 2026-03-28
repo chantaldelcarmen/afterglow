@@ -101,7 +101,10 @@ async function seed() {
   console.log('\nClearing existing sample data...');
 
   await supabase.from('system_flags').delete().gt('id', 0);
-  await supabase.from('experiences').delete().gte('created_at', '2000-01-01');
+  // Set is_draft + nullify anchor together to satisfy the published_requires_anchor check constraint
+  await supabase.from('experiences').update({ is_draft: true, anchor_fragment_id: null }).gte('created_at', '2000-01-01');
+  const { error: deleteError } = await supabase.from('experiences').delete().gte('created_at', '2000-01-01');
+  if (deleteError) console.error('Failed to clear experiences:', deleteError.message);
 
   // -------------------------
   // 3. Seed sample data
@@ -119,6 +122,7 @@ async function seed() {
       start_date: '2025-07-12',
       end_date: '2025-07-14',
       is_draft: true,
+      updated_at: new Date().toISOString(),
     })
     .select('id')
     .single();
@@ -164,6 +168,7 @@ async function seed() {
       start_date: '2025-05-04',
       end_date: '2025-05-04',
       is_draft: true,
+      updated_at: new Date().toISOString(),
     })
     .select('id')
     .single();
@@ -199,6 +204,7 @@ async function seed() {
       title: 'Reading Journal - March',
       description: 'Books and notes from this month.',
       is_draft: true,
+      updated_at: new Date().toISOString(),
     })
     .select('id')
     .single();
@@ -231,10 +237,13 @@ async function seed() {
   }
 
   // --- System flag (for reviewer demo) ---
+  const flagNow = new Date().toISOString();
   const { error: flagError } = await supabase.from('system_flags').insert({
     flagged_user: testUserId,
     reviewed_by: reviewerUserId ?? null,
     notes: 'Sample flag for reviewer demo.',
+    created_at: flagNow,
+    updated_at: flagNow,
   });
 
   if (!flagError) console.log('Created sample system flag');
