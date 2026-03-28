@@ -99,6 +99,15 @@ docker compose down -v          # stop and remove volumes (fresh start)
 
 The database is hosted on [Supabase](https://supabase.com). Schema and seed scripts are in `backend/supabase/`.
 
+### Environment setup
+
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to **Project Settings > API** and copy:
+   - Project URL -> `SUPABASE_URL`
+   - Service Role Key -> `SUPABASE_SERVICE_KEY`
+   - Anon/Public Key -> `SUPABASE_PUBLISHABLE_DEFAULT_KEY` and `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
+3. Copy `.env.example` to `.env` and fill in those values
+
 ### Schema
 
 `backend/supabase/schema.sql` defines all tables, enums, constraints, triggers, and RLS policies.
@@ -115,7 +124,7 @@ This only needs to be done once per environment. Do not re-run on an existing da
 
 `backend/supabase/seed.ts` creates the three test accounts and seeds sample experiences, fragments, reflections, and a system flag for demo purposes.
 
-**Prerequisites:** Node.js and the project `.env` file in the project root (with `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`).
+**Prerequisites:** Node.js and a `.env` file in the project root with at minimum `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` set (see Environment setup above).
 
 Run from the `backend/api` directory so that `node_modules` are resolved correctly:
 
