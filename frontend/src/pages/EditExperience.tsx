@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
@@ -25,7 +25,7 @@ const inputStyle = {
 };
 
 const inputFocusStyle = {
-  boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)`,
+  boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)",
   borderColor: "var(--color-surface-glass-card-border-hover)",
 };
 
@@ -34,7 +34,8 @@ const inputBlurStyle = {
   borderColor: "var(--color-surface-glass-card-border)",
 };
 
-export default function CreateExperience() {
+export function EditExperience() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -44,6 +45,21 @@ export default function CreateExperience() {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+    apiFetch(`/experiences/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTitle(data.title ?? "");
+        setDate(data.experience_date ?? "");
+        setLocation(data.location ?? "");
+        setDescription(data.description ?? "");
+      })
+      .catch(() => setError("Failed to load experience"))
+      .finally(() => setFetching(false));
+  }, [id]);
 
   const handleEmotionToggle = (tag: string) => {
     setEmotionTags((prev) =>
@@ -51,13 +67,13 @@ export default function CreateExperience() {
     );
   };
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
     if (!title.trim() || !date.trim()) return;
     setError("");
     setLoading(true);
     try {
-      await apiFetch("/experiences", {
-        method: "POST",
+      await apiFetch(`/experiences/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -68,13 +84,21 @@ export default function CreateExperience() {
       });
       navigate("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create experience");
+      setError(err instanceof Error ? err.message : "Failed to save experience");
     } finally {
       setLoading(false);
     }
   };
 
   const isFormValid = !!title.trim() && !!date.trim();
+
+  if (fetching) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
@@ -83,9 +107,9 @@ export default function CreateExperience() {
         {/* Mobile Header */}
         <div className="md:hidden">
           <AppLogo />
-          <H2 className="px-1">Create Experience</H2>
+          <H2 className="px-1">Edit Experience</H2>
           <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Craft a container for your memory fragments
+            Update your memory
           </BodySmall>
         </div>
 
@@ -108,9 +132,9 @@ export default function CreateExperience() {
           >
             <ArrowLeft size={20} style={{ color: "var(--color-text-primary)" }} />
           </button>
-          <H2 className="px-1">Create Experience</H2>
+          <H2 className="px-1">Edit Experience</H2>
           <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Craft a container for your memory fragments
+            Update your memory
           </BodySmall>
         </div>
       </div>
@@ -239,7 +263,6 @@ export default function CreateExperience() {
 
           {/* Buttons */}
           <div className="pt-6 space-y-3">
-            {/* Cancel - mobile only */}
             <button
               onClick={() => navigate(-1)}
               className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
@@ -258,9 +281,8 @@ export default function CreateExperience() {
               <Body style={{ color: "var(--color-text-muted)" }}>Cancel</Body>
             </button>
 
-            {/* Create Experience */}
             <button
-              onClick={handleCreate}
+              onClick={handleSave}
               disabled={!isFormValid || loading}
               className="w-full rounded-full border backdrop-blur-xl px-6 py-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
@@ -274,17 +296,9 @@ export default function CreateExperience() {
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}
             >
-              <Body style={{ color: "var(--color-text-primary)" }}>{loading ? "Creating..." : "Create Experience"}</Body>
+              <Body style={{ color: "var(--color-text-primary)" }}>{loading ? "Saving..." : "Save Changes"}</Body>
             </button>
           </div>
-
-          {/* Helper Text */}
-          <BodySmall
-            className="text-center pt-2"
-            style={{ color: "var(--color-text-muted-dim)", fontStyle: "italic", fontSize: "13px" }}
-          >
-            Next, you'll add fragments to bring this memory to life
-          </BodySmall>
         </div>
       </div>
     </div>

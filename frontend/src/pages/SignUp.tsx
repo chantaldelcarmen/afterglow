@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { H1, H2, Body, BodySmall } from "../components/Typography";
+import { H2, Body, BodySmall } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
 import supabase from "../utils/supabase";
 
 const inputStyle = {
@@ -60,7 +61,7 @@ export function SignUp() {
   return (
     <div className="h-full flex flex-col justify-center space-y-3 overflow-hidden">
       <form onSubmit={handleSignUp} className="w-full max-w-md mx-auto space-y-4 px-6">
-        <H1 className="text-center mb-2">Afterglow</H1>
+        <AppLogo />
         <H2 className="text-center mb-6">Create Account</H2>
 
         {error && (
