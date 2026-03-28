@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { H1, H2, Body, BodySmall } from "../components/Typography";
+import { H2, Body, BodySmall } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
 import { useAuth } from "../utils/AuthContext";
 import { getUserExperiences } from "../lib/experience";
 import { getFragments } from "../lib/storage";
@@ -37,8 +38,8 @@ export function Profile() {
   const email = user.email ?? "";
 
   return (
-    <div className="h-full flex flex-col px-6 py-8 space-y-8 overflow-y-auto">
-      <H1 className="text-center">Afterglow</H1>
+    <div className="h-full flex flex-col px-6 pb-8 space-y-8 overflow-y-auto">
+      <AppLogo />
 
       {/* Profile section */}
       <section className="space-y-4">
