@@ -14,6 +14,9 @@ import { ReflectionsService } from './reflections.service';
 import type { ReflectionRow } from './reflections.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateReflectionDto } from './dto/create-reflection.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../enums/role.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -23,7 +26,8 @@ interface AuthenticatedRequest extends Request {
 }
 
 @Controller('experiences/:id/reflections')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.USER)
 export class ReflectionsController {
   constructor(private readonly reflectionsService: ReflectionsService) {}
 
