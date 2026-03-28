@@ -3,6 +3,7 @@ import { apiFetch } from './api';
 import type { Fragment } from '../types/fragment';
 
 const BUCKET = 'fragments';
+const SIGNED_URL_EXPIRY_SECONDS = 3600; // 1 hour
 
 export async function uploadFragment(
   experienceId: string,
@@ -39,7 +40,7 @@ export async function getFragmentSignedUrl(
 ): Promise<string | null> {
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .createSignedUrl(storagePath, 60 * 60);
+    .createSignedUrl(storagePath, SIGNED_URL_EXPIRY_SECONDS);
 
   if (error) return null;
   return data.signedUrl;
