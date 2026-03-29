@@ -11,4 +11,5 @@ export interface Experience {
   anchor_fragment_id: string | null;
   created_at: string;
   updated_at: string;
+  emotion_tags: string[];
 }

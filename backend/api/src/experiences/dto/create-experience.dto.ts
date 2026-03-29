@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsArray,
 } from 'class-validator';
 
 export class CreateExperienceDto {
@@ -34,4 +35,9 @@ export class CreateExperienceDto {
   @IsOptional()
   @IsBoolean()
   is_draft?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  emotion_tags?: string[];
 }
