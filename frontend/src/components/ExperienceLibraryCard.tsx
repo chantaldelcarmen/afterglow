@@ -8,10 +8,8 @@ type Props = {
 export default function ExperienceLibraryCard({ experience }: Props) {
   const navigate = useNavigate();
 
-  const coverImage = experience.fragments?.find(f => f.type === "photo")?.imageUrl;
+  const coverImage = null; // TODO: change this
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
-
-
 
   return (
     <button
