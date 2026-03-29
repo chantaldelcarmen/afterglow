@@ -29,13 +29,18 @@ export class ExperiencesService {
     const { data, error } = await this.supabase
       .getClient()
       .from('experiences')
-      .select('*')
+      .select('*, fragments!experiences_anchor_fragment_id_fkey(storage_path)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .returns<Experience[]>();
+      .returns<(Experience & { fragments: { storage_path: string } | null })[]>();
 
     if (error) throw new InternalServerErrorException(error.message);
-    return data;
+
+    return data.map((exp) => ({
+      ...exp,
+      anchor_storage_path: exp.fragments?.storage_path ?? null,
+      fragments: undefined,
+    }));
   }
 
   async findOne(userId: string, id: string): Promise<Experience> {
