@@ -56,7 +56,7 @@ export default function CreateExperience() {
     setError("");
     setLoading(true);
     try {
-      await apiFetch("/experiences", {
+      const res = await apiFetch("/experiences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -64,9 +64,11 @@ export default function CreateExperience() {
           experience_date: date,
           location: location.trim() || undefined,
           description: description.trim() || undefined,
+          emotion_tags: emotionTags,
         }),
       });
-      navigate("/");
+      const created = await res.json();
+      navigate(`/upload?experienceId=${created.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create experience");
     } finally {
@@ -214,12 +216,13 @@ export default function CreateExperience() {
                       onClick={() => handleEmotionToggle(tag)}
                       className="px-3 py-2 rounded-full border text-xs backdrop-blur-xl transition-all duration-200"
                       style={{
-                        background: isActive ? "var(--color-button-plum-bg-hover)" : "var(--color-button-plum-bg)",
-                        borderColor: isActive ? "var(--color-button-plum-border-hover)" : "var(--color-button-plum-border)",
+                        background: isActive ? "var(--color-button-plum-bg-selected)" : "var(--color-button-plum-bg-dim)",
+                        borderColor: isActive ? "var(--color-button-plum-border-hover)" : "var(--color-button-plum-border-dim)",
                         color: "var(--color-text-primary)",
                         boxShadow: isActive
                           ? "0 2px 10px rgba(0,0,0,0.35), 0 0 20px var(--color-button-plum-glow-hover)"
-                          : "0 2px 10px rgba(0,0,0,0.35), 0 0 12px var(--color-button-plum-glow)",
+                          : "none",
+                        fontWeight: isActive ? 600 : 400,
                       }}
                     >
                       {tag}

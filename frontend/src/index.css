@@ -129,8 +129,11 @@
   --color-button-warm-glow: rgba(180,120,200,0.20);
   --color-button-plum-bg: rgba(140,80,180,0.35);
   --color-button-plum-bg-hover: rgba(150,90,190,0.50);
+  --color-button-plum-bg-selected: rgba(140,80,180,0.80);
+  --color-button-plum-bg-dim: rgba(140,80,180,0.15);
   --color-button-plum-border: rgba(200,150,220,0.30);
   --color-button-plum-border-hover: rgba(220,180,240,0.45);
+  --color-button-plum-border-dim: rgba(200,150,220,0.15);
   --color-button-plum-glow: rgba(180,120,200,0.20);
   --color-button-plum-glow-hover: rgba(200,140,220,0.30);
 
