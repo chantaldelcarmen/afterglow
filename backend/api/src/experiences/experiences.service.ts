@@ -29,7 +29,7 @@ export class ExperiencesService {
     const { data, error } = await this.supabase
       .getClient()
       .from('experiences')
-      .select('*, fragments!experiences_anchor_fragment_id_fkey(storage_path)')
+      .select('*, fragments!fk_anchor_fragment(storage_path)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .returns<(Experience & { fragments: { storage_path: string } | null })[]>();
