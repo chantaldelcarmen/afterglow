@@ -1,7 +1,8 @@
 import {
   Injectable,
-  InternalServerErrorException,
+  BadRequestException,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateExperienceDto } from './dto/create-experience.dto';
@@ -56,7 +57,13 @@ export class ExperiencesService {
     dto: UpdateExperienceDto,
   ): Promise<Experience> {
     // Verify ownership first
-    await this.findOne(userId, id);
+    const experience = await this.findOne(userId, id);
+
+    // cannot publish an experience without an anchor set (no invalid transitions)
+    if (dto.is_draft === false && !experience.anchor_fragment_id)
+      throw new BadRequestException(
+        'An anchor fragment must be set before publishing',
+      );
 
     const { data, error } = await this.supabase
       .getClient()
