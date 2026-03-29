@@ -56,6 +56,7 @@ export function EditExperience() {
         setDate(data.experience_date ?? "");
         setLocation(data.location ?? "");
         setDescription(data.description ?? "");
+        setEmotionTags(data.emotion_tags ?? []);
       })
       .catch(() => setError("Failed to load experience"))
       .finally(() => setFetching(false));
@@ -80,9 +81,10 @@ export function EditExperience() {
           experience_date: date,
           location: location.trim() || undefined,
           description: description.trim() || undefined,
+          emotion_tags: emotionTags,
         }),
       });
-      navigate("/");
+      navigate(`/experience/${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save experience");
     } finally {

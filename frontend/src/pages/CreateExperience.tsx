@@ -56,7 +56,7 @@ export default function CreateExperience() {
     setError("");
     setLoading(true);
     try {
-      await apiFetch("/experiences", {
+      const res = await apiFetch("/experiences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -64,9 +64,11 @@ export default function CreateExperience() {
           experience_date: date,
           location: location.trim() || undefined,
           description: description.trim() || undefined,
+          emotion_tags: emotionTags,
         }),
       });
-      navigate("/");
+      const created = await res.json();
+      navigate(`/upload?experienceId=${created.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create experience");
     } finally {
