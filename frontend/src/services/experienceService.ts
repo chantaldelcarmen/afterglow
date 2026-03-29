@@ -7,21 +7,31 @@ type SupabaseExperienceRow = {
   description: string | null;
   location: string | null;
   experience_date: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_draft: boolean;
+  user_id: string;
+  anchor_fragment_id: string | null;
+  created_at: string;
+  updated_at: string;
+  emotion_tags: string[];
 };
 
 function mapExperience(item: SupabaseExperienceRow): Experience {
   return {
-    id: item.id,
+     id: item.id,
     title: item.title,
-    date: item.experience_date ?? "",
-    year: item.experience_date
-      ? new Date(item.experience_date).getFullYear()
-      : new Date().getFullYear(),
-    imageUrl: "",
-    location: item.location ?? "",
-    description: item.description ?? "",
-    tags: [],
-    fragments: [],
+    description: item.description ?? null,
+    location: item.location ?? null,
+    experience_date: item.experience_date ?? null,
+    start_date: item.start_date ?? null,
+    end_date: item.end_date ?? null,
+    is_draft: item.is_draft ?? false,
+    user_id: item.user_id,
+    anchor_fragment_id: item.anchor_fragment_id ?? null,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+    emotion_tags: item.emotion_tags ?? [],
   };
 }
 
