@@ -25,7 +25,7 @@ export default function Upload() {
   const loadExperiences = useCallback(async () => {
     if (!user) return;
     try {
-      const data = await getUserExperiences(user.id);
+      const data = await getUserExperiences();
       setExperiences(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load experiences');
@@ -50,7 +50,7 @@ export default function Upload() {
     if (!user || !newTitle.trim()) return;
     try {
       setError(null);
-      const { id } = await createExperience(newTitle.trim(), user.id);
+      const { id } = await createExperience(newTitle.trim());
       setNewTitle('');
       await loadExperiences();
       setSelectedId(id);

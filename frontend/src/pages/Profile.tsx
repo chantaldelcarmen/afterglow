@@ -14,7 +14,7 @@ export function Profile() {
 
   useEffect(() => {
     if (!user) return;
-    getUserExperiences(user.id)
+    getUserExperiences()
       .then(async (experiences) => {
         setExperienceCount(experiences.length);
         const counts = await Promise.all(
