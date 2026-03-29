@@ -240,8 +240,8 @@ export function EditExperience() {
                       onClick={() => handleEmotionToggle(tag)}
                       className="px-3 py-2 rounded-full border text-xs backdrop-blur-xl transition-all duration-200"
                       style={{
-                        background: isActive ? "rgba(140,80,180,0.80)" : "rgba(140,80,180,0.15)",
-                        borderColor: isActive ? "var(--color-button-plum-border-hover)" : "rgba(200,150,220,0.15)",
+                        background: isActive ? "var(--color-button-plum-bg-selected)" : "var(--color-button-plum-bg-dim)",
+                        borderColor: isActive ? "var(--color-button-plum-border-hover)" : "var(--color-button-plum-border-dim)",
                         color: "var(--color-text-primary)",
                         boxShadow: isActive
                           ? "0 2px 10px rgba(0,0,0,0.35), 0 0 20px var(--color-button-plum-glow-hover)"
