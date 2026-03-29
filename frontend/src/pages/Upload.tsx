@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
@@ -19,16 +19,20 @@ export default function Upload() {
   const [selectedId, setSelectedId] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [isLoadingExperiences, setIsLoadingExperiences] = useState(false);
   const [fragments, setFragments] = useState<Fragment[]>([]);
 
   const loadExperiences = useCallback(async () => {
     if (!user) return;
+    setIsLoadingExperiences(true);
     try {
+      setError(null);
       const data = await getUserExperiences(user.id);
       setExperiences(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load experiences');
+    } finally {
+      setIsLoadingExperiences(false);
     }
   }, [user]);
 
@@ -41,10 +45,10 @@ export default function Upload() {
     }
   }, []);
 
-  if (user && !loaded) {
-    setLoaded(true);
-    loadExperiences();
-  }
+  useEffect(() => {
+    if (!user) return;
+    void loadExperiences();
+  }, [user, loadExperiences]);
 
   async function handleCreate() {
     if (!user || !newTitle.trim()) return;
@@ -54,6 +58,7 @@ export default function Upload() {
       setNewTitle('');
       await loadExperiences();
       setSelectedId(id);
+      await loadFragments(id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create experience');
     }
@@ -80,9 +85,12 @@ export default function Upload() {
             if (id) loadFragments(id);
             else setFragments([]);
           }}
+          disabled={isLoadingExperiences}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         >
-          <option value="">-- Choose an experience --</option>
+          <option value="">
+            {isLoadingExperiences ? 'Loading experiences...' : '-- Choose an experience --'}
+          </option>
           {experiences.map((exp) => (
             <option key={exp.id} value={exp.id}>{exp.title}</option>
           ))}
