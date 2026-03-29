@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Fragment } from '../types/fragment';
 import { getFragmentSignedUrl } from '../lib/storage';
 
@@ -8,15 +8,34 @@ interface FragmentGalleryProps {
 
 export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const signedUrlTargets = useMemo(
+    () =>
+      fragments.map((fragment) => ({
+        id: fragment.id,
+        experienceId: fragment.experience_id,
+        storagePath: fragment.storage_path,
+      })),
+    [fragments],
+  );
+  const signedUrlRequestKey = JSON.stringify(signedUrlTargets);
 
   useEffect(() => {
     let cancelled = false;
 
+    const currentTargets: Array<{
+      id: string;
+      experienceId: string;
+      storagePath: string | null;
+    }> = JSON.parse(signedUrlRequestKey);
+
     async function loadSignedUrls() {
       const urlEntries = await Promise.all(
-        fragments.map(async (fragment) => {
-          if (!fragment.storage_path) return [fragment.id, null] as const;
-          const signedUrl = await getFragmentSignedUrl(fragment.storage_path);
+        currentTargets.map(async (fragment) => {
+          if (!fragment.storagePath) return [fragment.id, null] as const;
+          const signedUrl = await getFragmentSignedUrl(
+            fragment.experienceId,
+            fragment.id,
+          );
           return [fragment.id, signedUrl] as const;
         }),
       );
@@ -35,7 +54,7 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
     return () => {
       cancelled = true;
     };
-  }, [fragments]);
+  }, [signedUrlRequestKey]);
 
   if (fragments.length === 0) {
     return <p className="text-sm text-gray-500">No fragments yet.</p>;

@@ -13,6 +13,8 @@ import { Experience } from '../experiences/experiences.interface';
 
 @Injectable()
 export class FragmentsService {
+  private static readonly SIGNED_URL_EXPIRY_SECONDS = 3600;
+
   constructor(private readonly supabaseService: SupabaseService) {}
   /*
     Uploads a fragment to the 'fragments' storage bucket
@@ -87,6 +89,44 @@ export class FragmentsService {
     } else {
       return fragments ?? [];
     }
+  }
+
+  async getFragmentSignedUrl(
+    userId: string,
+    experienceId: string,
+    fragmentId: string,
+  ): Promise<{ signedUrl: string }> {
+    const supabase = this.supabaseService.getClient();
+
+    await this.findOne(userId, experienceId);
+
+    const { data: fragment, error } = await supabase
+      .from('fragments')
+      .select('storage_path')
+      .eq('id', fragmentId)
+      .eq('experience_id', experienceId)
+      .single<{ storage_path: string | null }>();
+
+    if (error || !fragment) {
+      throw new NotFoundException('Fragment not found');
+    }
+
+    if (!fragment.storage_path) {
+      throw new BadRequestException('Fragment has no storage path');
+    }
+
+    const { data, error: signedUrlError } = await supabase.storage
+      .from('fragments')
+      .createSignedUrl(
+        fragment.storage_path,
+        FragmentsService.SIGNED_URL_EXPIRY_SECONDS,
+      );
+
+    if (signedUrlError) {
+      throw new InternalServerErrorException(signedUrlError.message);
+    }
+
+    return { signedUrl: data.signedUrl };
   }
 
   /*

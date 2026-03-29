@@ -1,9 +1,5 @@
-import supabase from '../utils/supabase';
 import { apiFetch } from './api';
 import type { Fragment } from '../types/fragment';
-
-const BUCKET = 'fragments';
-const SIGNED_URL_EXPIRY_SECONDS = 3600; // 1 hour
 
 export async function uploadFragment(
   experienceId: string,
@@ -36,12 +32,17 @@ export async function deleteFragment(
 }
 
 export async function getFragmentSignedUrl(
-  storagePath: string,
+  experienceId: string,
+  fragmentId: string,
 ): Promise<string | null> {
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(storagePath, SIGNED_URL_EXPIRY_SECONDS);
+  try {
+    const res = await apiFetch(
+      `/experiences/${experienceId}/fragments/${fragmentId}/signed-url`,
+    );
+    const data: { signedUrl?: string } = await res.json();
 
-  if (error) return null;
-  return data.signedUrl;
+    return data.signedUrl ?? null;
+  } catch {
+    return null;
+  }
 }
