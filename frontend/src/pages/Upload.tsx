@@ -19,15 +19,20 @@ export default function Upload() {
   const [selectedId, setSelectedId] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingExperiences, setIsLoadingExperiences] = useState(false);
   const [fragments, setFragments] = useState<Fragment[]>([]);
 
   const loadExperiences = useCallback(async () => {
     if (!user) return;
+    setIsLoadingExperiences(true);
     try {
+      setError(null);
       const data = await getUserExperiences();
       setExperiences(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load experiences');
+    } finally {
+      setIsLoadingExperiences(false);
     }
   }, [user]);
 
@@ -42,7 +47,7 @@ export default function Upload() {
 
   useEffect(() => {
     if (!user) return;
-    loadExperiences();
+    void loadExperiences();
   }, [user, loadExperiences]);
 
   async function handleCreate() {
@@ -53,6 +58,7 @@ export default function Upload() {
       setNewTitle('');
       await loadExperiences();
       setSelectedId(id);
+      await loadFragments(id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create experience');
     }
@@ -79,9 +85,12 @@ export default function Upload() {
             if (id) loadFragments(id);
             else setFragments([]);
           }}
+          disabled={isLoadingExperiences}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         >
-          <option value="">-- Choose an experience --</option>
+          <option value="">
+            {isLoadingExperiences ? 'Loading experiences...' : '-- Choose an experience --'}
+          </option>
           {experiences.map((exp) => (
             <option key={exp.id} value={exp.id}>{exp.title}</option>
           ))}
