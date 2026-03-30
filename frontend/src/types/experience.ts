@@ -5,14 +5,18 @@ export type Fragment = {
   imageUrl?: string;
 };
 
-export type Experience = {
+export interface Experience {
   id: string;
   title: string;
-  date: string;
-  imageUrl: string;
-  year: number;
-  location: string;
-  description: string;
-  tags: string[];
-  fragments: Fragment[];
-};
+  description: string | null;
+  location: string | null;
+  experience_date: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_draft: boolean;
+  user_id: string;
+  anchor_fragment_id: string | null;
+  created_at: string;
+  updated_at: string;
+  emotion_tags: string[];
+}
