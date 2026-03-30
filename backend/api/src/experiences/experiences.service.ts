@@ -38,7 +38,6 @@ export class ExperiencesService {
 
     return data.map((exp) => ({
       ...exp,
-      anchor_storage_path: exp.fragments?.storage_path ?? null,
       fragments: undefined,
     }));
   }

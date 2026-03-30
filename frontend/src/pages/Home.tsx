@@ -14,7 +14,6 @@ interface Experience {
   is_draft: boolean;
   created_at: string;
   anchor_fragment_id: string | null;
-  anchor_storage_path: string | null;
 }
 
 export default function Home() {

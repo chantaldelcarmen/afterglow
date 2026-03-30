@@ -9,7 +9,6 @@ export interface Experience {
   is_draft: boolean;
   user_id: string;
   anchor_fragment_id: string | null;
-  anchor_storage_path: string | null;
   created_at: string;
   updated_at: string;
   emotion_tags: string[];
