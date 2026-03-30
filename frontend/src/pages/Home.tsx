@@ -5,16 +5,7 @@ import { AppLogo } from "../components/AppLogo";
 import { GlassButton } from "../components/GlassButton";
 import { useAuth } from "../utils/AuthContext";
 import { apiFetch } from "../lib/api";
-
-interface Experience {
-  id: string;
-  title: string;
-  description: string | null;
-  experience_date: string | null;
-  is_draft: boolean;
-  created_at: string;
-  anchor_fragment_id: string | null;
-}
+import type { Experience } from "../types/experience";
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
