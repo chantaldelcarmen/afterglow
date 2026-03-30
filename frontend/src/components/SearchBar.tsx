@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { colors, typography, effects } from "../design-tokens";
+import { colors, typography } from "../design-tokens";
 import { useState } from "react";
 
 interface SearchBarProps {

@@ -29,14 +29,13 @@ export function SearchPanel({
 }: SearchPanelProps) {
   const [tempDateRange, setTempDateRange] = React.useState(dateRange);
 
-  // Sync temp state with actual state when it changes externally
   React.useEffect(() => {
     setTempDateRange(dateRange);
   }, [dateRange]);
 
   const handleApplyDateRange = () => {
     onDateRangeChange(tempDateRange);
-    onClosePanel(); // Close panel after applying
+    onClosePanel();
   };
 
   const handleClearDateRange = () => {
@@ -53,16 +52,13 @@ export function SearchPanel({
       style={{
         background: colors.surface.glassCard,
         borderColor: colors.surface.glassCardBorder,
-        boxShadow:
-          "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
+        boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
       }}
     >
-      {/* Inner glow */}
       <div
         className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.15), transparent 70%)",
+          background: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.15), transparent 70%)",
         }}
       />
 
@@ -75,12 +71,8 @@ export function SearchPanel({
               key={search}
               className="w-full text-left px-3 py-2 rounded-xl transition-all duration-200"
               onClick={() => onRecentClick(search)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
             >
               <Body>{search}</Body>
             </button>
@@ -92,21 +84,15 @@ export function SearchPanel({
       <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
           <Label className="uppercase tracking-wider">Filter by</Label>
-
-          {/* Clear button */}
           <button
             type="button"
             className="text-xs uppercase tracking-wide"
-            style={{ 
-              color: colors.text.muted,
-              textShadow: typography.shadows.text,
-            }}
+            style={{ color: colors.text.muted, textShadow: typography.shadows.text }}
             onClick={onClearFilters}
           >
             Clear
           </button>
         </div>
-
         <div className="flex flex-wrap gap-2">
           {filterOptions.map((option) => (
             <FilterChip
@@ -123,15 +109,10 @@ export function SearchPanel({
       <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
           <Label className="uppercase tracking-wider">Date Range</Label>
-
-          {/* Clear button */}
           <button
             type="button"
             className="text-xs uppercase tracking-wide"
-            style={{ 
-              color: colors.text.muted,
-              textShadow: typography.shadows.text,
-            }}
+            style={{ color: colors.text.muted, textShadow: typography.shadows.text }}
             onClick={handleClearDateRange}
           >
             Clear
@@ -139,13 +120,7 @@ export function SearchPanel({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label 
-              className="text-xs uppercase tracking-wide" 
-              style={{ 
-                color: colors.text.muted,
-                textShadow: typography.shadows.text,
-              }}
-            >
+            <label className="text-xs uppercase tracking-wide" style={{ color: colors.text.muted }}>
               From
             </label>
             <input
@@ -157,8 +132,8 @@ export function SearchPanel({
                 background: "rgba(255, 255, 255, 0.03)",
                 borderColor: "rgba(255, 255, 255, 0.08)",
                 color: colors.text.primary,
-                textShadow: typography.shadows.text,
-                ...typography.styles.body,
+                fontFamily: typography.fonts.sansSerif,
+                fontSize: "14px",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "rgba(159, 122, 234, 0.4)";
@@ -171,13 +146,7 @@ export function SearchPanel({
             />
           </div>
           <div className="space-y-1.5">
-            <label 
-              className="text-xs uppercase tracking-wide" 
-              style={{ 
-                color: colors.text.muted,
-                textShadow: typography.shadows.text,
-              }}
-            >
+            <label className="text-xs uppercase tracking-wide" style={{ color: colors.text.muted }}>
               To
             </label>
             <input
@@ -189,8 +158,8 @@ export function SearchPanel({
                 background: "rgba(255, 255, 255, 0.03)",
                 borderColor: "rgba(255, 255, 255, 0.08)",
                 color: colors.text.primary,
-                textShadow: typography.shadows.text,
-                ...typography.styles.body,
+                fontFamily: typography.fonts.sansSerif,
+                fontSize: "14px",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "rgba(159, 122, 234, 0.4)";

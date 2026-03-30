@@ -1,4 +1,4 @@
-import { colors, effects } from "../design-tokens";
+import { colors } from "../design-tokens";
 import { Body } from "./Typography";
 import { X } from "lucide-react";
 

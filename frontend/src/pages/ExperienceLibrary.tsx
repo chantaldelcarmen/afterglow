@@ -54,7 +54,7 @@ export default function ExperienceLibrary() {
     setDateRange({ start: "", end: "" });
   };
 
-  const filteredExperiences = experiences.filter((exp) => {
+  const filteredExperiences = experiences.filter((exp: Experience) => {
     const q = search.toLowerCase().trim();
     const matchesSearch =
       q.length === 0 ||
@@ -78,7 +78,6 @@ export default function ExperienceLibrary() {
     return matchesSearch && matchesFilters && matchesDateRange;
   });
 
-  // Group by year
   const experiencesByYear = filteredExperiences.reduce((acc, exp) => {
     const displayDate = exp.experience_date ?? exp.start_date ?? null;
     const year = displayDate ? new Date(displayDate).getFullYear() : 0;
@@ -91,7 +90,6 @@ export default function ExperienceLibrary() {
 
   return (
     <div className="max-w-[1000px] mx-auto h-full flex flex-col">
-      {/* Sticky header */}
       <div className="sticky top-0 z-20 pt-6 pb-4">
         <H1 className="px-1 mb-1">Your Library</H1>
         <BodySmall className="px-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
@@ -117,7 +115,6 @@ export default function ExperienceLibrary() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto pb-24">
         {loading && <p className="mt-8" style={{ color: colors.text.muted }}>Loading...</p>}
         {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
@@ -133,7 +130,7 @@ export default function ExperienceLibrary() {
             {years.map((year) => (
               <div key={year} className="space-y-4">
                 <H2 className="px-1">{year}</H2>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {experiencesByYear[Number(year)].map((experience) => (
                     <ExperienceLibraryCard key={experience.id} experience={experience} />
                   ))}
@@ -143,6 +140,19 @@ export default function ExperienceLibrary() {
 
             {years.length === 0 && (
               <div className="text-center py-16 px-6">
+                <div
+                  className="inline-flex w-20 h-20 rounded-full mb-6 items-center justify-center"
+                  style={{
+                    backgroundColor: "rgba(147, 51, 234, 0.1)",
+                    border: `1px solid ${colors.border.glass}`,
+                    backdropFilter: "blur(10px)",
+                  }}
+                >
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: colors.glow.primary, opacity: 0.6 }}>
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                </div>
                 <H2 className="mb-2">No experiences found</H2>
                 <BodySmall style={{ color: colors.text.mutedDim }}>
                   {search || activeFilters.length > 0 || dateRange.start || dateRange.end
