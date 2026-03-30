@@ -1,22 +1,18 @@
-import supabase from '../utils/supabase';
 import { apiFetch } from './api';
 import type { Fragment } from '../types/fragment';
-
-const BUCKET = 'fragments';
 
 export async function uploadFragment(
   experienceId: string,
   file: File,
   caption?: string,
-): Promise<{ storagePath: string; publicUrl: string }> {
+): Promise<void> {
   const form = new FormData();
   form.append('file', file);
   if (caption) form.append('caption', caption);
-  const res = await apiFetch(`/experiences/${experienceId}/fragments`, {
+  await apiFetch(`/experiences/${experienceId}/fragments`, {
     method: 'POST',
     body: form,
   });
-  return res.json();
 }
 
 export async function getFragments(
@@ -35,7 +31,18 @@ export async function deleteFragment(
   });
 }
 
-export function getFragmentPublicUrl(storagePath: string): string {
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
-  return data.publicUrl;
+export async function getFragmentSignedUrl(
+  experienceId: string,
+  fragmentId: string,
+): Promise<string | null> {
+  try {
+    const res = await apiFetch(
+      `/experiences/${experienceId}/fragments/${fragmentId}/signed-url`,
+    );
+    const data: { signedUrl?: string } = await res.json();
+
+    return data.signedUrl ?? null;
+  } catch {
+    return null;
+  }
 }
