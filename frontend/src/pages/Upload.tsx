@@ -4,14 +4,9 @@ import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
+import type { Experience } from '../types/experience';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
-
-interface Experience {
-  id: string;
-  title: string;
-  created_at: string;
-}
 
 export default function Upload() {
   const { user, loading } = useAuth();
@@ -27,7 +22,7 @@ export default function Upload() {
     setIsLoadingExperiences(true);
     try {
       setError(null);
-      const data = await getUserExperiences(user.id);
+      const data = await getUserExperiences();
       setExperiences(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load experiences');
@@ -54,7 +49,7 @@ export default function Upload() {
     if (!user || !newTitle.trim()) return;
     try {
       setError(null);
-      const { id } = await createExperience(newTitle.trim(), user.id);
+      const { id } = await createExperience(newTitle.trim());
       setNewTitle('');
       await loadExperiences();
       setSelectedId(id);

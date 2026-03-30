@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import ExperienceLibraryCard from "../components/ExperienceLibraryCard";
-import { getExperiences } from "../services/experienceService";
+//import { getExperiences } from "../services/experienceService";
 import type { Experience } from "../types/experience";
+import { getUserExperiences } from "../lib/experience";
 // import { mockExperiences } from "../data/mockExperiences";
 import { Search } from "lucide-react";
 
@@ -14,7 +15,7 @@ export default function ExperienceLibrary() {
   useEffect(() => {
     async function loadExperiences() {
       try {
-        const data = await getExperiences();
+        const data = await getUserExperiences();
         setExperiences(data);
       } catch (err) {
         console.error(err);
