@@ -88,23 +88,6 @@ export class FragmentsController {
   }
 
   /*
-   GET /experiences/:id/fragments/:fragmentId/signed-url
-   Generate a short-lived signed URL for a fragment's storage file
-   */
-  @Get(':id/fragments/:fragmentId/signed-url')
-  getSignedUrl(
-    @Req() req,
-    @Param('id') experienceId: string,
-    @Param('fragmentId') fragmentId: string,
-  ) {
-    return this.fragmentsService.getSignedUrl(
-      req.user.id,
-      experienceId,
-      fragmentId,
-    );
-  }
-
-  /*
    PATCH /experiences/:id/fragments/:fragmentId/anchor
    Choose a fragment to set as the anchor for a user's experience
    */

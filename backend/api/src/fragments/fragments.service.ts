@@ -226,40 +226,6 @@ export class FragmentsService {
     }
   }
 
-  /*
-    Generates a signed URL for a fragment's storage path
-    */
-  async getSignedUrl(
-    userId: string,
-    experienceId: string,
-    fragmentId: string,
-  ): Promise<{ signedUrl: string }> {
-    const supabase = this.supabaseService.getClient();
-
-    // check ownership
-    await this.findOne(userId, experienceId);
-
-    // get storage_path for the fragment
-    const { data: fragment, error: fragError } = await supabase
-      .from('fragments')
-      .select('storage_path')
-      .eq('id', fragmentId)
-      .eq('experience_id', experienceId)
-      .single();
-
-    if (fragError || !fragment)
-      throw new NotFoundException('Fragment not found');
-
-    const { data, error } = await supabase.storage
-      .from('fragments')
-      .createSignedUrl(fragment.storage_path, 3600);
-
-    if (error || !data)
-      throw new InternalServerErrorException('Failed to generate signed URL');
-
-    return { signedUrl: data.signedUrl };
-  }
-
   // helper function to confirm ownership
   async findOne(userId: string, id: string): Promise<Experience> {
     const supabase = this.supabaseService.getClient();
