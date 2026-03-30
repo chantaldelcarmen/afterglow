@@ -53,7 +53,6 @@ export default function Upload() {
       setNewTitle('');
       await loadExperiences();
       setSelectedId(id);
-      await loadFragments(id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create experience');
     }
