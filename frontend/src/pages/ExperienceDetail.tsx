@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { getOneExperience } from "../lib/experience";
+import { getFragmentSignedUrl } from "../lib/storage";
 import type { Experience } from "../types/experience";
 import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
@@ -13,6 +14,7 @@ export default function ExperienceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [experience, setExperience] = useState<Experience | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isButtonHovered, setIsButtonHovered] = useState(false);
@@ -36,6 +38,15 @@ export default function ExperienceDetail() {
     loadExperience();
   }, [id]);
 
+  useEffect(() => {
+    async function loadCoverImage() {
+      if (!experience?.anchor_fragment_id) return;
+      const url = await getFragmentSignedUrl(experience.id, experience.anchor_fragment_id);
+      setCoverImage(url);
+    }
+    loadCoverImage();
+  }, [experience?.id, experience?.anchor_fragment_id]);
+
   if (loading) return <p className="text-center text-xl" style={{ color: colors.text.primary }}>Loading...</p>;
   if (error) return <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>;
   if (!experience) {
@@ -49,7 +60,6 @@ export default function ExperienceDetail() {
     );
   }
 
-  const coverImage = null; // TODO: load from fragments
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
     ? new Date(displayDate).toLocaleDateString("en-US", {
@@ -95,7 +105,6 @@ export default function ExperienceDetail() {
         <ImageOverlay />
         <GlowOverlay />
 
-        {/* Title, date, button overlaid on image */}
         <div className="absolute bottom-8 left-6 right-6">
           <H1 className="mb-2">{experience.title}</H1>
           {formattedDate && (

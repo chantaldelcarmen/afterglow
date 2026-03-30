@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import type { Experience } from "../types/experience";
+import { getFragmentSignedUrl } from "../lib/storage";
 import { ExperienceCard } from "../components/ExperienceCard";
 
 type Props = {
@@ -8,8 +10,17 @@ type Props = {
 
 export default function ExperienceLibraryCard({ experience }: Props) {
   const navigate = useNavigate();
+  const [coverImage, setCoverImage] = useState<string | null>(null);
 
-  const coverImage = null; // TODO: load from fragments
+  useEffect(() => {
+    async function loadCoverImage() {
+      if (!experience.anchor_fragment_id) return;
+      const url = await getFragmentSignedUrl(experience.id, experience.anchor_fragment_id);
+      setCoverImage(url);
+    }
+    loadCoverImage();
+  }, [experience.id, experience.anchor_fragment_id]);
+
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
     ? new Date(displayDate).toLocaleDateString("en-US", {
@@ -19,7 +30,7 @@ export default function ExperienceLibraryCard({ experience }: Props) {
 
   return (
     <ExperienceCard
-      imageUrl={coverImage ?? ""}
+      imageUrl={coverImage ?? undefined}
       imageAlt={experience.title}
       title={experience.title}
       date={formattedDate}

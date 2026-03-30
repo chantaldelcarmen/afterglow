@@ -5,7 +5,7 @@ import { GlowOverlay } from "./GlowOverlay";
 import { H3, BodySmall } from "./Typography";
 
 interface ExperienceCardProps {
-  imageUrl: string;
+  imageUrl?: string;
   imageAlt: string;
   title: string;
   date: string;
@@ -46,11 +46,14 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
       onClick={onClick}
     >
       {/* Full-bleed background image */}
-      <img
-        src={imageUrl}
-        alt={imageAlt}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={imageAlt}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+
 
       {/* Unified image overlay (purple tint + bottom fade) */}
       <ImageOverlay />
