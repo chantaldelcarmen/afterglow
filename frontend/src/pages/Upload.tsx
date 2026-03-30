@@ -4,14 +4,9 @@ import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
+import type { Experience } from '../types/experience';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
-
-interface Experience {
-  id: string;
-  title: string;
-  created_at: string;
-}
 
 export default function Upload() {
   const { user, loading } = useAuth();
