@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
@@ -19,7 +19,6 @@ export default function Upload() {
   const [selectedId, setSelectedId] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
   const [fragments, setFragments] = useState<Fragment[]>([]);
 
   const loadExperiences = useCallback(async () => {
@@ -41,10 +40,10 @@ export default function Upload() {
     }
   }, []);
 
-  if (user && !loaded) {
-    setLoaded(true);
+  useEffect(() => {
+    if (!user) return;
     loadExperiences();
-  }
+  }, [user, loadExperiences]);
 
   async function handleCreate() {
     if (!user || !newTitle.trim()) return;
