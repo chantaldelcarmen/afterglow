@@ -4,14 +4,9 @@ import { useAuth } from '../utils/AuthContext';
 import { createExperience, getUserExperiences } from '../lib/experience';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
+import type { Experience } from '../types/experience';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
-
-interface Experience {
-  id: string;
-  title: string;
-  created_at: string;
-}
 
 export default function Upload() {
   const { user, loading } = useAuth();
@@ -19,11 +14,19 @@ export default function Upload() {
   const [selectedId, setSelectedId] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
+<<<<<<< HEAD
+=======
+  const [isLoadingExperiences, setIsLoadingExperiences] = useState(false);
+>>>>>>> main
   const [fragments, setFragments] = useState<Fragment[]>([]);
 
   const loadExperiences = useCallback(async () => {
     if (!user) return;
     try {
+<<<<<<< HEAD
+=======
+      setError(null);
+>>>>>>> main
       const data = await getUserExperiences();
       setExperiences(data);
     } catch (err) {
@@ -42,7 +45,11 @@ export default function Upload() {
 
   useEffect(() => {
     if (!user) return;
+<<<<<<< HEAD
     loadExperiences();
+=======
+    void loadExperiences();
+>>>>>>> main
   }, [user, loadExperiences]);
 
   async function handleCreate() {
