@@ -1,43 +1,40 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import type { Experience } from "../types/experience";
+import { getFragmentSignedUrl } from "../lib/storage";
+import { ExperienceCard } from "../components/ExperienceCard";
 
 type Props = {
   experience: Experience;
 };
 
 export default function ExperienceLibraryCard({ experience }: Props) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadCoverImage() {
+      if (!experience.anchor_fragment_id) return;
+      const url = await getFragmentSignedUrl(experience.id, experience.anchor_fragment_id);
+      setCoverImage(url);
+    }
+    loadCoverImage();
+  }, [experience.id, experience.anchor_fragment_id]);
+
+  const displayDate = experience.experience_date ?? experience.start_date ?? null;
+  const formattedDate = displayDate
+    ? new Date(displayDate).toLocaleDateString("en-US", {
+        month: "long", day: "numeric", year: "numeric",
+      })
+    : "No date";
 
   return (
-    <button
-      type="button"
+    <ExperienceCard
+      imageUrl={coverImage ?? undefined}
+      imageAlt={experience.title}
+      title={experience.title}
+      date={formattedDate}
       onClick={() => navigate(`/experience/${experience.id}`)}
-      className="relative h-52 overflow-hidden rounded-[28px] border border-white/10 bg-white/10 text-left shadow-[0_0_18px_rgba(255,230,150,0.08)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_32px_rgba(255,230,150,0.22)] focus:outline-none focus:ring-2 focus:ring-white/40"
-    >
-      {experience.imageUrl ? (
-      <img
-        src={experience.imageUrl}
-        alt={experience.title}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-       ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/5 text-white/40">
-          No image yet
-        </div>
-      )}
-
-
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-      <div className="absolute bottom-0 left-0 p-4 text-[#F8EBDD]">
-        <h3 
-          className="text-2xl leading-tight font-semibold drop-shadow-md"
-          style={{ fontFamily: '"Playfair Display", serif' }}
-        >
-          {experience.title}
-        </h3>
-        <p className="mt-2 text-lg text-white/80">{experience.date}</p>
-      </div>
-    </button>
+    />
   );
 }
