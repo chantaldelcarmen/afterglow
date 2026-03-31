@@ -57,7 +57,7 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
   }, [signedUrlRequestKey]);
 
   if (fragments.length === 0) {
-    return <p className="text-sm text-gray-500">No fragments yet.</p>;
+    return null;
   }
 
   return (
@@ -68,15 +68,31 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
             <img
               src={signedUrls[f.id]}
               alt={f.caption ?? 'Fragment'}
-              className="w-full aspect-square rounded object-cover"
+              className="w-full aspect-square rounded-2xl object-cover border backdrop-blur-xl"
+              style={{
+                borderColor: 'var(--color-button-warm-border)',
+                boxShadow: 'var(--shadow-card)',
+              }}
             />
           ) : (
-            <div className="w-full aspect-square rounded bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+            <div
+              className="w-full aspect-square rounded-2xl border backdrop-blur-xl flex items-center justify-center text-xs"
+              style={{
+                background: 'var(--color-surface-glass)',
+                borderColor: 'var(--color-surface-glass-card-border)',
+                color: 'var(--color-text-muted-dim)',
+              }}
+            >
               No image
             </div>
           )}
           {f.caption && (
-            <p className="text-xs text-gray-600 truncate">{f.caption}</p>
+            <p
+              className="text-xs truncate"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              {f.caption}
+            </p>
           )}
         </div>
       ))}
