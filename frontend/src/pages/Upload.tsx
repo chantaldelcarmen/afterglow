@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Navigate, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Plus } from 'lucide-react';
+import { ArrowLeft, Camera } from 'lucide-react';
 import { useAuth } from '../utils/AuthContext';
+import { useFloatingOrb } from '../utils/floatingOrbContext';
 import { apiFetch } from '../lib/api';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
@@ -9,6 +10,7 @@ import { H2, BodySmall, Body } from '../components/Typography';
 import { AppLogo } from '../components/AppLogo';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
+import { MOBILE_UPLOAD_ACTION_ROW_BOTTOM } from '../components/floatingOrbLayout';
 
 interface ExperienceData {
   id: string;
@@ -20,6 +22,7 @@ interface ExperienceData {
 
 export default function Upload() {
   const { user, loading: authLoading } = useAuth();
+  const { setUploadOrbAction } = useFloatingOrb();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const experienceId = searchParams.get('experienceId');
@@ -58,6 +61,16 @@ export default function Upload() {
 
     void load();
   }, [experienceId, user, loadFragments]);
+
+  useEffect(() => {
+    setUploadOrbAction(() => () => {
+      setShowUpload((current) => !current);
+    });
+
+    return () => {
+      setUploadOrbAction(null);
+    };
+  }, [setUploadOrbAction]);
 
   if (authLoading) {
     return (
@@ -112,7 +125,7 @@ export default function Upload() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">
+      <div className="flex-1 overflow-y-auto px-6 pb-52 md:pb-0">
         {/* Instructional text */}
         <div className="text-center mb-4 mt-2">
           <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontSize: '12px' }}>
@@ -232,8 +245,8 @@ export default function Upload() {
           )}
         </div>
 
-        {/* Cancel and Done buttons */}
-        <div className="flex justify-center gap-3 pt-4 pb-8">
+        {/* Desktop cancel and done buttons */}
+        <div className="hidden md:flex justify-center gap-3 pt-4 pb-8">
           <button
             onClick={() => navigate(-1)}
             className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
@@ -280,18 +293,58 @@ export default function Upload() {
         </div>
       </div>
 
-      {/* Mobile FAB (+ button) */}
-      <button
-        onClick={() => setShowUpload(!showUpload)}
-        className="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full border backdrop-blur-xl flex items-center justify-center z-30 transition-all duration-300"
+      {/* Mobile cancel and done buttons stay above the orb action zone */}
+      <div
+        className="md:hidden fixed left-0 right-0 flex justify-center gap-3 px-6"
         style={{
-          background: 'var(--color-button-plum-bg)',
-          borderColor: 'var(--color-button-plum-border)',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.4), 0 0 20px var(--color-button-plum-glow)',
+          bottom: `${MOBILE_UPLOAD_ACTION_ROW_BOTTOM}px`,
+          zIndex: 35,
         }}
       >
-        <Plus size={28} style={{ color: 'var(--color-text-primary)' }} />
-      </button>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
+          style={{
+            background: 'var(--color-surface-glass)',
+            borderColor: 'var(--color-button-warm-border)',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow =
+              '0 2px 10px rgba(0,0,0,0.25), 0 0 18px rgba(246,237,227,0.25)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow =
+              '0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)';
+          }}
+        >
+          <Body style={{ color: 'var(--color-text-muted)' }}>Cancel</Body>
+        </button>
+
+        <button
+          onClick={() => navigate('/')}
+          className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
+          style={{
+            background: 'var(--color-button-plum-bg)',
+            borderColor: 'var(--color-button-plum-border)',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
+            e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
+            e.currentTarget.style.boxShadow =
+              '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--color-button-plum-bg)';
+            e.currentTarget.style.borderColor = 'var(--color-button-plum-border)';
+            e.currentTarget.style.boxShadow =
+              '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)';
+          }}
+        >
+          <Body style={{ color: 'var(--color-text-primary)' }}>Done</Body>
+        </button>
+      </div>
     </div>
   );
 }
