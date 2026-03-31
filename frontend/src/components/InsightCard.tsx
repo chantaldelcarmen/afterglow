@@ -1,6 +1,6 @@
 // components/InsightCard.tsx
 import { Calendar, Heart, Users, MapPin, Sun, Sparkles } from "lucide-react";
-import { colors, typography } from "../design-tokens";
+import { colors } from "../design-tokens";
 import type { Insight } from "../data/insights-data";
 import { H3, Label, BodySmall } from "./Typography";
 import { useState } from "react";
