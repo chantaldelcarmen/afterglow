@@ -2,8 +2,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { getOneExperience, removeExperience } from "../lib/experience";
-import { getFragments } from "../lib/storage";
-import { getFragmentSignedUrl } from "../lib/storage";
+import { getFragments, getFragmentSignedUrl } from "../lib/storage";
 import { getReflections } from "../lib/reflections";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
@@ -12,6 +11,7 @@ import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
 import { ImageOverlay } from "../components/ImageOverlay";
 import { GlowOverlay } from "../components/GlowOverlay";
+import FragmentGallery from "../components/FragmentGallery";
 
 export default function ExperienceDetail() {
   const { id } = useParams();
@@ -94,8 +94,8 @@ export default function ExperienceDetail() {
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
     ? new Date(displayDate).toLocaleDateString("en-US", {
-      month: "long", day: "numeric", year: "numeric",
-    })
+        month: "long", day: "numeric", year: "numeric",
+      })
     : null;
 
   return (
@@ -231,7 +231,11 @@ export default function ExperienceDetail() {
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
             {experience.location && <BodySmall style={{ color: colors.text.muted }}>· {experience.location}</BodySmall>}
-            {experience.is_draft && <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: colors.surface.glass, color: colors.text.muted }}>Draft</span>}
+            {experience.is_draft && (
+              <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: colors.surface.glass, color: colors.text.muted }}>
+                Draft
+              </span>
+            )}
           </div>
 
           {experience.emotion_tags.length > 0 && (
@@ -258,21 +262,17 @@ export default function ExperienceDetail() {
         </div>
 
         {/* Fragments section */}
-        {fragments.length > 0 && (
-          <div
-            className="rounded-2xl border backdrop-blur-xl p-5"
-            style={{
-              background: colors.surface.glassCard,
-              borderColor: colors.surface.glassCardBorder,
-              boxShadow: effects.shadows.card,
-            }}
-          >
-            <H2 className="mb-3">Fragments</H2>
-            <BodySmall style={{ color: colors.text.muted }}>
-              {fragments.length} fragment{fragments.length !== 1 ? "s" : ""} attached
-            </BodySmall>
-          </div>
-        )}
+        <div
+          className="rounded-2xl border backdrop-blur-xl p-5"
+          style={{
+            background: colors.surface.glassCard,
+            borderColor: colors.surface.glassCardBorder,
+            boxShadow: effects.shadows.card,
+          }}
+        >
+          <H2 className="mb-3">Fragments</H2>
+          <FragmentGallery fragments={fragments} />
+        </div>
 
         {/* Reflections section */}
         <div
