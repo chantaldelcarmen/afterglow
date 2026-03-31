@@ -1,0 +1,8 @@
+{
+  "name": "afterglow-seed",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.1",
+    "dotenv": "^16.0.0"
+  }
+}
