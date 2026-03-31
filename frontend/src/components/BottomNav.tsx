@@ -2,7 +2,6 @@ import { Home, Library, Sparkles, UserCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { FloatingOrb } from "./FloatingOrb";
-import { useFloatingOrb } from "../utils/floatingOrbContext";
 import {
   BOTTOM_NAV_HEIGHT,
   FLOATING_ORB_BOTTOM_OFFSET,
@@ -41,7 +40,6 @@ function NavLink({ to, children }: { to: string; children: ReactNode }) {
 
 export function BottomNav() {
   const location = useLocation();
-  const { uploadOrbAction } = useFloatingOrb();
   const isUploadPage = location.pathname === "/upload";
 
   return (
@@ -87,8 +85,6 @@ export function BottomNav() {
         mode={isUploadPage ? "upload" : "default"}
         orbSize={FLOATING_ORB_SIZE}
         orbBottomOffset={FLOATING_ORB_BOTTOM_OFFSET}
-        onClick={isUploadPage ? uploadOrbAction ?? undefined : undefined}
-        disabled={isUploadPage && !uploadOrbAction}
       />
     </>
   );

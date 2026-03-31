@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Navigate, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera } from 'lucide-react';
+import { ArrowLeft, Camera, Video, Type } from 'lucide-react';
 import { useAuth } from '../utils/AuthContext';
 import { useFloatingOrb } from '../utils/floatingOrbContext';
+import type { FragmentType } from '../utils/floatingOrbContext';
 import { apiFetch } from '../lib/api';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
@@ -22,14 +23,14 @@ interface ExperienceData {
 
 export default function Upload() {
   const { user, loading: authLoading } = useAuth();
-  const { setUploadOrbAction } = useFloatingOrb();
+  const { setFragmentTypeCallback, setOrbExpanded } = useFloatingOrb();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const experienceId = searchParams.get('experienceId');
 
   const [experience, setExperience] = useState<ExperienceData | null>(null);
   const [fragments, setFragments] = useState<Fragment[]>([]);
-  const [showUpload, setShowUpload] = useState(false);
+  const [selectedType, setSelectedType] = useState<FragmentType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,14 +64,15 @@ export default function Upload() {
   }, [experienceId, user, loadFragments]);
 
   useEffect(() => {
-    setUploadOrbAction(() => () => {
-      setShowUpload((current) => !current);
+    setFragmentTypeCallback(() => (type: FragmentType) => {
+      setSelectedType((current) => (current === type ? null : type));
     });
 
     return () => {
-      setUploadOrbAction(null);
+      setFragmentTypeCallback(null);
+      setOrbExpanded(false);
     };
-  }, [setUploadOrbAction]);
+  }, [setFragmentTypeCallback, setOrbExpanded]);
 
   if (authLoading) {
     return (
@@ -186,43 +188,68 @@ export default function Upload() {
           </div>
         </div>
 
-        {/* Desktop add button */}
-        <div className="hidden md:flex justify-center mb-6">
-          <button
-            onClick={() => setShowUpload(!showUpload)}
-            className="w-14 h-14 rounded-full border backdrop-blur-xl flex items-center justify-center transition-all duration-300"
-            style={{
-              background: 'var(--color-button-plum-bg)',
-              borderColor: 'var(--color-button-plum-border)',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
-              e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
-              e.currentTarget.style.boxShadow =
-                '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--color-button-plum-bg)';
-              e.currentTarget.style.borderColor = 'var(--color-button-plum-border)';
-              e.currentTarget.style.boxShadow =
-                '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)';
-            }}
-          >
-            <Camera size={24} style={{ color: 'var(--color-text-primary)' }} />
-          </button>
+        {/* Desktop fragment type buttons */}
+        <div className="hidden md:flex justify-center gap-4 mb-6">
+          {([
+            { type: 'photo' as FragmentType, icon: Camera },
+            { type: 'video' as FragmentType, icon: Video },
+            { type: 'text' as FragmentType, icon: Type },
+          ]).map(({ type, icon: Icon }) => (
+            <button
+              key={type}
+              onClick={() => setSelectedType((cur) => (cur === type ? null : type))}
+              className="w-14 h-14 rounded-full border backdrop-blur-xl flex items-center justify-center transition-all duration-300"
+              style={{
+                background: selectedType === type ? 'var(--color-button-plum-bg-hover)' : 'var(--color-button-plum-bg)',
+                borderColor: selectedType === type ? 'var(--color-button-plum-border-hover)' : 'var(--color-button-plum-border)',
+                boxShadow: selectedType === type
+                  ? '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)'
+                  : '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
+                e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
+                e.currentTarget.style.boxShadow =
+                  '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)';
+              }}
+              onMouseLeave={(e) => {
+                if (selectedType !== type) {
+                  e.currentTarget.style.background = 'var(--color-button-plum-bg)';
+                  e.currentTarget.style.borderColor = 'var(--color-button-plum-border)';
+                  e.currentTarget.style.boxShadow =
+                    '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)';
+                }
+              }}
+            >
+              <Icon size={24} style={{ color: 'var(--color-text-primary)' }} />
+            </button>
+          ))}
         </div>
 
-        {/* PhotoUpload (shown when triggered) */}
-        {showUpload && (
+        {/* Fragment upload area (shown when a type is selected) */}
+        {selectedType === 'photo' && (
           <div className="max-w-sm mx-auto mb-6">
             <PhotoUpload
               experienceId={experienceId}
               onUploaded={() => {
                 loadFragments(experienceId);
-                setShowUpload(false);
+                setSelectedType(null);
               }}
             />
+          </div>
+        )}
+        {(selectedType === 'video' || selectedType === 'text') && (
+          <div
+            className="max-w-sm mx-auto mb-6 rounded-[28px] border backdrop-blur-xl px-5 py-6 text-center"
+            style={{
+              background: 'var(--color-surface-glass-card)',
+              borderColor: 'var(--color-surface-glass-card-border)',
+              boxShadow: 'var(--shadow-card)',
+            }}
+          >
+            <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}>
+              {selectedType === 'video' ? 'Video' : 'Text'} fragments coming soon
+            </BodySmall>
           </div>
         )}
 

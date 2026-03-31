@@ -1,23 +1,71 @@
-import type { MouseEvent } from "react";
+import { Camera, Video, Type } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
+import { useFloatingOrb } from "../utils/floatingOrbContext";
+import type { FragmentType } from "../utils/floatingOrbContext";
 
 interface FloatingOrbProps {
   mode: "default" | "upload";
   orbSize: number;
   orbBottomOffset: number;
   to?: string;
-  onClick?: () => void;
-  disabled?: boolean;
 }
+
+const MINI_ORB_OPTIONS: {
+  type: FragmentType;
+  icon: typeof Camera;
+  gradient: string;
+  glow: string;
+  x: number;
+  y: number;
+}[] = [
+  {
+    type: "photo",
+    icon: Camera,
+    gradient: "radial-gradient(circle at center, rgba(150, 200, 255, 0.9) 0%, rgba(100, 150, 220, 0.8) 50%, rgba(80, 130, 200, 0.9) 100%)",
+    glow: "0 0 20px rgba(150, 200, 255, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.4)",
+    x: -65,
+    y: -160,
+  },
+  {
+    type: "video",
+    icon: Video,
+    gradient: "radial-gradient(circle at center, rgba(200, 150, 255, 0.9) 0%, rgba(150, 100, 220, 0.8) 50%, rgba(130, 80, 200, 0.9) 100%)",
+    glow: "0 0 20px rgba(200, 150, 255, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.4)",
+    x: 0,
+    y: -180,
+  },
+  {
+    type: "text",
+    icon: Type,
+    gradient: "radial-gradient(circle at center, rgba(255, 180, 200, 0.9) 0%, rgba(230, 130, 160, 0.8) 50%, rgba(210, 100, 140, 0.9) 100%)",
+    glow: "0 0 20px rgba(255, 180, 200, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.4)",
+    x: 65,
+    y: -160,
+  },
+];
+
+const MINI_ORB_SIZE = 44;
 
 export function FloatingOrb({
   mode,
   orbSize,
   orbBottomOffset,
   to = "/create-experience",
-  onClick,
-  disabled = false,
 }: FloatingOrbProps) {
+  const { isOrbExpanded, setOrbExpanded, fragmentTypeCallback } = useFloatingOrb();
+
+  const handleOrbClick = () => {
+    if (mode === "upload") {
+      setOrbExpanded((prev) => !prev);
+    }
+  };
+
+  const handleMiniOrbClick = (type: FragmentType) => {
+    setOrbExpanded(false);
+    fragmentTypeCallback?.(type);
+  };
+
   const wrapperStyle = {
     width: `${orbSize}px`,
     height: `${orbSize}px`,
@@ -28,7 +76,7 @@ export function FloatingOrb({
   } as const;
 
   const orbVisual = (
-    <div
+    <motion.div
       className="rounded-full flex items-center justify-center shadow-2xl"
       style={{
         width: `${orbSize}px`,
@@ -36,24 +84,28 @@ export function FloatingOrb({
         background: "radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, rgba(255, 250, 235, 1) 15%, rgba(255, 235, 205, 1) 28%, rgba(245, 215, 175, 1) 42%, rgba(225, 185, 145, 1) 58%, rgba(195, 150, 115, 1) 72%, rgba(165, 120, 90, 1) 85%, rgba(140, 95, 70, 1) 100%)",
         boxShadow: "inset 0 2px 20px rgba(255, 255, 255, 0.9), inset 0 -2px 15px rgba(140, 95, 70, 0.4), inset 0 0 30px rgba(255, 245, 225, 0.3), 0 0 20px rgba(205, 160, 135, 0.35), 0 0 35px rgba(195, 150, 125, 0.25), 0 8px 20px rgba(0, 0, 0, 0.3)",
       }}
+      animate={{ scale: isOrbExpanded && mode === "upload" ? 0.95 : 1 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
     >
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#321432" strokeWidth="2.5" strokeLinecap="round">
+      <motion.svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#321432"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        animate={{ rotate: isOrbExpanded && mode === "upload" ? 45 : 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
         <path d="M12 5v14M5 12h14" />
-      </svg>
-    </div>
+      </motion.svg>
+    </motion.div>
   );
-
-  const handleMouseEnter = (event: MouseEvent<HTMLElement>) => {
-    if (disabled) return;
-    event.currentTarget.style.transform = "translate(-50%, 0) scale(1.05)";
-  };
-
-  const handleMouseLeave = (event: MouseEvent<HTMLElement>) => {
-    event.currentTarget.style.transform = "translate(-50%, 0) scale(1)";
-  };
 
   return (
     <>
+      {/* Shadow under orb */}
       <div
         className="fixed pointer-events-none"
         style={{
@@ -69,6 +121,7 @@ export function FloatingOrb({
         }}
       />
 
+      {/* Glow halo */}
       <div
         className="fixed pointer-events-none"
         style={{
@@ -84,6 +137,7 @@ export function FloatingOrb({
         }}
       />
 
+      {/* Dark shadow ring */}
       <div
         className="fixed pointer-events-none"
         style={{
@@ -99,30 +153,86 @@ export function FloatingOrb({
         }}
       />
 
+      {/* Backdrop overlay to close menu on outside tap */}
+      <AnimatePresence>
+        {isOrbExpanded && mode === "upload" && (
+          <motion.div
+            className="fixed inset-0"
+            style={{ zIndex: 42 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setOrbExpanded(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mini-orb expansion menu */}
+      <AnimatePresence>
+        {isOrbExpanded && mode === "upload" && (
+          <div
+            className="fixed"
+            style={{
+              left: "50%",
+              transform: "translate(-50%, 0)",
+              bottom: `${orbBottomOffset + orbSize / 2}px`,
+              zIndex: 44,
+            }}
+          >
+            {MINI_ORB_OPTIONS.map((opt, i) => {
+              const Icon = opt.icon;
+              return (
+                <motion.button
+                  key={opt.type}
+                  className="absolute rounded-full flex items-center justify-center shadow-2xl pointer-events-auto"
+                  style={{
+                    width: `${MINI_ORB_SIZE}px`,
+                    height: `${MINI_ORB_SIZE}px`,
+                    background: opt.gradient,
+                    boxShadow: opt.glow,
+                    marginLeft: `${-MINI_ORB_SIZE / 2}px`,
+                    marginTop: `${-MINI_ORB_SIZE / 2}px`,
+                  }}
+                  initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
+                  animate={{ scale: 1, opacity: 1, x: opt.x, y: opt.y }}
+                  exit={{ scale: 0, opacity: 0, x: 0, y: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 25,
+                    delay: i * 0.05,
+                  }}
+                  onClick={() => handleMiniOrbClick(opt.type)}
+                >
+                  <Icon size={20} className="text-white" />
+                </motion.button>
+              );
+            })}
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Main orb */}
       {mode === "default" ? (
         <Link
           to={to}
           className="fixed rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-105"
           style={wrapperStyle}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           {orbVisual}
         </Link>
       ) : (
         <button
           type="button"
-          onClick={onClick}
-          disabled={disabled}
-          className="fixed rounded-full flex items-center justify-center transition-transform duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+          onClick={handleOrbClick}
+          className="fixed rounded-full flex items-center justify-center"
           style={{
             ...wrapperStyle,
             background: "transparent",
             border: "none",
             padding: 0,
           }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           {orbVisual}
         </button>

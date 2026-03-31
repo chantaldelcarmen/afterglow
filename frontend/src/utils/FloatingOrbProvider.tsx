@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { FloatingOrbContext } from "./floatingOrbContext";
-import type { FloatingOrbAction } from "./floatingOrbContext";
+import type { FragmentTypeCallback } from "./floatingOrbContext";
 
 export function FloatingOrbProvider({ children }: { children: ReactNode }) {
-  const [uploadOrbAction, setUploadOrbAction] = useState<FloatingOrbAction>(null);
+  const [isOrbExpanded, setOrbExpanded] = useState(false);
+  const [fragmentTypeCallback, setFragmentTypeCallback] = useState<FragmentTypeCallback>(null);
 
   const value = useMemo(
-    () => ({ uploadOrbAction, setUploadOrbAction }),
-    [uploadOrbAction],
+    () => ({ isOrbExpanded, setOrbExpanded, fragmentTypeCallback, setFragmentTypeCallback }),
+    [isOrbExpanded, fragmentTypeCallback],
   );
 
   return (

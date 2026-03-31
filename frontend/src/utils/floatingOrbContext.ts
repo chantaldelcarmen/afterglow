@@ -1,11 +1,14 @@
 import { createContext, useContext } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
-export type FloatingOrbAction = (() => void) | null;
+export type FragmentType = "photo" | "video" | "text";
+export type FragmentTypeCallback = ((type: FragmentType) => void) | null;
 
 export interface FloatingOrbContextType {
-  uploadOrbAction: FloatingOrbAction;
-  setUploadOrbAction: Dispatch<SetStateAction<FloatingOrbAction>>;
+  isOrbExpanded: boolean;
+  setOrbExpanded: Dispatch<SetStateAction<boolean>>;
+  fragmentTypeCallback: FragmentTypeCallback;
+  setFragmentTypeCallback: Dispatch<SetStateAction<FragmentTypeCallback>>;
 }
 
 export const FloatingOrbContext = createContext<FloatingOrbContextType | null>(null);
