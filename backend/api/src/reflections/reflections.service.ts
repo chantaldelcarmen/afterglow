@@ -143,7 +143,6 @@ export class ReflectionsService {
       .from('reflections')
       .update({
         reflection_text: dto.reflection_text,
-        updated_at: new Date().toISOString(),
       })
       .eq('id', reflectionId)
       .select(
