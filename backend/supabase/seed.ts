@@ -29,6 +29,12 @@ const testAccounts = [
     display_name: 'Test User',
   },
   {
+    email: 'user2@afterglow.dev',
+    password: 'Afterglow1234!',
+    role: 'user',
+    display_name: 'Test User 2',
+  },
+  {
     email: 'reviewer@afterglow.dev',
     password: 'Afterglow1234!',
     role: 'platform_reviewer',
@@ -55,6 +61,52 @@ async function getOrCreateUser(email: string, password: string): Promise<string>
 
   if (error) throw new Error(`Failed to create ${email}: ${error.message}`);
   return data.user.id;
+}
+
+async function fetchImageBuffer(url: string): Promise<Uint8Array> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch image from ${url}`);
+  const arrayBuffer = await res.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+}
+
+async function uploadPhoto(
+  userId: string,
+  experienceId: string,
+  imageUrl: string,
+  caption: string,
+): Promise<string | null> {
+  try {
+    const buffer = await fetchImageBuffer(imageUrl);
+    const fragmentId = crypto.randomUUID();
+    const storagePath = `${userId}/${experienceId}/${fragmentId}.jpg`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('fragments')
+      .upload(storagePath, buffer, { contentType: 'image/jpeg' });
+
+    if (uploadError) {
+      console.error(`Failed to upload photo: ${uploadError.message}`);
+      return null;
+    }
+
+    const { data: frag } = await supabase
+      .from('fragments')
+      .insert({
+        id: fragmentId,
+        experience_id: experienceId,
+        type: 'photo',
+        caption,
+        storage_path: storagePath,
+      })
+      .select('id')
+      .single();
+
+    return frag?.id ?? null;
+  } catch (err) {
+    console.error(`Photo upload failed: ${err instanceof Error ? err.message : err}`);
+    return null;
+  }
 }
 
 async function seed() {
@@ -86,6 +138,7 @@ async function seed() {
   }
 
   const testUserId = userIds['user@afterglow.dev'];
+  const testUser2Id = userIds['user2@afterglow.dev'];
   const reviewerUserId = userIds['reviewer@afterglow.dev'];
 
   if (!testUserId) {
@@ -101,17 +154,31 @@ async function seed() {
   console.log('\nClearing existing sample data...');
 
   await supabase.from('system_flags').delete().gt('id', 0);
-  // Set is_draft + nullify anchor together to satisfy the published_requires_anchor check constraint
   await supabase.from('experiences').update({ is_draft: true, anchor_fragment_id: null }).gte('created_at', '2000-01-01');
   const { error: deleteError } = await supabase.from('experiences').delete().gte('created_at', '2000-01-01');
   if (deleteError) console.error('Failed to clear experiences:', deleteError.message);
 
-  // -------------------------
-  // 3. Seed sample data
-  // -------------------------
-  console.log('\nSeeding sample experiences...\n');
+  // Clear storage bucket for both users
+  for (const userId of [testUserId, testUser2Id].filter(Boolean)) {
+    const { data: files } = await supabase.storage.from('fragments').list(userId);
+    if (files && files.length > 0) {
+      // list subdirectories per experience
+      for (const dir of files) {
+        const { data: subFiles } = await supabase.storage.from('fragments').list(`${userId}/${dir.name}`);
+        if (subFiles && subFiles.length > 0) {
+          const paths = subFiles.map((f: { name: string }) => `${userId}/${dir.name}/${f.name}`);
+          await supabase.storage.from('fragments').remove(paths);
+        }
+      }
+    }
+  }
 
-  // --- Experience 1: Summer Road Trip (published) ---
+  // -------------------------
+  // 3. Seed Test User 1 data
+  // -------------------------
+  console.log('\nSeeding experiences for user@afterglow.dev...\n');
+
+  // --- Experience 1: Summer Road Trip ---
   const { data: exp1 } = await supabase
     .from('experiences')
     .insert({
@@ -121,6 +188,7 @@ async function seed() {
       location: 'Kananaskis, Alberta',
       start_date: '2025-07-12',
       end_date: '2025-07-14',
+      emotion_tags: ['Nostalgic', 'Peaceful', 'Grateful'],
       is_draft: true,
       updated_at: new Date().toISOString(),
     })
@@ -128,24 +196,19 @@ async function seed() {
     .single();
 
   if (exp1) {
-    const { data: frag1 } = await supabase
-      .from('fragments')
-      .insert({
-        experience_id: exp1.id,
-        type: 'text',
-        text_context:
-          'We drove through Kananaskis just as the sun was setting. The sky turned deep orange over the peaks. Three hours of good music and no agenda.',
-        caption: 'Golden hour on the highway',
-      })
-      .select('id')
-      .single();
+    const photoFragId = await uploadPhoto(
+      testUserId,
+      exp1.id,
+      'https://picsum.photos/seed/roadtrip/800/600',
+      'Golden hour on the highway',
+    );
 
-    if (frag1) {
-      await supabase
-        .from('experiences')
-        .update({ anchor_fragment_id: frag1.id, is_draft: false })
-        .eq('id', exp1.id);
-    }
+    await supabase.from('fragments').insert({
+      experience_id: exp1.id,
+      type: 'text',
+      text_context: 'We drove through Kananaskis just as the sun was setting. The sky turned deep orange over the peaks. Three hours of good music and no agenda.',
+      caption: 'Golden hour on the highway',
+    });
 
     await supabase.from('fragments').insert({
       experience_id: exp1.id,
@@ -154,10 +217,26 @@ async function seed() {
       caption: 'Morning at the campsite',
     });
 
-    console.log('Created published experience: Summer Road Trip');
+    if (photoFragId) {
+      await supabase
+        .from('experiences')
+        .update({ anchor_fragment_id: photoFragId, is_draft: false })
+        .eq('id', exp1.id);
+      console.log('Created published experience: Summer Road Trip (with photo anchor)');
+    } else {
+      console.log('Created experience: Summer Road Trip (no photo -- upload failed)');
+    }
+
+    await supabase.from('reflections').insert({
+      experience_id: exp1.id,
+      user_id: testUserId,
+      reflection_text: 'Looking back at this trip, I keep thinking about how rare it is to have a full weekend with no plans. Need to do this more often.',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
   }
 
-  // --- Experience 2: First Marathon (published) ---
+  // --- Experience 2: First Marathon ---
   const { data: exp2 } = await supabase
     .from('experiences')
     .insert({
@@ -167,6 +246,7 @@ async function seed() {
       location: 'Calgary, AB',
       start_date: '2025-05-04',
       end_date: '2025-05-04',
+      emotion_tags: ['Proud', 'Exhausted', 'Joy'],
       is_draft: true,
       updated_at: new Date().toISOString(),
     })
@@ -174,35 +254,39 @@ async function seed() {
     .single();
 
   if (exp2) {
-    const { data: frag2 } = await supabase
-      .from('fragments')
-      .insert({
-        experience_id: exp2.id,
-        type: 'text',
-        text_context:
-          'Crossed the finish line at 4:12. My legs were completely done but I could not stop smiling. Six months of 5am runs came down to this.',
-        caption: 'Finish line',
-      })
-      .select('id')
-      .single();
+    const photoFragId = await uploadPhoto(
+      testUserId,
+      exp2.id,
+      'https://picsum.photos/seed/marathon/800/600',
+      'Finish line',
+    );
 
-    if (frag2) {
+    await supabase.from('fragments').insert({
+      experience_id: exp2.id,
+      type: 'text',
+      text_context: 'Crossed the finish line at 4:12. My legs were completely done but I could not stop smiling. Six months of 5am runs came down to this.',
+      caption: 'Finish line',
+    });
+
+    if (photoFragId) {
       await supabase
         .from('experiences')
-        .update({ anchor_fragment_id: frag2.id, is_draft: false })
+        .update({ anchor_fragment_id: photoFragId, is_draft: false })
         .eq('id', exp2.id);
+      console.log('Created published experience: First Marathon (with photo anchor)');
+    } else {
+      console.log('Created experience: First Marathon (no photo -- upload failed)');
     }
-
-    console.log('Created published experience: First Marathon');
   }
 
-  // --- Experience 3: Reading Journal (draft) ---
+  // --- Experience 3: Reading Journal (draft, no anchor) ---
   const { data: exp3 } = await supabase
     .from('experiences')
     .insert({
       user_id: testUserId,
       title: 'Reading Journal - March',
       description: 'Books and notes from this month.',
+      emotion_tags: ['Calm', 'Reflective'],
       is_draft: true,
       updated_at: new Date().toISOString(),
     })
@@ -213,40 +297,97 @@ async function seed() {
     await supabase.from('fragments').insert({
       experience_id: exp3.id,
       type: 'text',
-      text_context:
-        'Started "Klara and the Sun" by Kazuo Ishiguro. The narrator voice is unlike anything I have read. Hard to put down.',
+      text_context: 'Started "Klara and the Sun" by Kazuo Ishiguro. The narrator voice is unlike anything I have read. Hard to put down.',
     });
-
     console.log('Created draft experience: Reading Journal - March');
   }
 
-  // --- Reflection ---
-  if (exp1) {
-    const now = new Date().toISOString();
-    const { error: reflError } = await supabase.from('reflections').insert({
-      experience_id: exp1.id,
-      user_id: testUserId,
-      reflection_text:
-        'Looking back at this trip, I keep thinking about how rare it is to have a full weekend with no plans. Need to do this more often.',
-      created_at: now,
-      updated_at: now,
-    });
+  // -------------------------
+  // 4. Seed Test User 2 data
+  // -------------------------
+  if (testUser2Id) {
+    console.log('\nSeeding experiences for user2@afterglow.dev...\n');
 
-    if (reflError) console.error('Failed to create reflection:', reflError.message);
-    else console.log('Created reflection on Summer Road Trip');
+    // --- User 2 Experience 1: Weekend Hiking ---
+    const { data: u2exp1 } = await supabase
+      .from('experiences')
+      .insert({
+        user_id: testUser2Id,
+        title: 'Weekend Hiking Trip',
+        description: 'Two days in Banff with stunning views.',
+        location: 'Banff, Alberta',
+        experience_date: '2025-08-20',
+        emotion_tags: ['Awe', 'Peaceful', 'Grateful'],
+        is_draft: true,
+        updated_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single();
+
+    if (u2exp1) {
+      const photoFragId = await uploadPhoto(
+        testUser2Id,
+        u2exp1.id,
+        'https://picsum.photos/seed/hiking/800/600',
+        'Summit view',
+      );
+
+      await supabase.from('fragments').insert({
+        experience_id: u2exp1.id,
+        type: 'text',
+        text_context: 'Made it to the summit just before clouds rolled in. Worth every step.',
+        caption: 'Summit notes',
+      });
+
+      if (photoFragId) {
+        await supabase
+          .from('experiences')
+          .update({ anchor_fragment_id: photoFragId, is_draft: false })
+          .eq('id', u2exp1.id);
+        console.log('Created published experience: Weekend Hiking Trip (with photo anchor)');
+      } else {
+        console.log('Created experience: Weekend Hiking Trip (no photo -- upload failed)');
+      }
+    }
+
+    // --- User 2 Experience 2: Draft, no anchor ---
+    const { data: u2exp2 } = await supabase
+      .from('experiences')
+      .insert({
+        user_id: testUser2Id,
+        title: 'Coffee Shop Sessions',
+        description: 'My favourite spots to work and think.',
+        location: 'Calgary, AB',
+        experience_date: '2025-09-10',
+        emotion_tags: ['Calm', 'Focused'],
+        is_draft: true,
+        updated_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single();
+
+    if (u2exp2) {
+      await supabase.from('fragments').insert({
+        experience_id: u2exp2.id,
+        type: 'text',
+        text_context: 'Found a new spot on 17th. Good light, no music, perfect for writing.',
+      });
+      console.log('Created draft experience: Coffee Shop Sessions');
+    }
   }
 
-  // --- System flag (for reviewer demo) ---
-  const flagNow = new Date().toISOString();
+  // -------------------------
+  // 5. System flag (for reviewer demo)
+  // -------------------------
   const { error: flagError } = await supabase.from('system_flags').insert({
     flagged_user: testUserId,
     reviewed_by: reviewerUserId ?? null,
     notes: 'Sample flag for reviewer demo.',
-    created_at: flagNow,
-    updated_at: flagNow,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   });
 
-  if (!flagError) console.log('Created sample system flag');
+  if (!flagError) console.log('\nCreated sample system flag');
 
   console.log('\nDone.');
 }
