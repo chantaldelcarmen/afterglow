@@ -123,7 +123,7 @@ async function createExperience(params: {
   textFragments: { text: string; caption?: string }[];
   reflectionText?: string;
 }): Promise<void> {
-  const { data: exp } = await supabase
+  const { data: exp, error: expError } = await supabase
     .from('experiences')
     .insert({
       user_id: params.userId,
@@ -141,7 +141,7 @@ async function createExperience(params: {
     .single();
 
   if (!exp) {
-    console.error(`Failed to create experience: ${params.title}`);
+    console.error(`Failed to create experience: ${params.title} -- ${expError?.message ?? 'unknown error'}`);
     return;
   }
 
@@ -190,10 +190,13 @@ async function seed() {
       const userId = await getOrCreateUser(account.email, account.password);
       userIds[account.email] = userId;
 
+      const now = new Date().toISOString();
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ role: account.role, display_name: account.display_name })
-        .eq('id', userId);
+        .upsert(
+          { id: userId, role: account.role, display_name: account.display_name, created_at: now, updated_at: now },
+          { onConflict: 'id' },
+        );
 
       if (profileError) {
         console.error(`Failed to update profile for ${account.email}: ${profileError.message}`);
@@ -221,7 +224,9 @@ async function seed() {
   console.log('\nClearing existing sample data...');
 
   await supabase.from('system_flags').delete().gt('id', 0);
+  // Nullify anchors first to avoid FK constraint, then delete fragments, then experiences
   await supabase.from('experiences').update({ is_draft: true, anchor_fragment_id: null }).gte('created_at', '2000-01-01');
+  await supabase.from('fragments').delete().gte('created_at', '2000-01-01');
   const { error: deleteError } = await supabase.from('experiences').delete().gte('created_at', '2000-01-01');
   if (deleteError) console.error('Failed to clear experiences:', deleteError.message);
 
