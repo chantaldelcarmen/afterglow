@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { colors, effects } from "../design-tokens";
-import { H2, H3, Body, BodySmall } from "../components/Typography";
+import { H1, H3, Body, BodySmall } from "../components/Typography";
 import { InsightCard } from "../components/InsightCard";
 import { getPatternStats, getAIReflection } from "../lib/patterns";
 import type { PatternStats, AIReflection } from "../lib/patterns";
@@ -78,8 +78,8 @@ export function Insights() {
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 pt-6 pb-4">
-        <div className="max-w-[1400px] mx-auto">
-          <H2 className="px-1">Your Patterns</H2>
+        <div className="max-w-[1400px] mx-auto px-6">
+          <H1 className="px-1">Your Patterns</H1>
           <BodySmall
             className="px-1 mt-1"
             style={{ color: colors.text.mutedDim, fontSize: "13px" }}
@@ -91,7 +91,7 @@ export function Insights() {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pb-28 md:pb-0">
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-[1400px] mx-auto px-6">
 
           {/* Stat Cards */}
           <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
