@@ -54,6 +54,23 @@ export class FragmentsController {
   }
 
   /*
+   GET /experiences/:id/fragments/:fragmentId/signed-url
+   Return a signed URL for a fragment attached to a user's experience
+   */
+  @Get(':id/fragments/:fragmentId/signed-url')
+  getFragmentSignedUrl(
+    @Req() req,
+    @Param('id') experienceId: string,
+    @Param('fragmentId') fragmentId: string,
+  ) {
+    return this.fragmentsService.getFragmentSignedUrl(
+      req.user.id,
+      experienceId,
+      fragmentId,
+    );
+  }
+
+  /*
    DELETE /experiences/:id/fragments/:fragmentId
    Remove a fragment from a user's experience
    */

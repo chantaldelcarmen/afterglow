@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { H2, Body, BodySmall } from "../components/Typography";
+import { AppLogo } from "../components/AppLogo";
+import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
   "Joy",
@@ -32,7 +34,7 @@ const inputBlurStyle = {
   borderColor: "var(--color-surface-glass-card-border)",
 };
 
-export function CreateExperience() {
+export default function CreateExperience() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -40,6 +42,8 @@ export function CreateExperience() {
   const [description, setDescription] = useState("");
   const [emotionTags, setEmotionTags] = useState<string[]>([]);
   const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleEmotionToggle = (tag: string) => {
     setEmotionTags((prev) =>
@@ -47,10 +51,29 @@ export function CreateExperience() {
     );
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!title.trim() || !date.trim()) return;
-    // TODO: wire up to API when backend experiences endpoint is ready
-    navigate("/upload-fragments");
+    setError("");
+    setLoading(true);
+    try {
+      const res = await apiFetch("/experiences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          experience_date: date,
+          location: location.trim() || undefined,
+          description: description.trim() || undefined,
+          emotion_tags: emotionTags,
+        }),
+      });
+      const created = await res.json();
+      navigate(`/upload?experienceId=${created.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create experience");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFormValid = !!title.trim() && !!date.trim();
@@ -58,9 +81,10 @@ export function CreateExperience() {
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
+      <div className="sticky top-0 z-20 pb-4 px-6">
         {/* Mobile Header */}
         <div className="md:hidden">
+          <AppLogo />
           <H2 className="px-1">Create Experience</H2>
           <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
             Craft a container for your memory fragments
@@ -192,12 +216,13 @@ export function CreateExperience() {
                       onClick={() => handleEmotionToggle(tag)}
                       className="px-3 py-2 rounded-full border text-xs backdrop-blur-xl transition-all duration-200"
                       style={{
-                        background: isActive ? "var(--color-button-plum-bg-hover)" : "var(--color-button-plum-bg)",
-                        borderColor: isActive ? "var(--color-button-plum-border-hover)" : "var(--color-button-plum-border)",
+                        background: isActive ? "var(--color-button-plum-bg-selected)" : "var(--color-button-plum-bg-dim)",
+                        borderColor: isActive ? "var(--color-button-plum-border-hover)" : "var(--color-button-plum-border-dim)",
                         color: "var(--color-text-primary)",
                         boxShadow: isActive
                           ? "0 2px 10px rgba(0,0,0,0.35), 0 0 20px var(--color-button-plum-glow-hover)"
-                          : "0 2px 10px rgba(0,0,0,0.35), 0 0 12px var(--color-button-plum-glow)",
+                          : "none",
+                        fontWeight: isActive ? 600 : 400,
                       }}
                     >
                       {tag}
@@ -207,6 +232,13 @@ export function CreateExperience() {
               </div>
             </div>
           </div>
+
+          {/* Error */}
+          {error && (
+            <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>
+              {error}
+            </p>
+          )}
 
           {/* Buttons */}
           <div className="pt-6 space-y-3">
@@ -232,7 +264,7 @@ export function CreateExperience() {
             {/* Create Experience */}
             <button
               onClick={handleCreate}
-              disabled={!isFormValid}
+              disabled={!isFormValid || loading}
               className="w-full rounded-full border backdrop-blur-xl px-6 py-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: "var(--color-button-plum-bg)",
@@ -245,7 +277,7 @@ export function CreateExperience() {
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}
             >
-              <Body style={{ color: "var(--color-text-primary)" }}>Create Experience</Body>
+              <Body style={{ color: "var(--color-text-primary)" }}>{loading ? "Creating..." : "Create Experience"}</Body>
             </button>
           </div>
 

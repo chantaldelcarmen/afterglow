@@ -1,7 +1,8 @@
 import {
-  ForbiddenException,
   Injectable,
+  BadRequestException,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateExperienceDto } from './dto/create-experience.dto';
@@ -20,7 +21,7 @@ export class ExperiencesService {
       .select()
       .single<Experience>();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -33,7 +34,7 @@ export class ExperiencesService {
       .order('created_at', { ascending: false })
       .returns<Experience[]>();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -43,11 +44,10 @@ export class ExperiencesService {
       .from('experiences')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single<Experience>();
 
     if (error || !data) throw new NotFoundException('Experience not found');
-    if (data.user_id !== userId) throw new ForbiddenException('Access denied');
-
     return data;
   }
 
@@ -57,17 +57,24 @@ export class ExperiencesService {
     dto: UpdateExperienceDto,
   ): Promise<Experience> {
     // Verify ownership first
-    await this.findOne(userId, id);
+    const experience = await this.findOne(userId, id);
+
+    // cannot publish an experience without an anchor set (no invalid transitions)
+    if (dto.is_draft === false && !experience.anchor_fragment_id)
+      throw new BadRequestException(
+        'An anchor fragment must be set before publishing',
+      );
 
     const { data, error } = await this.supabase
       .getClient()
       .from('experiences')
       .update(dto)
       .eq('id', id)
+      .eq('user_id', userId)
       .select()
       .single<Experience>();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -78,9 +85,10 @@ export class ExperiencesService {
       .getClient()
       .from('experiences')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', userId);
 
-    if (error) throw new Error(error.message);
+    if (error) throw new InternalServerErrorException(error.message);
     return { message: 'Experience deleted successfully' };
   }
 }
