@@ -10,7 +10,7 @@ import request from 'supertest';
 import { SupabaseService } from '../src/supabase/supabase.service';
 import { JwtAuthGuard } from '../src/auth/guards/jwt-auth.guard';
 import { Role } from '../src/enums/role.enum';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, beforeAll, afterAll } from '@jest/globals';
 
 // testing rbac using mock guards
 describe('Authentication and Authorization (RBAC) Tests', () => {
@@ -76,17 +76,15 @@ describe('Authentication and Authorization (RBAC) Tests', () => {
 
   // no admin token to access admin routes
   it('non-admin cant access admin protected routes', async () => {
-    await Promise.all([
-      request(app.getHttpServer())
-        .get('/auth/admin')
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(403),
+    await request(app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(403);
 
-      request(app.getHttpServer())
-        .get('/auth/admin')
-        .set('Authorization', `Bearer ${reviewerToken}`)
-        .expect(403),
-    ]);
+    await request(app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${reviewerToken}`)
+      .expect(403);
   });
 
   // admin can access admin only routes
@@ -99,22 +97,20 @@ describe('Authentication and Authorization (RBAC) Tests', () => {
 
   // platform reviewer routes that admins can also access
   it('admins and reviewers can access', async () => {
-    await Promise.all([
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .expect(200),
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
 
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('Authorization', `Bearer ${reviewerToken}`)
-        .expect(200),
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('Authorization', `Bearer ${reviewerToken}`)
+      .expect(200);
 
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(403),
-    ]);
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(403);
   });
 
   // self promoting is not allowed - add later
@@ -130,27 +126,25 @@ describe('Authentication and Authorization (RBAC) Tests', () => {
 
   // invalid tokens used
   it('random tokens used for authorization', async () => {
-    await Promise.all([
-      request(app.getHttpServer())
-        .get('/auth/me')
-        .set('Authorization', 'Bearer randomToken')
-        .expect(401),
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', 'Bearer randomToken')
+      .expect(401);
 
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('Authorization', 'Bearer askdnaksdj')
-        .expect(401),
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('Authorization', 'Bearer askdnaksdj')
+      .expect(401);
 
-      request(app.getHttpServer())
-        .get('/auth/admin')
-        .set('Authorization', 'Bearer oignjpanckn')
-        .expect(401),
+    await request(app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', 'Bearer oignjpanckn')
+      .expect(401);
 
-      request(app.getHttpServer())
-        .get('/auth/me')
-        .set('Authorization', 'Bearer ')
-        .expect(401),
-    ]);
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', 'Bearer ')
+      .expect(401);
   });
 
   // random header will not return
@@ -163,39 +157,35 @@ describe('Authentication and Authorization (RBAC) Tests', () => {
 
   // authorization header is default to lower case (not case sensitive)
   it('case insensitive headers should work', async () => {
-    await Promise.all([
-      request(app.getHttpServer())
-        .get('/auth/me')
-        .set('AUTHORIZATION', `Bearer ${userToken}`)
-        .expect(200),
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('AUTHORIZATION', `Bearer ${userToken}`)
+      .expect(200);
 
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('authorization', `Bearer ${reviewerToken}`)
-        .expect(200),
-    ]);
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('authorization', `Bearer ${reviewerToken}`)
+      .expect(200);
   });
 
   // should return 401 for no 'Bearer', incorrect schemes
   it('incorrect schemes', async () => {
-    await Promise.all([
-      // incorrect scheme
-      request(app.getHttpServer())
-        .get('/auth/me')
-        .set('Authorization', `Token ${userToken}`)
-        .expect(401),
+    // incorrect scheme
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Token ${userToken}`)
+      .expect(401);
 
-      // case sensitive bearer
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('Authorization', `bearer ${reviewerToken}`)
-        .expect(401),
+    // case sensitive bearer
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('Authorization', `bearer ${reviewerToken}`)
+      .expect(401);
 
-      // no Bearer prefix - only token
-      request(app.getHttpServer())
-        .get('/auth/platform_reviewer')
-        .set('Authorization', `${reviewerToken}`)
-        .expect(401),
-    ]);
+    // no Bearer prefix - only token
+    await request(app.getHttpServer())
+      .get('/auth/platform_reviewer')
+      .set('Authorization', `${reviewerToken}`)
+      .expect(401);
   });
 });
