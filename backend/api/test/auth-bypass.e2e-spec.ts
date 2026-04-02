@@ -10,9 +10,10 @@ import request from 'supertest';
 import { SupabaseService } from '../src/supabase/supabase.service';
 import { JwtAuthGuard } from '../src/auth/guards/jwt-auth.guard';
 import { Role } from '../src/enums/role.enum';
+import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 
-// testing direct api bypass
-describe('Authentication and Authorization API Bypass', () => {
+// testing rbac using mock guards
+describe('Authentication and Authorization (RBAC) Tests', () => {
   let app: INestApplication<App>;
   // mock jwt tokens for the 3 roles
   const adminToken = 'admin-token';

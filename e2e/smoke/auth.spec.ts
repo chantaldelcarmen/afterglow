@@ -14,7 +14,7 @@ test.describe('Testing auth flows', {}, () => {
             await page.click('button[type=submit]'),
             
             // change to dashboard when available
-            await expect(page).toHaveURL('http://localhost:3000')
+            await expect(page).toHaveURL('http://localhost:3000/')
         ]);
 
     });
