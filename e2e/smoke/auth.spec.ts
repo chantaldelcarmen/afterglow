@@ -3,8 +3,14 @@ import { profiles } from '../utils/profiles';
 
 // Testing authentication flow (login/sign up -> dashboard -> profile -> settings -> logout)
 test.describe('Testing auth flows', {}, () => {
+    let context;
+    test.afterEach(async () => {
+        await context.close();
+    });
 
-    test('user is able to sign in and log out', async ({ page }) => {
+    test('user is able to sign in and log out', async ({ browser }) => {
+        context = await browser.newContext();
+        const page = await context.newPage();
         await page.goto('/signin');
 
         // Role = user
@@ -26,18 +32,14 @@ test.describe('Testing auth flows', {}, () => {
         await expect(page.getByText('Fragments')).toBeVisible();
 
         // log out process
-        await Promise.all([
-            page.getByRole('button', {name: /settings/i}).click(),
-            // settings
-            page.waitForURL('/settings'),
-        ]);
+        await page.getByRole('button', {name: /settings/i}).click();
+        // settings
+        await page.waitForURL('/settings');
 
-        await Promise.all([
-            page.getByRole('button', {name: /log out/i}).click(),
-            // confirm logout 
-            page.waitForURL('/logout/'),
-        ]);
-
+        await page.getByRole('button', {name: /log out/i}).click();
+        // confirm logout 
+        await page.getByRole('button', { name: /yes, sign out/i }).waitFor({ state: 'visible' });
+        await expect(page.getByRole('button', { name: /yes, sign out/i })).toBeEnabled();
         await page.getByRole('button', {name: /yes, sign out/i}).click({timeout: 5000});
         await page.waitForURL('/signin'); 
 
@@ -110,7 +112,7 @@ test.describe('Testing auth flows', {}, () => {
 
 
     test('logging out logs out across pages', async ({ browser }) => {
-        const context = await browser.newContext();
+        context = await browser.newContext();
         const page1 = await context.newPage();
         const page2 = await context.newPage();
         
@@ -132,6 +134,8 @@ test.describe('Testing auth flows', {}, () => {
 
         // page 2 logs out
         await page2.goto('/logout');
+        await page2.getByRole('button', { name: /yes, sign out/i }).waitFor({ state: 'visible' });
+        await expect(page2.getByRole('button', { name: /yes, sign out/i })).toBeEnabled();
         await page2.getByRole('button', {name: /yes, sign out/i}).click({timeout: 5000});
         await page2.waitForURL('/signin');
 
@@ -142,7 +146,9 @@ test.describe('Testing auth flows', {}, () => {
     });
 
 
-    test('user cannot use back button after log out', async({ page }) => {
+    test('user cannot use back button after log out', async({ browser }) => {
+        context = await browser.newContext();
+        const page = await context.newPage();
         await page.goto('/signin');
 
         await page.fill('#email', profiles.user.email);
@@ -154,13 +160,14 @@ test.describe('Testing auth flows', {}, () => {
         ]);
 
         await page.goto('/logout');
+        await page.getByRole('button', { name: /yes, sign out/i }).waitFor({ state: 'visible' });
+        await expect(page.getByRole('button', { name: /yes, sign out/i })).toBeEnabled();
         await page.getByRole('button', {name: /yes, sign out/i}).click({timeout: 5000});
         await page.waitForURL('/signin');
 
-        // try to go back
+        // try to go back and trigger auth check
         await page.goBack();
-        await page.reload();
-
+        await page.getByRole('button', { name: /cancel/i }).click();
         await expect(page).toHaveURL('/signin');
     });
 });
