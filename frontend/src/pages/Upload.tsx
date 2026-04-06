@@ -11,7 +11,7 @@ import { H2, BodySmall, Body } from '../components/Typography';
 import { AppLogo } from '../components/AppLogo';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
-import { MOBILE_UPLOAD_ACTION_ROW_BOTTOM } from '../components/floatingOrbLayout';
+import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
 
 interface ExperienceData {
   id: string;
@@ -24,6 +24,7 @@ interface ExperienceData {
 export default function Upload() {
   const { user, loading: authLoading } = useAuth();
   const { setFragmentTypeCallback, setOrbExpanded } = useFloatingOrb();
+  const { photoDraft, setPhotoDraft } = useUploadDraft();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const experienceId = searchParams.get('experienceId');
@@ -33,6 +34,11 @@ export default function Upload() {
   const [selectedType, setSelectedType] = useState<FragmentType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const hasActivePhotoDraft =
+    !!experienceId &&
+    photoDraft.experienceId === experienceId &&
+    !!photoDraft.file;
 
   const loadFragments = useCallback(async (expId: string) => {
     try {
@@ -74,6 +80,18 @@ export default function Upload() {
     };
   }, [setFragmentTypeCallback, setOrbExpanded]);
 
+  useEffect(() => {
+    if (hasActivePhotoDraft) {
+      setSelectedType('photo');
+    }
+  }, [hasActivePhotoDraft]);
+
+  function handleCancel() {
+    setPhotoDraft(EMPTY_PHOTO_DRAFT);
+    setSelectedType(null);
+    navigate(-1);
+  }
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -86,73 +104,101 @@ export default function Upload() {
 
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
-      {/* Mobile Header */}
-      <div className="md:hidden sticky top-0 z-20 pb-2 px-6">
-        <AppLogo />
-        <H2 className="px-1 text-center">Add Fragments</H2>
-        <BodySmall
-          className="px-1 mt-1 text-center"
-          style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}
-        >
-          Building your memory
-        </BodySmall>
-      </div>
+      <div className="sticky top-0 z-20 px-6 pb-4 pt-4 md:pt-8">
+        <div className="md:hidden">
+          <AppLogo />
+        </div>
+        <div className="mt-2 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border backdrop-blur-xl transition-all duration-300"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              borderColor: 'var(--color-button-warm-border)',
+              boxShadow: '0 0 16px var(--color-button-warm-glow)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 24px var(--color-button-warm-glow)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 16px var(--color-button-warm-glow)';
+            }}
+          >
+            <ArrowLeft size={20} style={{ color: 'var(--color-text-primary)' }} />
+          </button>
 
-      {/* Desktop Header */}
-      <div className="hidden md:block sticky top-0 z-20 pb-4 px-6 pt-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex w-10 h-10 rounded-full items-center justify-center backdrop-blur-xl transition-all duration-300 mb-4 border"
-          style={{
-            background: 'rgba(255,255,255,0.08)',
-            borderColor: 'var(--color-button-warm-border)',
-            boxShadow: '0 0 16px var(--color-button-warm-glow)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 0 24px var(--color-button-warm-glow)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 0 16px var(--color-button-warm-glow)';
-          }}
-        >
-          <ArrowLeft size={20} style={{ color: 'var(--color-text-primary)' }} />
-        </button>
-        <H2 className="px-1">Add Fragments</H2>
-        <BodySmall
-          className="px-1 mt-1"
-          style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}
-        >
-          Building your memory
-        </BodySmall>
+          <div className="min-w-0 flex-1 text-center">
+            <H2 className="px-1 text-center">Add Fragments</H2>
+            <BodySmall
+              className="px-1 mt-1 text-center"
+              style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}
+            >
+              Building your memory
+            </BodySmall>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="shrink-0 rounded-full border px-5 py-2 text-sm backdrop-blur-xl transition-all duration-300"
+            style={{
+              background: 'var(--color-button-plum-bg)',
+              borderColor: 'var(--color-button-plum-border)',
+              color: 'var(--color-text-primary)',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
+              e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
+              e.currentTarget.style.boxShadow =
+                '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--color-button-plum-bg)';
+              e.currentTarget.style.borderColor = 'var(--color-button-plum-border)';
+              e.currentTarget.style.boxShadow =
+                '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)';
+            }}
+          >
+            <Body style={{ color: 'var(--color-text-primary)' }}>Done</Body>
+          </button>
+        </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-52 md:pb-0">
+      <div className="flex-1 overflow-y-auto px-6 pb-36 md:pb-20">
         {/* Instructional text */}
-        <div className="text-center mb-4 mt-2">
+        <div className="text-center mb-5 mt-2">
           <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontSize: '12px' }}>
-            <span className="md:hidden">Tap + to add fragments</span>
-            <span className="hidden md:inline">Add photos to build your memory</span>
+            <span className="md:hidden">
+              {hasActivePhotoDraft ? 'Your selected photo is ready to upload' : 'Tap the camera orb to choose a photo'}
+            </span>
+            <span className="hidden md:inline">
+              {hasActivePhotoDraft ? 'Your selected photo is ready to upload' : 'Choose a fragment type to continue'}
+            </span>
           </BodySmall>
         </div>
 
         {/* Glass card -- experience metadata */}
         <div
-          className="max-w-sm mx-auto rounded-[28px] border backdrop-blur-xl px-5 py-4 mb-6"
+          className="max-w-sm mx-auto rounded-[28px] border backdrop-blur-xl px-5 py-3 mb-5"
           style={{
             background: 'var(--color-surface-glass-card)',
             borderColor: 'var(--color-surface-glass-card-border)',
             boxShadow: 'var(--shadow-card)',
           }}
         >
-          <div className="text-center">
+          <div className="space-y-1 text-center">
             {loading ? (
               <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic' }}>
                 Loading experience...
               </BodySmall>
             ) : experience ? (
               <>
-                <H2 style={{ marginBottom: '2px' }}>{experience.title}</H2>
+                <Body className="truncate" style={{ color: 'var(--color-text-primary)' }}>
+                  {experience.title}
+                </Body>
                 {experience.experience_date && (
                   <BodySmall style={{ color: 'var(--color-text-muted)' }}>
                     {new Date(experience.experience_date + 'T00:00:00').toLocaleDateString('en-US', {
@@ -160,23 +206,6 @@ export default function Upload() {
                       day: 'numeric',
                       year: 'numeric',
                     })}
-                  </BodySmall>
-                )}
-                {experience.location && (
-                  <BodySmall style={{ color: 'var(--color-text-muted)' }}>
-                    {experience.location}
-                  </BodySmall>
-                )}
-                {experience.description && (
-                  <BodySmall
-                    style={{
-                      color: 'var(--color-text-muted-dim)',
-                      fontStyle: 'italic',
-                      fontSize: '12px',
-                      marginTop: '8px',
-                    }}
-                  >
-                    {experience.description}
                   </BodySmall>
                 )}
               </>
@@ -189,7 +218,7 @@ export default function Upload() {
         </div>
 
         {/* Desktop fragment type buttons */}
-        <div className="hidden md:flex justify-center gap-4 mb-6">
+        <div className="hidden md:flex justify-center gap-4 mb-5">
           {([
             { type: 'photo' as FragmentType, icon: Camera },
             { type: 'video' as FragmentType, icon: Video },
@@ -228,13 +257,14 @@ export default function Upload() {
 
         {/* Fragment upload area (shown when a type is selected) */}
         {selectedType === 'photo' && (
-          <div className="max-w-sm mx-auto mb-6">
+          <div className="max-w-sm mx-auto mb-5">
             <PhotoUpload
               experienceId={experienceId}
               onUploaded={() => {
                 loadFragments(experienceId);
                 setSelectedType(null);
               }}
+              onCancel={() => setSelectedType(null)}
             />
           </div>
         )}
@@ -260,7 +290,7 @@ export default function Upload() {
         )}
 
         {/* Fragment list */}
-        <div className="max-w-sm mx-auto mb-6">
+        <div className="max-w-sm mx-auto mb-8">
           {!loading && fragments.length === 0 ? (
             <div className="text-center py-8">
               <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}>
@@ -271,106 +301,6 @@ export default function Upload() {
             <FragmentGallery fragments={fragments} />
           )}
         </div>
-
-        {/* Desktop cancel and done buttons */}
-        <div className="hidden md:flex justify-center gap-3 pt-4 pb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
-            style={{
-              background: 'var(--color-surface-glass)',
-              borderColor: 'var(--color-button-warm-border)',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow =
-                '0 2px 10px rgba(0,0,0,0.25), 0 0 18px rgba(246,237,227,0.25)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow =
-                '0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)';
-            }}
-          >
-            <Body style={{ color: 'var(--color-text-muted)' }}>Cancel</Body>
-          </button>
-
-          <button
-            onClick={() => navigate('/')}
-            className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
-            style={{
-              background: 'var(--color-button-plum-bg)',
-              borderColor: 'var(--color-button-plum-border)',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
-              e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
-              e.currentTarget.style.boxShadow =
-                '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--color-button-plum-bg)';
-              e.currentTarget.style.borderColor = 'var(--color-button-plum-border)';
-              e.currentTarget.style.boxShadow =
-                '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)';
-            }}
-          >
-            <Body style={{ color: 'var(--color-text-primary)' }}>Done</Body>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile cancel and done buttons stay above the orb action zone */}
-      <div
-        className="md:hidden fixed left-0 right-0 flex justify-center gap-3 px-6"
-        style={{
-          bottom: `${MOBILE_UPLOAD_ACTION_ROW_BOTTOM}px`,
-          zIndex: 35,
-        }}
-      >
-        <button
-          onClick={() => navigate(-1)}
-          className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
-          style={{
-            background: 'var(--color-surface-glass)',
-            borderColor: 'var(--color-button-warm-border)',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow =
-              '0 2px 10px rgba(0,0,0,0.25), 0 0 18px rgba(246,237,227,0.25)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow =
-              '0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)';
-          }}
-        >
-          <Body style={{ color: 'var(--color-text-muted)' }}>Cancel</Body>
-        </button>
-
-        <button
-          onClick={() => navigate('/')}
-          className="px-8 py-3 rounded-full border backdrop-blur-xl transition-all duration-300"
-          style={{
-            background: 'var(--color-button-plum-bg)',
-            borderColor: 'var(--color-button-plum-border)',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
-            e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
-            e.currentTarget.style.boxShadow =
-              '0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'var(--color-button-plum-bg)';
-            e.currentTarget.style.borderColor = 'var(--color-button-plum-border)';
-            e.currentTarget.style.boxShadow =
-              '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)';
-          }}
-        >
-          <Body style={{ color: 'var(--color-text-primary)' }}>Done</Body>
-        </button>
       </div>
     </div>
   );
