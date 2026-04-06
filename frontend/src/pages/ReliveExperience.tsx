@@ -83,7 +83,7 @@ export function ReliveExperience() {
         setLoading(false);
       }
     }
-    load();
+    void load();
   }, [id]);
 
   // Auto-advance through context fragments
@@ -524,7 +524,7 @@ export function ReliveExperience() {
                       }}
                     >
                       {experience.title} ·{" "}
-                      {new Date(displayDate).toLocaleDateString("en-US", {
+                      {new Date(displayDate + "T00:00:00").toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
