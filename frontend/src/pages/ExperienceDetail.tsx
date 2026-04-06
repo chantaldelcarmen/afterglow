@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { getOneExperience, removeExperience } from "../lib/experience";
 import { getFragments, getFragmentSignedUrl } from "../lib/storage";
-import { getReflections } from "../lib/reflections";
+import {
+  deleteReflection,
+  getReflections,
+  updateReflection,
+} from "../lib/reflections";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
 import type { Reflection } from "../lib/reflections";
@@ -25,6 +29,12 @@ export default function ExperienceDetail() {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reflectionError, setReflectionError] = useState("");
+  const [editingReflection, setEditingReflection] = useState<Reflection | null>(null);
+  const [reflectionDraft, setReflectionDraft] = useState("");
+  const [savingReflection, setSavingReflection] = useState(false);
+  const [reflectionToDelete, setReflectionToDelete] = useState<Reflection | null>(null);
+  const [deletingReflectionId, setDeletingReflectionId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadAll() {
@@ -51,10 +61,19 @@ export default function ExperienceDetail() {
   useEffect(() => {
     async function loadCoverImage() {
       if (!experience?.anchor_fragment_id) return;
-      const url = await getFragmentSignedUrl(experience.id, experience.anchor_fragment_id);
-      setCoverImage(url);
+      try {
+        const url = await getFragmentSignedUrl(
+          experience.id,
+          experience.anchor_fragment_id,
+        );
+        setCoverImage(url);
+      } catch (err) {
+        console.error(err);
+        setCoverImage(null);
+      }
     }
-    loadCoverImage();
+
+    void loadCoverImage();
   }, [experience?.id, experience?.anchor_fragment_id]);
 
   async function handleDelete() {
@@ -67,6 +86,67 @@ export default function ExperienceDetail() {
       console.error(err);
       setError("Could not delete experience.");
       setDeleting(false);
+    }
+  }
+
+  function openEditReflection(reflection: Reflection) {
+    setReflectionError("");
+    setEditingReflection(reflection);
+    setReflectionDraft(reflection.content);
+  }
+
+  function closeEditReflection() {
+    if (savingReflection) return;
+    setEditingReflection(null);
+    setReflectionDraft("");
+  }
+
+  async function handleSaveReflection() {
+    if (!id || !editingReflection) return;
+
+    const nextContent = reflectionDraft.trim();
+    if (!nextContent) {
+      setReflectionError("Reflection text cannot be empty.");
+      return;
+    }
+
+    setSavingReflection(true);
+    setReflectionError("");
+
+    try {
+      const updated = await updateReflection(id, editingReflection.id, nextContent);
+      setReflections((current) =>
+        current.map((reflection) =>
+          reflection.id === updated.id ? updated : reflection,
+        ),
+      );
+      setEditingReflection(null);
+      setReflectionDraft("");
+    } catch (err) {
+      console.error(err);
+      setReflectionError("Could not update reflection.");
+    } finally {
+      setSavingReflection(false);
+    }
+  }
+
+  async function handleDeleteReflection() {
+    if (!id || !reflectionToDelete) return;
+
+    setDeletingReflectionId(reflectionToDelete.id);
+    setReflectionError("");
+
+    try {
+      await deleteReflection(id, reflectionToDelete.id);
+      setReflections((current) =>
+        current.filter((reflection) => reflection.id !== reflectionToDelete.id),
+      );
+      setReflectionToDelete(null);
+    } catch (err) {
+      console.error(err);
+      setReflectionError("Could not delete reflection.");
+    } finally {
+      setDeletingReflectionId(null);
     }
   }
 
@@ -97,6 +177,12 @@ export default function ExperienceDetail() {
         month: "long", day: "numeric", year: "numeric",
       })
     : null;
+
+  const reflectionActionButtonStyle = {
+    background: colors.surface.glass,
+    borderColor: colors.surface.glassCardBorder,
+    color: colors.text.muted,
+  };
 
   return (
     <div className="w-full max-w-[430px] pb-28">
@@ -168,12 +254,94 @@ export default function ExperienceDetail() {
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
+                onClick={() => void handleDelete()}
                 disabled={deleting}
                 className="flex-1 rounded-full py-3 text-sm"
                 style={{ background: colors.accent.coral, color: "#fff" }}
               >
                 {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingReflection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
+          <div
+            className="w-full max-w-md rounded-2xl border p-6 space-y-4"
+            style={{
+              background: colors.surface.glassCard,
+              borderColor: colors.surface.glassCardBorder,
+              boxShadow: effects.shadows.card,
+            }}
+          >
+            <H2>Edit reflection</H2>
+            <textarea
+              value={reflectionDraft}
+              onChange={(e) => setReflectionDraft(e.target.value)}
+              rows={5}
+              className="w-full resize-none rounded-[28px] border px-5 py-4 backdrop-blur-xl transition-all duration-300 focus:outline-none"
+              style={{
+                background: colors.surface.glass,
+                borderColor: colors.surface.glassCardBorder,
+                color: colors.text.primary,
+                lineHeight: "1.6",
+              }}
+              placeholder="Update your reflection"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={closeEditReflection}
+                disabled={savingReflection}
+                className="flex-1 rounded-full border py-3 text-sm"
+                style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => void handleSaveReflection()}
+                disabled={savingReflection}
+                className="flex-1 rounded-full py-3 text-sm"
+                style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}
+              >
+                {savingReflection ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reflectionToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
+          <div
+            className="w-full max-w-md rounded-2xl border p-6 space-y-4"
+            style={{
+              background: colors.surface.glassCard,
+              borderColor: colors.surface.glassCardBorder,
+              boxShadow: effects.shadows.card,
+            }}
+          >
+            <H2>Delete reflection?</H2>
+            <BodySmall style={{ color: colors.text.muted }}>
+              This will permanently remove this saved reflection.
+            </BodySmall>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setReflectionToDelete(null)}
+                disabled={deletingReflectionId === reflectionToDelete.id}
+                className="flex-1 rounded-full border py-3 text-sm"
+                style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => void handleDeleteReflection()}
+                disabled={deletingReflectionId === reflectionToDelete.id}
+                className="flex-1 rounded-full py-3 text-sm"
+                style={{ background: colors.accent.coral, color: "#fff" }}
+              >
+                {deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
@@ -284,6 +452,11 @@ export default function ExperienceDetail() {
           }}
         >
           <H2 className="mb-3">Reflections</H2>
+          {reflectionError && (
+            <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>
+              {reflectionError}
+            </BodySmall>
+          )}
           {reflections.length === 0 ? (
             <BodySmall style={{ color: colors.text.mutedDim }}>No reflections yet.</BodySmall>
           ) : (
@@ -297,13 +470,38 @@ export default function ExperienceDetail() {
                     borderColor: colors.surface.glassCardBorder,
                   }}
                 >
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <BodySmall style={{ color: colors.text.mutedDim, fontSize: "11px" }}>
+                      {new Date(reflection.created_at).toLocaleDateString("en-US", {
+                        month: "long", day: "numeric", year: "numeric",
+                      })}
+                    </BodySmall>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        onClick={() => openEditReflection(reflection)}
+                        className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200"
+                        style={reflectionActionButtonStyle}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          setReflectionError("");
+                          setReflectionToDelete(reflection);
+                        }}
+                        disabled={deletingReflectionId === reflection.id}
+                        className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200"
+                        style={{
+                          ...reflectionActionButtonStyle,
+                          color: colors.accent.coral,
+                        }}
+                      >
+                        {deletingReflectionId === reflection.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
                   <BodySmall style={{ color: colors.text.primary, lineHeight: "1.6" }}>
                     {reflection.content}
-                  </BodySmall>
-                  <BodySmall style={{ color: colors.text.mutedDim, fontSize: "11px", marginTop: "8px" }}>
-                    {new Date(reflection.created_at).toLocaleDateString("en-US", {
-                      month: "long", day: "numeric", year: "numeric",
-                    })}
                   </BodySmall>
                 </div>
               ))}
