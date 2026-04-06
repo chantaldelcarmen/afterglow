@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.test' });
 
 export default defineConfig({
   testDir: './e2e',
@@ -23,7 +25,7 @@ export default defineConfig({
 
   projects: [
     { name: 'afterglow-desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'afterglow-mobile', use: { ...devices['IPhone 16'] } },
+    { name: 'afterglow-mobile', use: { ...devices['iPhone 16'] } },
   ],
 });
 

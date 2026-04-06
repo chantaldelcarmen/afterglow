@@ -10,17 +10,9 @@ test.describe('Testing auth flows', {}, () => {
         await page.fill('#email', profiles.user.email);
         await page.fill('#password', profiles.user.password);
 
-        await Promise.all([
-            await page.click('button[type=submit]'),
-            
-            // change to dashboard when available
-            await expect(page).toHaveURL('http://localhost:3000/')
-        ]);
+        await page.click('button[type=submit]');
+        // change to dashboard when available
+        await expect(page).toHaveURL('http://localhost:3000/');
 
     });
-
-    test('user is able to sign up', async({ page }) => {
-        await page.goto('http://localhost:3000/signup');
-    });
-
 });
