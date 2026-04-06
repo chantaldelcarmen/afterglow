@@ -193,7 +193,7 @@ export default function ExperienceDetail() {
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
           style={{
-            background: "rgba(255,255,255,0.08)",
+            background: "rgba(0,0,0,0.35)",
             border: `1px solid ${colors.button.warmBorder}`,
             boxShadow: `0 0 16px ${colors.button.warmGlow}`,
           }}
@@ -210,7 +210,7 @@ export default function ExperienceDetail() {
           onClick={() => navigate(`/experience/${id}/edit`)}
           className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
           style={{
-            background: "rgba(255,255,255,0.08)",
+            background: "rgba(0,0,0,0.35)",
             border: `1px solid ${colors.button.warmBorder}`,
             boxShadow: `0 0 16px ${colors.button.warmGlow}`,
           }}
@@ -221,7 +221,7 @@ export default function ExperienceDetail() {
           onClick={() => setShowDeleteConfirm(true)}
           className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
           style={{
-            background: "rgba(255,255,255,0.08)",
+            background: "rgba(0,0,0,0.35)",
             border: `1px solid ${colors.button.warmBorder}`,
             boxShadow: `0 0 16px ${colors.button.warmGlow}`,
           }}
