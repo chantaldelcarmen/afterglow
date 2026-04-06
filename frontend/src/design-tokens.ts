@@ -66,9 +66,9 @@ export const colors = {
     purpleTintBottom: "rgba(60,20,100,0.95)",
 
     // Image fade system
-    fadeDarkest: "rgba(20,5,30,0.95)",
-    fadeDark: "rgba(40,15,50,0.80)",
-    fadeMedium: "rgba(60,25,70,0.50)",
+    fadeDarkest: "rgba(10,0,20,0.97)",
+    fadeDark: "rgba(20,5,40,0.90)",
+    fadeMedium: "rgba(40,10,60,0.65)",
   },
 
   // Buttons
