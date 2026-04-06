@@ -79,6 +79,19 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
                 {f.text_context ?? 'No text content'}
               </p>
             </div>
+          ) : signedUrls[f.id] && f.type === 'video' ? (
+            <video
+              src={signedUrls[f.id]}
+              controls
+              muted
+              playsInline
+              preload="metadata"
+              className="w-full aspect-square rounded-2xl object-cover border backdrop-blur-xl bg-black"
+              style={{
+                borderColor: 'var(--color-button-warm-border)',
+                boxShadow: 'var(--shadow-card)',
+              }}
+            />
           ) : signedUrls[f.id] ? (
             <img
               src={signedUrls[f.id]}
@@ -98,7 +111,7 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
                 color: 'var(--color-text-muted-dim)',
               }}
             >
-              No image
+              {f.type === 'video' ? 'No video' : 'No image'}
             </div>
           )}
           {f.caption && (
