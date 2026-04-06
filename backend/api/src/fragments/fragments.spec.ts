@@ -372,4 +372,300 @@ describe('FragmentsService Testing', () => {
       );
     });
   });
+
+  // get signed url for a fragment GET
+  describe('getFragmentSignedUrl testing', () => {
+    it('successfully get fragment signed url', async () => {
+      // use default mock bucket
+      const storage = mockBucket();
+
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          // resolve to mock experience for findOne
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          // then resolve to fragment for getting the storage path
+          .mockResolvedValueOnce({ data: mockFragment(), error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      const res = await service.getFragmentSignedUrl('userA', 'exp1', 'frag1');
+      expect(res).toHaveProperty('signedUrl');
+      expect(storage.createSignedUrl).toHaveBeenCalledTimes(1);
+    });
+
+    it('throw NotFoundException if fragment is not found', async () => {
+      // use default mock bucket
+      const storage = mockBucket();
+
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          // resolve to mock experience for findOne
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          // then resolve to fragment for getting the storage path
+          .mockResolvedValueOnce({
+            data: null,
+            error: { message: 'fragment does not exist' },
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      await expect(
+        service.getFragmentSignedUrl('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throw BadRequestException if fragment has no storage path', async () => {
+      // use default mock bucket
+      const storage = mockBucket();
+
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          // resolve to mock experience for findOne
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          // then resolve to fragment for getting the storage path
+          .mockResolvedValueOnce({
+            data: mockFragment({ storage_path: null }),
+            error: null,
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      await expect(
+        service.getFragmentSignedUrl('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throw InternalServerErrorException if error with retrieving the signed url', async () => {
+      // use default mock bucket
+      const storage = mockBucket({
+        createSignedUrl: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValue({
+            data: null,
+            error: { message: 'signed url errors' },
+          }),
+      });
+
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          // resolve to mock experience for findOne
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          // then resolve to fragment for getting the storage path
+          .mockResolvedValueOnce({ data: mockFragment(), error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      await expect(
+        service.getFragmentSignedUrl('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  // remove a fragment from an experience DELETE
+  describe('removeFragment testing', () => {
+    it('successfully removed a fragment from an experience', async () => {
+      // use default mock bucket
+      const storage = mockBucket();
+
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          // resolve to mock experience for findOne
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          // then resolve to fragment for getting the storage path
+          .mockResolvedValueOnce({ data: mockFragment(), error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      const res = await service.removeFragment('userA', 'exp1', 'frag1');
+      expect(res).toHaveProperty('message', 'Fragment deleted successfully');
+      expect(storage.remove).toHaveBeenCalledTimes(1);
+    });
+
+    it('throw BadRequestException if trying to delete the anchor fragment', async () => {
+      const storage = mockBucket();
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          // resolve to mock experience for findOne
+          .mockResolvedValue({
+            data: mockExperience({ anchor_fragment_id: 'frag1' }),
+            error: null,
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      await expect(
+        service.removeFragment('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throw NotFoundException if fragment is not found', async () => {
+      const storage = mockBucket();
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          .mockResolvedValueOnce({
+            data: null,
+            error: { message: 'fragment not found' },
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      await expect(
+        service.removeFragment('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throw InternalServerErrorException if fragment did not delete from table', async () => {
+      const storage = mockBucket({
+        remove: jest.fn<() => Promise<{ error: any }>>().mockResolvedValue({
+          error: { message: 'error removing from bucket' },
+        }),
+      });
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          .mockResolvedValueOnce({ data: mockFragment(), error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      await expect(
+        service.removeFragment('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(InternalServerErrorException);
+      expect(storage.remove).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // set a fragment as the anchor fragment for an experience PATCH
+  describe('setAnchorFragment testing', () => {
+    it('successfully set a new anchor fragment', async () => {
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          .mockResolvedValueOnce({ data: mockFragment(), error: null })
+          .mockResolvedValueOnce({
+            data: mockExperience({ anchor_fragment_id: 'frag1' }),
+            error: null,
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnThis() },
+      });
+
+      const res = await service.setAnchorFragment('userA', 'exp1', 'frag1');
+      expect(res).toHaveProperty('id');
+      expect(res).toHaveProperty('anchor_fragment_id', 'frag1');
+    });
+
+    it('throw NotFoundException if fragment is not found for this experience', async () => {
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          // when fragment is not found or error returns
+          .mockResolvedValueOnce({
+            data: null,
+            error: { message: 'fragment not found' },
+          })
+          .mockResolvedValueOnce({
+            data: mockExperience({ anchor_fragment_id: 'frag1' }),
+            error: null,
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnThis() },
+      });
+
+      await expect(
+        service.setAnchorFragment('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throw InternalServerErrorException if error when updating experiences anchor', async () => {
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          .mockResolvedValueOnce({ data: mockFragment(), error: null })
+          // error when attempting to update experience anchor fragment id
+          .mockResolvedValueOnce({
+            data: mockExperience({ anchor_fragment_id: 'frag1' }),
+            error: { message: 'error updating anchor' },
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnThis() },
+      });
+
+      await expect(
+        service.setAnchorFragment('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it('throw ForbiddenException when update returns no data', async () => {
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          .mockResolvedValueOnce({ data: mockFragment(), error: null })
+          // return no data when attempting to update experience anchor fragment id
+          .mockResolvedValueOnce({ data: null, error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnThis() },
+      });
+
+      await expect(
+        service.setAnchorFragment('userA', 'exp1', 'frag1'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
 });
