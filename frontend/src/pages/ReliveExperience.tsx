@@ -8,10 +8,21 @@ import { getFragments, getFragmentSignedUrl } from "../lib/storage";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
 import { colors } from "../design-tokens";
-import { Body } from "../components/Typography";
+import { Body, BodySmall } from "../components/Typography";
+
+type Phase = "context" | "peak" | "afterglow";
+
+const PHASE_LABELS: Record<Phase, string> = {
+  context: "Context",
+  peak: "Peak",
+  afterglow: "Afterglow",
+};
+
+const PHASE_ORDER: Phase[] = ["context", "peak", "afterglow"];
 
 interface ReliveFragment extends Fragment {
   signedUrl: string | null;
+  isAnchor: boolean;
 }
 
 export function ReliveExperience() {
@@ -19,10 +30,12 @@ export function ReliveExperience() {
   const navigate = useNavigate();
 
   const [experience, setExperience] = useState<Experience | null>(null);
-  const [fragments, setFragments] = useState<ReliveFragment[]>([]);
+  const [contextFragments, setContextFragments] = useState<ReliveFragment[]>([]);
+  const [peakFragment, setPeakFragment] = useState<ReliveFragment | null>(null);
   const [loading, setLoading] = useState(true);
   const [fadeToBlack, setFadeToBlack] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [phase, setPhase] = useState<Phase>("context");
+  const [contextIndex, setContextIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
@@ -43,12 +56,14 @@ export function ReliveExperience() {
         const withUrls: ReliveFragment[] = await Promise.all(
           frags.map(async (f: Fragment) => ({
             ...f,
+            isAnchor: f.id === exp.anchor_fragment_id,
             signedUrl: f.storage_path
               ? await getFragmentSignedUrl(id!, f.id)
               : null,
           }))
         );
-        setFragments(withUrls);
+        setContextFragments(withUrls.filter((f) => !f.isAnchor));
+        setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
       } finally {
         setLoading(false);
       }
@@ -56,16 +71,59 @@ export function ReliveExperience() {
     load();
   }, [id]);
 
+  // Auto-advance through context fragments
+  useEffect(() => {
+    if (loading || isPaused || phase !== "context") return;
+    if (contextFragments.length === 0) {
+      setPhase(peakFragment ? "peak" : "afterglow");
+      return;
+    }
+    const timer = setTimeout(() => {
+      if (contextIndex < contextFragments.length - 1) {
+        setContextIndex((i) => i + 1);
+      } else {
+        setPhase(peakFragment ? "peak" : "afterglow");
+      }
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [loading, isPaused, phase, contextIndex, contextFragments.length, peakFragment]);
+
+  // Auto-advance from peak to afterglow
+  useEffect(() => {
+    if (phase !== "peak" || isPaused) return;
+    const timer = setTimeout(() => setPhase("afterglow"), 5500);
+    return () => clearTimeout(timer);
+  }, [phase, isPaused]);
+
   const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const width = rect.width;
 
     if (x < width / 3) {
-      if (currentIndex > 0) setCurrentIndex((i) => i - 1);
-      else navigate(`/experience/${id}`);
+      // Go back
+      if (phase === "peak") {
+        if (contextFragments.length > 0) {
+          setPhase("context");
+          setContextIndex(contextFragments.length - 1);
+        } else {
+          navigate(`/experience/${id}`);
+        }
+      } else if (phase === "context") {
+        if (contextIndex > 0) setContextIndex((i) => i - 1);
+        else navigate(`/experience/${id}`);
+      }
     } else if (x > (width * 2) / 3) {
-      if (currentIndex < fragments.length - 1) setCurrentIndex((i) => i + 1);
+      // Go forward
+      if (phase === "context") {
+        if (contextIndex < contextFragments.length - 1) {
+          setContextIndex((i) => i + 1);
+        } else {
+          setPhase(peakFragment ? "peak" : "afterglow");
+        }
+      } else if (phase === "peak") {
+        setPhase("afterglow");
+      }
     } else {
       setIsPaused((prev) => !prev);
     }
@@ -78,9 +136,11 @@ export function ReliveExperience() {
     return null;
   }
 
-  const currentFragment = fragments[currentIndex];
-  const prevFragment = currentIndex > 0 ? fragments[currentIndex - 1] : null;
-  const nextFragment = currentIndex < fragments.length - 1 ? fragments[currentIndex + 1] : null;
+  const currentFragment = phase === "context" ? contextFragments[contextIndex] : peakFragment;
+  const prevFragment = phase === "context" && contextIndex > 0 ? contextFragments[contextIndex - 1] : null;
+  const nextFragment = phase === "context" && contextIndex < contextFragments.length - 1
+    ? contextFragments[contextIndex + 1]
+    : null;
 
   return (
     <div className="absolute inset-0 z-50 overflow-hidden">
@@ -144,6 +204,11 @@ export function ReliveExperience() {
         <ArrowLeft size={20} style={{ color: colors.text.primary }} />
       </motion.button>
 
+      {/* Phase step indicator */}
+      <div className="absolute top-4 left-0 right-0 flex justify-center z-30 pointer-events-none">
+        <PhaseSteps currentPhase={phase} />
+      </div>
+
       {/* Fragment display */}
       <div
         className="absolute inset-0 flex items-center justify-center"
@@ -176,6 +241,17 @@ export function ReliveExperience() {
             className="relative z-20"
           >
             <FragmentCard fragment={currentFragment} isActive />
+            {/* Peak phase: glowing pulse behind the anchor fragment */}
+            {phase === "peak" && (
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 -z-10 rounded-3xl blur-2xl"
+                style={{
+                  background: "radial-gradient(circle, rgba(147,51,234,0.6) 0%, transparent 70%)",
+                }}
+              />
+            )}
           </motion.div>
         )}
 
@@ -192,6 +268,51 @@ export function ReliveExperience() {
           </motion.div>
         )}
       </div>
+    </div>
+  );
+}
+
+function PhaseSteps({ currentPhase }: { currentPhase: Phase }) {
+  return (
+    <div
+      className="flex items-center gap-1 px-4 py-2 rounded-full backdrop-blur-xl"
+      style={{
+        background: "rgba(0,0,0,0.35)",
+        border: "1px solid rgba(255,255,255,0.12)",
+      }}
+    >
+      {PHASE_ORDER.map((p, i) => {
+        const isActive = p === currentPhase;
+        const isPast = PHASE_ORDER.indexOf(currentPhase) > PHASE_ORDER.indexOf(p);
+        return (
+          <div key={p} className="flex items-center gap-1">
+            {i > 0 && (
+              <div
+                className="w-4 h-px"
+                style={{
+                  background: isPast || isActive
+                    ? "rgba(200,150,220,0.5)"
+                    : "rgba(255,255,255,0.15)",
+                }}
+              />
+            )}
+            <BodySmall
+              style={{
+                fontSize: "11px",
+                color: isActive
+                  ? colors.text.primary
+                  : isPast
+                  ? "rgba(200,150,220,0.6)"
+                  : "rgba(255,255,255,0.25)",
+                fontWeight: isActive ? "600" : "400",
+                transition: "all 0.3s",
+              }}
+            >
+              {PHASE_LABELS[p]}
+            </BodySmall>
+          </div>
+        );
+      })}
     </div>
   );
 }
