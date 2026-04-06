@@ -61,10 +61,19 @@ export default function ExperienceDetail() {
   useEffect(() => {
     async function loadCoverImage() {
       if (!experience?.anchor_fragment_id) return;
-      const url = await getFragmentSignedUrl(experience.id, experience.anchor_fragment_id);
-      setCoverImage(url);
+      try {
+        const url = await getFragmentSignedUrl(
+          experience.id,
+          experience.anchor_fragment_id,
+        );
+        setCoverImage(url);
+      } catch (err) {
+        console.error(err);
+        setCoverImage(null);
+      }
     }
-    loadCoverImage();
+
+    void loadCoverImage();
   }, [experience?.id, experience?.anchor_fragment_id]);
 
   async function handleDelete() {
@@ -245,7 +254,7 @@ export default function ExperienceDetail() {
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
+                onClick={() => void handleDelete()}
                 disabled={deleting}
                 className="flex-1 rounded-full py-3 text-sm"
                 style={{ background: colors.accent.coral, color: "#fff" }}
@@ -291,7 +300,7 @@ export default function ExperienceDetail() {
                 Cancel
               </button>
               <button
-                onClick={handleSaveReflection}
+                onClick={() => void handleSaveReflection()}
                 disabled={savingReflection}
                 className="flex-1 rounded-full py-3 text-sm"
                 style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}
@@ -327,7 +336,7 @@ export default function ExperienceDetail() {
                 Cancel
               </button>
               <button
-                onClick={handleDeleteReflection}
+                onClick={() => void handleDeleteReflection()}
                 disabled={deletingReflectionId === reflectionToDelete.id}
                 className="flex-1 rounded-full py-3 text-sm"
                 style={{ background: colors.accent.coral, color: "#fff" }}

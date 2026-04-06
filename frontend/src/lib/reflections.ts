@@ -19,6 +19,7 @@ interface ReflectionApiResponse {
 }
 
 function mapReflection(data: ReflectionApiResponse): Reflection {
+    // Frontend uses `content`, while the backend response field is `reflection_text`.
     return {
         id: data.id,
         experience_id: data.experience_id,
