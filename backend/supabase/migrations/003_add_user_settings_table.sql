@@ -17,7 +17,7 @@ BEGIN
 END;
 $$;
 
-
+DROP TRIGGER IF EXISTS user_settings_updated_at ON public.user_settings;
 CREATE TRIGGER user_settings_updated_at
   BEFORE UPDATE ON public.user_settings
   FOR EACH ROW
@@ -25,15 +25,24 @@ CREATE TRIGGER user_settings_updated_at
 
 ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS "user_settings: select own" ON public.user_settings;
 CREATE POLICY "user_settings: select own"
   ON public.user_settings
   FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "user_settings: update own" ON public.user_settings;
 CREATE POLICY "user_settings: update own"
   ON public.user_settings
   FOR UPDATE
   USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "user_settings: insert own" ON public.user_settings;
+CREATE POLICY "user_settings: insert own"
+  ON public.user_settings
+  FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 
@@ -51,7 +60,7 @@ BEGIN
 END;
 $$;
 
-
+DROP TRIGGER IF EXISTS on_auth_user_created_settings ON auth.users;
 CREATE TRIGGER on_auth_user_created_settings
   AFTER INSERT ON auth.users
   FOR EACH ROW
