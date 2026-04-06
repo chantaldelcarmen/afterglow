@@ -88,7 +88,7 @@ export class FragmentsController {
   }
 
   /*
-   PATCH /experiences/:id/fragments/:fragmentId/anchor 
+   PATCH /experiences/:id/fragments/:fragmentId/anchor
    Choose a fragment to set as the anchor for a user's experience
    */
   @Patch(':id/fragments/:fragmentId/anchor')

@@ -1,0 +1,40 @@
+{
+  "name": "seng513-202601-pg7",
+  "version": "1.0.0",
+  "description": "Afterglow is a web app for capturing and reliving meaningful experiences.  \r Instead of just storing photos or videos, the goal is to help users reflect on a moment and revisit the emotional highlights later.",
+  "main": "index.js",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
+    "dotenv": "^17.3.1",
+    "iceberg-js": "^0.8.1",
+    "playwright": "^1.58.2",
+    "playwright-core": "^1.58.2",
+    "tslib": "^2.8.1",
+    "undici-types": "^7.18.2",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
+    "eslint": "^10.1.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint '**/*.{ts,js}'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@csgit.ucalgary.ca:chantal.delcarmen/seng513-202601-pg7.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
