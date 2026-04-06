@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { H2, Body } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
+import { BackButton } from "../components/BackButton";
+
 export function Settings() {
   const navigate = useNavigate();
 
@@ -11,6 +13,7 @@ export function Settings() {
   return (
     <div className="h-full flex flex-col px-6 pb-8 space-y-8 overflow-y-auto">
       <AppLogo />
+      <BackButton className="mb-2" />
 
       <section className="space-y-3">
         <H2>Settings</H2>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
+import { BackButton } from "../components/BackButton";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
@@ -93,23 +93,7 @@ export default function CreateExperience() {
 
         {/* Desktop Header + Back Button */}
         <div className="hidden md:block">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex w-10 h-10 rounded-full items-center justify-center backdrop-blur-xl transition-all duration-300 mb-4 border"
-            style={{
-              background: "rgba(255,255,255,0.08)",
-              borderColor: "var(--color-button-warm-border)",
-              boxShadow: "0 0 16px var(--color-button-warm-glow)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "0 0 24px var(--color-button-warm-glow)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "0 0 16px var(--color-button-warm-glow)";
-            }}
-          >
-            <ArrowLeft size={20} style={{ color: "var(--color-text-primary)" }} />
-          </button>
+          <BackButton className="mb-4" />
           <H2 className="px-1">Create Experience</H2>
           <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
             Craft a container for your memory fragments
