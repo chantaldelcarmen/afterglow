@@ -4,7 +4,7 @@ import type { Experience } from "../types/experience";
 import { getUserExperiences } from "../lib/experience";
 import { SearchBar } from "../components/SearchBar";
 import { SearchPanel } from "../components/SearchPanel";
-import { H1, H2, BodySmall } from "../components/Typography";
+import { H2, BodySmall } from "../components/Typography";
 import { colors } from "../design-tokens";
 import { Link } from "react-router-dom";
 import { AppLogo } from "../components/AppLogo";
@@ -92,13 +92,29 @@ export default function ExperienceLibrary() {
     return acc;
   }, {} as Record<number, Experience[]>);
 
-  
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
+  }, []);
 
   const years = Object.keys(experiencesByYear).sort((a, b) => Number(b) - Number(a));
 
   return (
     <div className="max-w-[1000px] mx-auto h-full flex flex-col">
-      <div className="sticky top-0 z-20 pt-0 pb-6 px-6">
+      <div
+        className="sticky top-0 z-20 pb-6 px-6 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         <AppLogo />
         <H2 className="px-1 mb-1">Your Library</H2>
         <BodySmall className="px-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
@@ -125,56 +141,57 @@ export default function ExperienceLibrary() {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-24">
-  <div
-    className="transition-opacity duration-500 space-y-6"
-    style={{
-      opacity: loading ? 0 : 1,
-      pointerEvents: loading ? "none" : "auto",
-    }}
-  >
-    {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
+        <div
+          className="transition-all duration-700 space-y-6"
+          style={{
+            opacity: loading ? 0 : 1,
+            transform: loading ? "translateY(12px)" : "translateY(0)",
+            pointerEvents: loading ? "none" : "auto",
+          }}
+        >
+          {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
 
-    <div
-      className="transition-opacity duration-300 space-y-6"
-      style={{
-        opacity: isSearchActive && search.length === 0 ? 0.3 : 1,
-        pointerEvents: isSearchActive && search.length === 0 ? "none" : "auto",
-      }}
-    >
-      {years.map((year) => (
-        <div key={year} className="space-y-4">
-          <H2 className="px-1">{year}</H2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {experiencesByYear[Number(year)].map((experience) => (
-              <ExperienceLibraryCard key={experience.id} experience={experience} />
+          <div
+            className="transition-opacity duration-300 space-y-6"
+            style={{
+              opacity: isSearchActive && search.length === 0 ? 0.3 : 1,
+              pointerEvents: isSearchActive && search.length === 0 ? "none" : "auto",
+            }}
+          >
+            {years.map((year) => (
+              <div key={year} className="space-y-4">
+                <H2 className="px-1">{year}</H2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {experiencesByYear[Number(year)].map((experience) => (
+                    <ExperienceLibraryCard key={experience.id} experience={experience} />
+                  ))}
+                </div>
+              </div>
             ))}
+
+            {years.length === 0 && !loading && (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
+                <H2 className="mb-2">
+                  {search || activeFilters.length > 0 || dateRange.start || dateRange.end
+                    ? "No matches found."
+                    : "no experiences yet."}
+                </H2>
+                <BodySmall style={{ color: colors.text.muted, maxWidth: "240px" }}>
+                  {search || activeFilters.length > 0 || dateRange.start || dateRange.end
+                    ? "try adjusting your search or filters"
+                    : <Link
+                      to="/create-experience"
+                      style={{ color: colors.accent.gold }}
+                    >
+                      create an experience →
+                    </Link>
+                  }
+                </BodySmall>
+              </div>
+            )}
           </div>
         </div>
-      ))}
-
-      {years.length === 0 && !loading && (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
-          <H2 className="mb-2">
-            {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-              ? "No matches found."
-              : "no experiences yet."}
-          </H2>
-          <BodySmall style={{ color: colors.text.muted, maxWidth: "240px" }}>
-            {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-              ? "try adjusting your search or filters"
-              : <Link
-                  to="/create-experience"
-                  style={{ color: colors.accent.gold }}
-                >
-                  create an experience →
-                </Link>
-            }
-          </BodySmall>
-        </div>
-      )}
-    </div>
-  </div>
-</div>
+      </div>
     </div>
   );
 }
