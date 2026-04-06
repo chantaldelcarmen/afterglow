@@ -14,6 +14,7 @@ import Upload from "./pages/Upload";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { EditExperience } from "./pages/EditExperience";
+import { ReliveExperience } from "./pages/ReliveExperience";
 import { Insights } from "./pages/Insights";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { PlatformReviewer } from "./pages/PlatformReviewer";
@@ -25,10 +26,12 @@ import { FloatingOrbProvider } from "./utils/FloatingOrbProvider";
 import { UploadDraftProvider } from "./utils/UploadDraftProvider";
 
 const PUBLIC_PATHS = ["/signin", "/signup", "/forgot-password", "/logout", "/unauthorized"];
+const FULLSCREEN_PATHS = ["/relive/"];
 
 function AppNav() {
   const location = useLocation();
   if (PUBLIC_PATHS.includes(location.pathname)) return null;
+  if (FULLSCREEN_PATHS.some((p) => location.pathname.startsWith(p))) return null;
   return <BottomNav />;
 }
 
@@ -55,6 +58,7 @@ export default function App() {
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
               <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
+              <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
               <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
 
               {/* Role-restricted routes */}
