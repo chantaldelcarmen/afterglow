@@ -31,6 +31,7 @@ export class ReflectionsService {
     dto: CreateReflectionDto,
   ): Promise<ReflectionRow> {
     const supabase = this.supabaseService.getClient();
+    const now = new Date().toISOString();
 
     // Check ownership
     const { data: experience, error: experienceError } = (await supabase
@@ -56,6 +57,7 @@ export class ReflectionsService {
         experience_id: experienceId,
         user_id: userId,
         reflection_text: dto.reflection_text,
+        updated_at: now,
       })
       .select(
         'id, experience_id, user_id, reflection_text, created_at, updated_at',
@@ -143,7 +145,6 @@ export class ReflectionsService {
       .from('reflections')
       .update({
         reflection_text: dto.reflection_text,
-        updated_at: new Date().toISOString(),
       })
       .eq('id', reflectionId)
       .select(
