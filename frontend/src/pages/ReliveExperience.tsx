@@ -41,10 +41,21 @@ export function ReliveExperience() {
   const [reflectionText, setReflectionText] = useState("");
   const [saving, setSaving] = useState(false);
   const [showSavedPopup, setShowSavedPopup] = useState(false);
+  const [showHint, setShowHint] = useState(true);
+  const [showCaptionIntro, setShowCaptionIntro] = useState(true);
+  const [showOpeningTitle, setShowOpeningTitle] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setFadeToBlack(false), 300);
-    return () => clearTimeout(t);
+    const t1 = setTimeout(() => setFadeToBlack(false), 300);
+    const t2 = setTimeout(() => setShowHint(false), 4000);
+    const t3 = setTimeout(() => setShowCaptionIntro(false), 2500);
+    const t4 = setTimeout(() => setShowOpeningTitle(false), 4000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+    };
   }, []);
 
   useEffect(() => {
@@ -143,8 +154,13 @@ export function ReliveExperience() {
         setPhase("afterglow");
       }
     } else {
-      setIsPaused((prev) => !prev);
+      setIsPaused((prev) => {
+        const next = !prev;
+        setShowCaptionIntro(next);
+        return next;
+      });
     }
+    if (showHint) setShowHint(false);
   };
 
   if (loading) return null;
@@ -154,7 +170,9 @@ export function ReliveExperience() {
     return null;
   }
 
+  const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const currentFragment = phase === "context" ? contextFragments[contextIndex] : peakFragment;
+  const shouldShowCaption = !!currentFragment?.caption && (isPaused || showCaptionIntro);
   const prevFragment = phase === "context" && contextIndex > 0 ? contextFragments[contextIndex - 1] : null;
   const nextFragment = phase === "context" && contextIndex < contextFragments.length - 1
     ? contextFragments[contextIndex + 1]
@@ -396,6 +414,155 @@ export function ReliveExperience() {
               </motion.div>
             )}
           </div>
+
+          {/* Opening title */}
+          <AnimatePresence>
+            {showOpeningTitle && (
+              <motion.div
+                className="absolute top-20 left-0 right-0 px-8 z-50 pointer-events-none"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="text-center">
+                  <BodySmall
+                    style={{
+                      color: colors.text.mutedDim,
+                      fontSize: "13px",
+                      textTransform: "uppercase",
+                      letterSpacing: "3px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    Now Reliving
+                  </BodySmall>
+                  <h2
+                    style={{
+                      color: colors.text.primary,
+                      fontSize: "28px",
+                      fontFamily: "Playfair Display, serif",
+                      textShadow: `0 0 24px ${colors.button.warmGlow}`,
+                      lineHeight: "1.2",
+                    }}
+                  >
+                    {experience.title}
+                  </h2>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Play/pause chip */}
+          <motion.div
+            className="absolute top-8 right-6 z-30 pointer-events-none"
+            animate={{ opacity: isPaused ? 0.9 : 0.4 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div
+              className="flex items-center gap-2 rounded-full border backdrop-blur-xl px-3 py-1"
+              style={{
+                background: "rgba(0,0,0,0.25)",
+                borderColor: "rgba(255,255,255,0.15)",
+              }}
+            >
+              <BodySmall style={{ color: colors.text.muted, fontSize: "11px" }}>
+                {isPaused ? "Paused" : "Playing"}
+              </BodySmall>
+            </div>
+          </motion.div>
+
+          {/* Hint overlay */}
+          <AnimatePresence>
+            {showHint && (
+              <motion.div
+                className="absolute bottom-20 left-0 right-0 px-8 flex justify-center z-30"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div
+                  className="rounded-full border backdrop-blur-xl px-5 py-2"
+                  style={{
+                    background: "rgba(0,0,0,0.4)",
+                    borderColor: "rgba(255,255,255,0.25)",
+                  }}
+                >
+                  <BodySmall style={{ color: colors.text.muted, textAlign: "center" }}>
+                    Tap left / right to move · Tap center to pause
+                  </BodySmall>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Caption + progress dots */}
+          <AnimatePresence>
+            {shouldShowCaption && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.3 }}
+                className="absolute bottom-32 left-0 right-0 px-4 z-30"
+              >
+                <div
+                  className="mx-auto mb-4 rounded-2xl border backdrop-blur-xl px-4 py-3 max-w-60 md:max-w-90"
+                  style={{
+                    background: colors.surface.glass,
+                    borderColor: colors.button.warmBorder,
+                  }}
+                >
+                  {displayDate && (
+                    <BodySmall
+                      style={{
+                        color: colors.text.muted,
+                        fontSize: "12px",
+                        textAlign: "center",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {experience.title} ·{" "}
+                      {new Date(displayDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </BodySmall>
+                  )}
+                  <BodySmall
+                    style={{
+                      color: colors.text.primary,
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {currentFragment?.caption}
+                  </BodySmall>
+                </div>
+
+                {/* Progress dots (context phase only) */}
+                {phase === "context" && contextFragments.length > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    {contextFragments.map((_, index) => (
+                      <div
+                        key={index}
+                        className="h-1 rounded-full transition-all duration-300"
+                        style={{
+                          width: index === contextIndex ? "24px" : "8px",
+                          background:
+                            index === contextIndex
+                              ? colors.text.primary
+                              : "rgba(255,255,255,0.3)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </div>
