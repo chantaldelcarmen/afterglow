@@ -181,7 +181,7 @@ export default function PhotoUpload({
           />
 
           <button
-            onClick={handleUpload}
+            onClick={() => void handleUpload()}
             disabled={isUploading}
             className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             style={{
@@ -204,12 +204,6 @@ export default function PhotoUpload({
             {isUploading ? 'Uploading...' : 'Upload Photo'}
           </button>
         </>
-      )}
-
-      {progress.status === 'done' && (
-        <p className="text-sm text-center" style={{ color: 'var(--color-accent-gold)' }}>
-          Photo uploaded successfully.
-        </p>
       )}
       {progress.status === 'error' && (
         <p className="text-sm text-center" style={{ color: 'var(--color-accent-coral)' }}>
