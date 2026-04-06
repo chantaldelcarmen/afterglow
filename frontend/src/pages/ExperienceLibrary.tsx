@@ -7,6 +7,7 @@ import { SearchPanel } from "../components/SearchPanel";
 import { H1, H2, BodySmall } from "../components/Typography";
 import { colors } from "../design-tokens";
 import { Link } from "react-router-dom";
+import { AppLogo } from "../components/AppLogo";
 
 export default function ExperienceLibrary() {
   const [search, setSearch] = useState("");
@@ -24,6 +25,7 @@ export default function ExperienceLibrary() {
         // For testing empty states:
         // await getUserExperiences();
         // setExperiences([]);
+
         const data = await getUserExperiences();
         setExperiences(data);
       } catch (err) {
@@ -90,14 +92,17 @@ export default function ExperienceLibrary() {
     return acc;
   }, {} as Record<number, Experience[]>);
 
+  
+
   const years = Object.keys(experiencesByYear).sort((a, b) => Number(b) - Number(a));
 
   return (
     <div className="max-w-[1000px] mx-auto h-full flex flex-col">
       <div className="sticky top-0 z-20 pt-6 pb-4">
-        <H1 className="px-1 mb-1">Your Library</H1>
+         <AppLogo />
+        <H2 className="px-1 mb-1">Your Library</H2>
         <BodySmall className="px-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
-          Search and filter to find your moments
+          search and filter to find your moments
         </BodySmall>
 
         <div ref={searchContainerRef}>
@@ -120,56 +125,56 @@ export default function ExperienceLibrary() {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-24">
-        {loading && <p className="mt-8" style={{ color: colors.text.muted }}>Loading...</p>}
-        {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
+  <div
+    className="transition-opacity duration-500 space-y-6"
+    style={{
+      opacity: loading ? 0 : 1,
+      pointerEvents: loading ? "none" : "auto",
+    }}
+  >
+    {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
 
-        {!loading && !error && (
-          <div
-            className="transition-opacity duration-300 space-y-6"
-            style={{
-              opacity: isSearchActive && search.length === 0 ? 0.3 : 1,
-              pointerEvents: isSearchActive && search.length === 0 ? "none" : "auto",
-            }}
-          >
-            {years.map((year) => (
-              <div key={year} className="space-y-4">
-                <H2 className="px-1">{year}</H2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {experiencesByYear[Number(year)].map((experience) => (
-                    <ExperienceLibraryCard key={experience.id} experience={experience} />
-                  ))}
-                </div>
-              </div>
+    <div
+      className="transition-opacity duration-300 space-y-6"
+      style={{
+        opacity: isSearchActive && search.length === 0 ? 0.3 : 1,
+        pointerEvents: isSearchActive && search.length === 0 ? "none" : "auto",
+      }}
+    >
+      {years.map((year) => (
+        <div key={year} className="space-y-4">
+          <H2 className="px-1">{year}</H2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {experiencesByYear[Number(year)].map((experience) => (
+              <ExperienceLibraryCard key={experience.id} experience={experience} />
             ))}
-
-            {years.length === 0 && (
-              <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
-               
-                <H2 className="mb-2">
-                  {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-                    ? "No matches found."
-                    : "no experiences yet."}
-                </H2>
-                <BodySmall style={{ color: colors.text.muted, maxWidth: "240px" }}>
-                  {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-                    ? "try adjusting your search or filters"
-                    : <Link
-                      to="/create-experience"
-                      style={{
-                        color: colors.accent.gold,
-                        //fontWeight: "bold",
-                        //textDecoration: "underline",
-                      }}
-                    >
-                      create an experience →
-                    </Link>
-                  }
-                </BodySmall>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        </div>
+      ))}
+
+      {years.length === 0 && !loading && (
+        <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
+          <H2 className="mb-2">
+            {search || activeFilters.length > 0 || dateRange.start || dateRange.end
+              ? "No matches found."
+              : "no experiences yet."}
+          </H2>
+          <BodySmall style={{ color: colors.text.muted, maxWidth: "240px" }}>
+            {search || activeFilters.length > 0 || dateRange.start || dateRange.end
+              ? "try adjusting your search or filters"
+              : <Link
+                  to="/create-experience"
+                  style={{ color: colors.accent.gold }}
+                >
+                  create an experience →
+                </Link>
+            }
+          </BodySmall>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
     </div>
   );
 }

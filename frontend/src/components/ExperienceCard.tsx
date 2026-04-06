@@ -22,6 +22,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
   onClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const baseShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
   const hoverShadow = `${baseShadow}, 0 0 30px ${colors.button.warmGlow}`;
@@ -42,7 +43,9 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
         <img
           src={imageUrl}
           alt={imageAlt}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+          style={{ opacity: imageLoaded ? 1 : 0 }}
+          onLoad={() => setImageLoaded(true)}
         />
       )}
 
