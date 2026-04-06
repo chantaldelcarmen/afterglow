@@ -1,14 +1,10 @@
 import { apiFetch } from './api';
 
 export interface PatternStats {
-  most_active_month: string;
-  most_active_month_count: number;
-  most_frequent_emotion: string;
-  most_frequent_emotion_percentage: number;
-  most_visited_place: string;
-  most_visited_place_count: number;
-  most_active_time_of_day: string;
-  most_active_time_range: string;
+  most_active_month: { month: string; count: number } | null;
+  most_frequent_emotion: { tag: string; count: number; percentage: number } | null;
+  most_visited_location: { location: string; count: number } | null;
+  most_active_time_of_day: { period: string; count: number } | null;
 }
 
 export interface AIReflection {
@@ -16,7 +12,7 @@ export interface AIReflection {
   month: string;
 }
 
-const MOCK_STATS: PatternStats = {
+const MOCK_STATS: MappedPatternStats = {
   most_active_month: "March 2026",
   most_active_month_count: 24,
   most_frequent_emotion: "Joyful",
@@ -33,10 +29,39 @@ const MOCK_REFLECTION: AIReflection = {
   month: "March 2026",
 };
 
-export async function getPatternStats(): Promise<PatternStats> {
+export interface MappedPatternStats {
+  most_active_month: string | null;
+  most_active_month_count: number | null;
+  most_frequent_emotion: string | null;
+  most_frequent_emotion_percentage: number | null;
+  most_visited_place: string | null;
+  most_visited_place_count: number | null;
+  most_active_time_of_day: string | null;
+  most_active_time_range: string;
+}
+
+function formatMonth(yyyyMm: string): string {
+  const [year, month] = yyyyMm.split('-');
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+
+export async function getPatternStats(): Promise<MappedPatternStats> {
   try {
     const res = await apiFetch('/patterns', { method: 'GET' });
-    return res.json();
+    const data: PatternStats = await res.json();
+    // Note: most_active_time_of_day period is based on UTC hour of created_at, may differ from user's local time
+    return {
+      most_active_month: data.most_active_month ? formatMonth(data.most_active_month.month) : null,
+      most_active_month_count: data.most_active_month?.count ?? null,
+      most_frequent_emotion: data.most_frequent_emotion?.tag ?? null,
+      most_frequent_emotion_percentage: data.most_frequent_emotion?.percentage ?? null,
+      most_visited_place: data.most_visited_location?.location ?? null,
+      most_visited_place_count: data.most_visited_location?.count ?? null,
+      most_active_time_of_day: data.most_active_time_of_day?.period ?? null,
+      most_active_time_range: "",
+    };
   } catch {
     // TODO: replace with real endpoint once #93 is merged
     return MOCK_STATS;

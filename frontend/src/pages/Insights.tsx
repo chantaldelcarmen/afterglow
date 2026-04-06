@@ -3,38 +3,37 @@ import { Sparkles } from "lucide-react";
 import { colors, effects } from "../design-tokens";
 import { H1, H3, Body, BodySmall } from "../components/Typography";
 import { InsightCard } from "../components/InsightCard";
+import type { MappedPatternStats, AIReflection } from "../lib/patterns";
 import { getPatternStats, getAIReflection } from "../lib/patterns";
-import type { PatternStats, AIReflection } from "../lib/patterns";
 import type { Insight } from "../data/insights-data";
 
-function buildInsights(stats: PatternStats): Insight[] {
+function buildInsights(stats: MappedPatternStats): Insight[] {
   return [
     {
       icon: "calendar",
       label: "Most Active Month",
-      value: stats.most_active_month,
-      subtitle: `${stats.most_active_month_count} memories created`,
+      value: stats.most_active_month ?? "N/A",
+      subtitle: stats.most_active_month_count ? `${stats.most_active_month_count} memories created` : undefined,
       color: "#788BE5",
     },
     {
       icon: "heart",
       label: "Most Frequent Emotion",
-      value: stats.most_frequent_emotion,
-      subtitle: `Appears in ${stats.most_frequent_emotion_percentage}% of memories`,
+      value: stats.most_frequent_emotion ?? "N/A",
+      subtitle: stats.most_frequent_emotion_percentage ? `Appears in ${stats.most_frequent_emotion_percentage}% of memories` : undefined,
       color: "#E576AC",
     },
     {
       icon: "map-pin",
       label: "Most Visited Place",
-      value: stats.most_visited_place,
-      subtitle: `${stats.most_visited_place_count} visits this month`,
+      value: stats.most_visited_place ?? "N/A",
+      subtitle: stats.most_visited_place_count ? `${stats.most_visited_place_count} total visits` : undefined,
       color: "#F0C164",
     },
     {
       icon: "sun",
       label: "Most Active Time of Day",
-      value: stats.most_active_time_of_day,
-      subtitle: stats.most_active_time_range,
+      value: stats.most_active_time_of_day ?? "N/A",
       color: "#E57678",
     },
   ];
