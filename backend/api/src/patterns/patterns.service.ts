@@ -4,7 +4,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 interface ExperienceRow {
   location: string | null;
   experience_date: string | null;
-  emotion_tags: string[];
+  emotion_tags: string[] | null;
   created_at: string;
 }
 
@@ -117,7 +117,7 @@ export class PatternsService {
 
     for (const exp of experiences) {
       if (!exp.location) continue;
-      const loc = exp.location.trim();
+      const loc = exp.location.trim().toLowerCase();
       counts.set(loc, (counts.get(loc) ?? 0) + 1);
     }
 
