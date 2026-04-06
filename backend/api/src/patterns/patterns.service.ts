@@ -61,7 +61,7 @@ export class PatternsService {
 
     for (const exp of experiences) {
       if (!exp.experience_date) continue;
-      const month = exp.experience_date.slice(0, 7); 
+      const month = exp.experience_date.slice(0, 7);
       counts.set(month, (counts.get(month) ?? 0) + 1);
     }
 
@@ -151,8 +151,7 @@ export class PatternsService {
     ]);
 
     for (const exp of experiences) {
-      const hour = new Date(exp.created_at).getUTCHours(); 
-      
+      const hour = new Date(exp.created_at).getUTCHours();
 
       let period: string;
       if (hour >= 6 && hour < 12) period = 'morning';
