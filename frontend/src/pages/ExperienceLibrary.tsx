@@ -6,6 +6,7 @@ import { SearchBar } from "../components/SearchBar";
 import { SearchPanel } from "../components/SearchPanel";
 import { H1, H2, BodySmall } from "../components/Typography";
 import { colors } from "../design-tokens";
+import { Link } from "react-router-dom";
 
 export default function ExperienceLibrary() {
   const [search, setSearch] = useState("");
@@ -20,6 +21,7 @@ export default function ExperienceLibrary() {
   useEffect(() => {
     async function loadExperiences() {
       try {
+        // For testing empty states:
         // await getUserExperiences();
         // setExperiences([]);
         const data = await getUserExperiences();
@@ -141,35 +143,27 @@ export default function ExperienceLibrary() {
             ))}
 
             {years.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                {/* Glowing orb */}
-                <div className="relative mb-8">
-                  <div
-                    className="absolute inset-0 rounded-full blur-2xl opacity-40"
-                    style={{ background: colors.glow.primary, transform: "scale(1.5)" }}
-                  />
-                  <div
-                    className="relative w-20 h-20 rounded-full flex items-center justify-center backdrop-blur-xl border"
-                    style={{
-                      background: "rgba(147, 51, 234, 0.15)",
-                      borderColor: colors.border.glass,
-                    }}
-                  >
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: colors.glow.secondary, opacity: 0.8 }}>
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-                  </div>
-                </div>
+              <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
+               
                 <H2 className="mb-2">
                   {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-                    ? "No matches found"
-                    : "No experiences yet"}
+                    ? "No matches found."
+                    : "no experiences yet."}
                 </H2>
-                <BodySmall style={{ color: colors.text.mutedDim, maxWidth: "240px" }}>
+                <BodySmall style={{ color: colors.text.muted, maxWidth: "240px" }}>
                   {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-                    ? "Try adjusting your search or filters"
-                    : "Your memory collection awaits your first experience..."}
+                    ? "try adjusting your search or filters"
+                    : <Link
+                      to="/create-experience"
+                      style={{
+                        color: colors.accent.gold,
+                        //fontWeight: "bold",
+                        //textDecoration: "underline",
+                      }}
+                    >
+                      create an experience →
+                    </Link>
+                  }
                 </BodySmall>
               </div>
             )}
