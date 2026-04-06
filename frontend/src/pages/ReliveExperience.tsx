@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { getOneExperience } from "../lib/experience";
 import { getFragments, getFragmentSignedUrl } from "../lib/storage";
+import { createReflection } from "../lib/reflections";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
 import { colors } from "../design-tokens";
@@ -37,6 +38,9 @@ export function ReliveExperience() {
   const [phase, setPhase] = useState<Phase>("context");
   const [contextIndex, setContextIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [reflectionText, setReflectionText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [showSavedPopup, setShowSavedPopup] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setFadeToBlack(false), 300);
@@ -94,6 +98,20 @@ export function ReliveExperience() {
     const timer = setTimeout(() => setPhase("afterglow"), 5500);
     return () => clearTimeout(timer);
   }, [phase, isPaused]);
+
+  const handleSaveReflection = async () => {
+    if (!id || !reflectionText.trim() || saving) return;
+    setSaving(true);
+    try {
+      await createReflection(id, reflectionText.trim());
+      setShowSavedPopup(true);
+      setTimeout(() => navigate(`/experience/${id}`), 1200);
+    } catch {
+      setSaving(false);
+    }
+  };
+
+  const handleSkip = () => navigate(`/experience/${id}`);
 
   const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -190,84 +208,196 @@ export function ReliveExperience() {
         />
       </div>
 
-      {/* Back button */}
-      <motion.button
-        onClick={() => navigate(`/experience/${id}`)}
-        className="absolute top-8 left-6 z-30 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300"
-        style={{
-          background: "rgba(0,0,0,0.3)",
-          border: `1px solid ${colors.button.warmBorder}`,
-        }}
-        animate={{ opacity: isPaused ? 1 : 0.5 }}
-        whileHover={{ opacity: 1 }}
-      >
-        <ArrowLeft size={20} style={{ color: colors.text.primary }} />
-      </motion.button>
+      {/* Afterglow reflection screen */}
+      {phase === "afterglow" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="absolute inset-0 flex flex-col items-center justify-center px-8 z-20"
+        >
+          <div className="mb-4 pointer-events-none">
+            <PhaseSteps currentPhase="afterglow" />
+          </div>
 
-      {/* Phase step indicator */}
-      <div className="absolute top-4 left-0 right-0 flex justify-center z-30 pointer-events-none">
-        <PhaseSteps currentPhase={phase} />
-      </div>
-
-      {/* Fragment display */}
-      <div
-        className="absolute inset-0 flex items-center justify-center"
-        onClick={handleTap}
-      >
-        {/* Previous fragment */}
-        {prevFragment && (
           <motion.div
-            key={`prev-${prevFragment.id}`}
-            animate={{ x: -80, scale: 0.7, opacity: 0.3, rotateY: 15 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="absolute"
-            style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="text-center mb-6"
           >
-            <FragmentCard fragment={prevFragment} />
+            <Body style={{ color: colors.text.muted, fontSize: "18px", fontStyle: "italic" }}>
+              What did this moment mean to you?
+            </Body>
+            <BodySmall className="mt-2" style={{ color: colors.text.mutedDim, fontSize: "14px" }}>
+              (Optional)
+            </BodySmall>
           </motion.div>
-        )}
 
-        {/* Current fragment */}
-        {currentFragment && (
-          <motion.div
-            key={currentFragment.id}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1, y: [0, -5, 0] }}
-            transition={{
-              scale: { duration: 0.6 },
-              opacity: { duration: 0.6 },
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+          <motion.textarea
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            value={reflectionText}
+            onChange={(e) => setReflectionText(e.target.value)}
+            placeholder="Your reflection..."
+            className="w-full max-w-md h-32 px-6 py-4 rounded-2xl border backdrop-blur-xl resize-none focus:outline-none transition-all duration-300"
+            style={{
+              background: colors.surface.glass,
+              borderColor: colors.button.warmBorder,
+              color: colors.text.primary,
+              fontFamily: "Inter, sans-serif",
+              fontSize: "16px",
+              lineHeight: "1.6",
             }}
-            className="relative z-20"
-          >
-            <FragmentCard fragment={currentFragment} isActive />
-            {/* Peak phase: glowing pulse behind the anchor fragment */}
-            {phase === "peak" && (
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 -z-10 rounded-3xl blur-2xl"
-                style={{
-                  background: "radial-gradient(circle, rgba(147,51,234,0.6) 0%, transparent 70%)",
-                }}
-              />
-            )}
-          </motion.div>
-        )}
+          />
 
-        {/* Next fragment */}
-        {nextFragment && (
-          <motion.div
-            key={`next-${nextFragment.id}`}
-            animate={{ x: 80, scale: 0.7, opacity: 0.3, rotateY: -15 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="absolute"
-            style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+          <div className="flex gap-3 mt-6 w-full max-w-md">
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.8 }}
+              onClick={handleSkip}
+              className="flex-1 rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
+              style={{ background: "rgba(0,0,0,0.3)", borderColor: "rgba(255,255,255,0.2)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.button.warmBorder; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+            >
+              <BodySmall style={{ color: colors.text.muted }}>Maybe Later</BodySmall>
+            </motion.button>
+
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.8 }}
+              onClick={() => void handleSaveReflection()}
+              disabled={!reflectionText.trim() || saving}
+              className="flex-1 rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
+              style={{
+                background: !reflectionText.trim() ? "rgba(255,255,255,0.05)" : colors.button.warmBgGradient,
+                borderColor: colors.button.warmBorder,
+                opacity: !reflectionText.trim() || saving ? 0.5 : 1,
+                cursor: !reflectionText.trim() || saving ? "not-allowed" : "pointer",
+              }}
+              onMouseEnter={(e) => {
+                if (!reflectionText.trim() || saving) return;
+                e.currentTarget.style.boxShadow = `0 0 24px ${colors.button.warmGlow}`;
+              }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
+            >
+              <BodySmall style={{ color: colors.text.primary }}>
+                {saving ? "Saving..." : "Save Reflection"}
+              </BodySmall>
+            </motion.button>
+          </div>
+
+          <AnimatePresence>
+            {showSavedPopup && (
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div
+                  className="px-6 py-4 rounded-2xl border backdrop-blur-xl"
+                  style={{
+                    background: colors.surface.glass,
+                    borderColor: colors.button.warmBorder,
+                    boxShadow: "0 8px 30px rgba(0,0,0,0.6)",
+                  }}
+                >
+                  <BodySmall style={{ color: colors.text.primary }}>Reflection saved ✨</BodySmall>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+
+      {/* Back button, phase indicator, and fragment display (hidden during afterglow) */}
+      {phase !== "afterglow" && (
+        <>
+          <motion.button
+            onClick={() => navigate(`/experience/${id}`)}
+            className="absolute top-8 left-6 z-30 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300"
+            style={{
+              background: "rgba(0,0,0,0.3)",
+              border: `1px solid ${colors.button.warmBorder}`,
+            }}
+            animate={{ opacity: isPaused ? 1 : 0.5 }}
+            whileHover={{ opacity: 1 }}
           >
-            <FragmentCard fragment={nextFragment} />
-          </motion.div>
-        )}
-      </div>
+            <ArrowLeft size={20} style={{ color: colors.text.primary }} />
+          </motion.button>
+
+          {/* Phase step indicator */}
+          <div className="absolute top-4 left-0 right-0 flex justify-center z-30 pointer-events-none">
+            <PhaseSteps currentPhase={phase} />
+          </div>
+
+          {/* Fragment display */}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            onClick={handleTap}
+          >
+            {/* Previous fragment */}
+            {prevFragment && (
+              <motion.div
+                key={`prev-${prevFragment.id}`}
+                animate={{ x: -80, scale: 0.7, opacity: 0.3, rotateY: 15 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="absolute"
+                style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+              >
+                <FragmentCard fragment={prevFragment} />
+              </motion.div>
+            )}
+
+            {/* Current fragment */}
+            {currentFragment && (
+              <motion.div
+                key={currentFragment.id}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1, y: [0, -5, 0] }}
+                transition={{
+                  scale: { duration: 0.6 },
+                  opacity: { duration: 0.6 },
+                  y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                }}
+                className="relative z-20"
+              >
+                <FragmentCard fragment={currentFragment} isActive />
+                {/* Peak phase: glowing pulse behind the anchor fragment */}
+                {phase === "peak" && (
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 -z-10 rounded-3xl blur-2xl"
+                    style={{
+                      background: "radial-gradient(circle, rgba(147,51,234,0.6) 0%, transparent 70%)",
+                    }}
+                  />
+                )}
+              </motion.div>
+            )}
+
+            {/* Next fragment */}
+            {nextFragment && (
+              <motion.div
+                key={`next-${nextFragment.id}`}
+                animate={{ x: 80, scale: 0.7, opacity: 0.3, rotateY: -15 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="absolute"
+                style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+              >
+                <FragmentCard fragment={nextFragment} />
+              </motion.div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
