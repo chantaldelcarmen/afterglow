@@ -89,7 +89,7 @@ beforeAll(async () => {
 afterAll(async () => {
   // remove test experience
   if (expIdA_3) {
-    const {status_code} = await req(tokenA, 'DELETE', `/experiences/${expIdA_3}`);
+    await req(tokenA, 'DELETE', `/experiences/${expIdA_3}`);
   }
 });
 

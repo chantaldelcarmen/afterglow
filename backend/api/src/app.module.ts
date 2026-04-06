@@ -7,6 +7,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { FragmentsModule } from './fragments/fragments.module';
 import { ExperiencesModule } from './experiences/experiences.module';
+import { PatternsModule } from './patterns/patterns.module';
 import { ReflectionsModule } from './reflections/reflections.module';
 
 @Module({
@@ -18,6 +19,7 @@ import { ReflectionsModule } from './reflections/reflections.module';
     AuthModule,
     FragmentsModule,
     ExperiencesModule,
+    PatternsModule,
     ReflectionsModule,
   ],
   controllers: [AppController, HealthController],

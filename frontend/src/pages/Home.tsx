@@ -5,20 +5,13 @@ import { AppLogo } from "../components/AppLogo";
 import { GlassButton } from "../components/GlassButton";
 import { useAuth } from "../utils/AuthContext";
 import { apiFetch } from "../lib/api";
-
-interface Experience {
-  id: string;
-  title: string;
-  description: string | null;
-  experience_date: string | null;
-  is_draft: boolean;
-  created_at: string;
-}
+import type { Experience } from "../types/experience";
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -26,7 +19,28 @@ export default function Home() {
     if (!user) return;
     apiFetch("/experiences")
       .then((res) => res.json())
-      .then((data) => setExperiences(data))
+      .then(async (data: Experience[]) => {
+        setExperiences(data);
+        // fetch signed URLs for experiences that have an anchor fragment
+        const urlEntries = await Promise.all(
+          data
+            .filter((exp) => exp.anchor_fragment_id)
+            .map(async (exp) => {
+              try {
+                const res = await apiFetch(
+                  `/experiences/${exp.id}/fragments/${exp.anchor_fragment_id}/signed-url`
+                );
+                const { signedUrl } = await res.json();
+                return [exp.id, signedUrl] as const;
+              } catch {
+                return null;
+              }
+            })
+        );
+        setSignedUrls(
+          Object.fromEntries(urlEntries.filter((e): e is readonly [string, string] => e !== null))
+        );
+      })
       .catch(() => setError("Failed to load experiences"))
       .finally(() => setLoading(false));
   }, [user]);
@@ -85,6 +99,21 @@ export default function Home() {
             }}
             onClick={() => navigate(`/experience/${featured.id}`)}
           >
+            {/* Background image */}
+            {signedUrls[featured.id] && (
+              <img
+                src={signedUrls[featured.id]}
+                alt={featured.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+
+            {/* Gradient overlay */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }}
+            />
+
             {/* Inner glow */}
             <div
               className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
@@ -157,6 +186,15 @@ export default function Home() {
                     e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
                   }}
                 >
+                  {/* Background image */}
+                  {signedUrls[exp.id] && (
+                    <img
+                      src={signedUrls[exp.id]}
+                      alt={exp.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+
                   {/* bottom gradient overlay */}
                   <div
                     className="absolute inset-0 pointer-events-none"

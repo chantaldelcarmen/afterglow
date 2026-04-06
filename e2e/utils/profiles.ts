@@ -1,16 +1,16 @@
 export const profiles = {
-    user: {
-        email: 'user@afterglow.dev',
-        password: 'Afterglow1234!',
-    },
+  user: {
+    email: process.env.USER_EMAIL!,
+    password: process.env.USER_PASSWORD!,
+  },
 
-    platform_reviewer: {
-        email: 'reviewer@afterglow.dev',
-        password: 'Afterglow1234!',
-    },
+  platform_reviewer: {
+    email: process.env.REVIEWER_EMAIL!,
+    password: process.env.REVIEWER_PASSWORD!,
+  },
 
-    admin: {
-        email: 'admin@afterglow.dev',
-        password: 'Afterglow1234!',
-    },
+  admin: {
+    email: process.env.ADMIN_EMAIL!,
+    password: process.env.ADMIN_PASSWORD!,
+  },
 };

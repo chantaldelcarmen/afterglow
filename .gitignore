@@ -26,3 +26,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.code-workspace
+
+# playwright test results
+test-results/
