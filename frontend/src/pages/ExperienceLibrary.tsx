@@ -98,8 +98,8 @@ export default function ExperienceLibrary() {
 
   return (
     <div className="max-w-[1000px] mx-auto h-full flex flex-col">
-      <div className="sticky top-0 z-20 pt-6 pb-4">
-         <AppLogo />
+      <div className="sticky top-0 z-20 pt-0 pb-6 px-6">
+        <AppLogo />
         <H2 className="px-1 mb-1">Your Library</H2>
         <BodySmall className="px-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
           search and filter to find your moments
