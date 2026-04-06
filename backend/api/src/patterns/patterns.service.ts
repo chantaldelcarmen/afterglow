@@ -88,6 +88,7 @@ export class PatternsService {
     if (total === 0) return null;
 
     for (const exp of experiences) {
+      if (!exp.emotion_tags) continue;
       for (const tag of exp.emotion_tags) {
         if (!tag) continue;
         counts.set(tag, (counts.get(tag) ?? 0) + 1);
@@ -137,6 +138,7 @@ export class PatternsService {
    *   evening   → 6pm  - 10pm
    *   night     → 10pm - 6am
    * Returns the period with the highest count, or null if no experiences exist.
+   * Note: bucketing is based on UTC hour of created_at. Frontend should account for timezone offset when displaying results.
    */
   private getMostActiveTimeOfDay(
     experiences: ExperienceRow[],
@@ -149,7 +151,8 @@ export class PatternsService {
     ]);
 
     for (const exp of experiences) {
-      const hour = new Date(exp.created_at).getUTCHours();
+      const hour = new Date(exp.created_at).getUTCHours(); 
+      
 
       let period: string;
       if (hour >= 6 && hour < 12) period = 'morning';
