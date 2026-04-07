@@ -64,7 +64,22 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
     <div className="grid grid-cols-3 gap-3">
       {fragments.map((f) => (
         <div key={f.id} className="space-y-1">
-          {signedUrls[f.id] ? (
+          {f.type === 'text' ? (
+            <div
+              className="w-full aspect-square rounded-2xl border backdrop-blur-xl flex items-center justify-center p-3"
+              style={{
+                background: 'var(--color-surface-glass)',
+                borderColor: 'var(--color-surface-glass-card-border)',
+              }}
+            >
+              <p
+                className="text-xs text-center line-clamp-4"
+                style={{ color: 'var(--color-text-primary)' }}
+              >
+                {f.text_context ?? 'No text content'}
+              </p>
+            </div>
+          ) : signedUrls[f.id] ? (
             <img
               src={signedUrls[f.id]}
               alt={f.caption ?? 'Fragment'}
