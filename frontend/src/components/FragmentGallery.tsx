@@ -76,7 +76,7 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
                 className="text-xs text-center line-clamp-4"
                 style={{ color: 'var(--color-text-primary)' }}
               >
-                {f.text_context}
+                {f.text_context ?? 'No text content'}
               </p>
             </div>
           ) : signedUrls[f.id] ? (
