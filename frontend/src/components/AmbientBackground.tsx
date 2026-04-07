@@ -5,7 +5,7 @@ export function AmbientBackground({ children }: { children: ReactNode }) {
     <div className="relative min-h-screen overflow-hidden" style={{ background: "var(--color-surface-bg)" }}>
 
       {/* Orbs */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Pink - bottom left */}
         <div
           className="absolute bottom-50 -left-10 w-52 h-52 rounded-full blur-[20px] opacity-55"

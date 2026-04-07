@@ -4,8 +4,11 @@ import type { Experience } from "../types/experience";
 import { getUserExperiences } from "../lib/experience";
 import { SearchBar } from "../components/SearchBar";
 import { SearchPanel } from "../components/SearchPanel";
-import { H1, H2, BodySmall } from "../components/Typography";
+import { H2, BodySmall } from "../components/Typography";
 import { colors } from "../design-tokens";
+import { Link } from "react-router-dom";
+import { AppLogo } from "../components/AppLogo";
+
 
 export default function ExperienceLibrary() {
   const [search, setSearch] = useState("");
@@ -15,6 +18,7 @@ export default function ExperienceLibrary() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [mounted, setMounted] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -86,14 +90,31 @@ export default function ExperienceLibrary() {
     return acc;
   }, {} as Record<number, Experience[]>);
 
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
+  }, []);
+
   const years = Object.keys(experiencesByYear).sort((a, b) => Number(b) - Number(a));
 
   return (
     <div className="max-w-[1000px] mx-auto h-full flex flex-col">
-      <div className="sticky top-0 z-20 pt-6 pb-4">
-        <H1 className="px-1 mb-1">Your Library</H1>
+      <div
+        className="sticky top-0 z-20 pb-6 px-6 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
+        <AppLogo />
+        <H2 className="px-1 mb-1">Your Library</H2>
         <BodySmall className="px-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
-          Search and filter to find your moments
+          search and filter to find your moments
         </BodySmall>
 
         <div ref={searchContainerRef}>
@@ -116,10 +137,16 @@ export default function ExperienceLibrary() {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-24">
-        {loading && <p className="mt-8" style={{ color: colors.text.muted }}>Loading...</p>}
-        {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
+        <div
+          className="transition-all duration-700 space-y-6"
+          style={{
+            opacity: loading ? 0 : 1,
+            transform: loading ? "translateY(12px)" : "translateY(0)",
+            pointerEvents: loading ? "none" : "auto",
+          }}
+        >
+          {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
 
-        {!loading && !error && (
           <div
             className="transition-opacity duration-300 space-y-6"
             style={{
@@ -138,31 +165,28 @@ export default function ExperienceLibrary() {
               </div>
             ))}
 
-            {years.length === 0 && (
-              <div className="text-center py-16 px-6">
-                <div
-                  className="inline-flex w-20 h-20 rounded-full mb-6 items-center justify-center"
-                  style={{
-                    backgroundColor: "rgba(147, 51, 234, 0.1)",
-                    border: `1px solid ${colors.border.glass}`,
-                    backdropFilter: "blur(10px)",
-                  }}
-                >
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: colors.glow.primary, opacity: 0.6 }}>
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.35-4.35" />
-                  </svg>
-                </div>
-                <H2 className="mb-2">No experiences found</H2>
-                <BodySmall style={{ color: colors.text.mutedDim }}>
+            {years.length === 0 && !loading && (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
+                <H2 className="mb-2">
                   {search || activeFilters.length > 0 || dateRange.start || dateRange.end
-                    ? "Try adjusting your search or filters"
-                    : "Your memory collection awaits your first experience"}
+                    ? "No matches found."
+                    : "no experiences yet."}
+                </H2>
+                <BodySmall style={{ color: colors.text.muted, maxWidth: "240px" }}>
+                  {search || activeFilters.length > 0 || dateRange.start || dateRange.end
+                    ? "try adjusting your search or filters"
+                    : <Link
+                      to="/create-experience"
+                      style={{ color: colors.accent.gold }}
+                    >
+                      create an experience →
+                    </Link>
+                  }
                 </BodySmall>
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
