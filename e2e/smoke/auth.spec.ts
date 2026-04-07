@@ -20,7 +20,7 @@ test.describe('Testing auth flows', {}, () => {
         await Promise.all([
             page.click('button[type=submit]'),
             // home page
-            page.waitForURL('signin'),
+            page.waitForURL('/'),
         ]);
 
         // go to profile page and log out

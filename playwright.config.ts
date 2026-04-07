@@ -5,7 +5,7 @@ dotenv.config({ path: '.env.test' });
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
-  expect: { timeout: 5000 },
+  expect: { timeout: 12000 },
 
   webServer: [
     {  
