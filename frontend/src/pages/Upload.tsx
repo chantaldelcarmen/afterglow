@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Navigate, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Video, Type } from 'lucide-react';
+import { Camera, Video, Type } from 'lucide-react';
+import { BackButton } from '../components/BackButton';
 import { useAuth } from '../utils/AuthContext';
 import { useFloatingOrb } from '../utils/floatingOrbContext';
 import type { FragmentType } from '../utils/floatingOrbContext';
@@ -109,24 +110,7 @@ export default function Upload() {
           <AppLogo />
         </div>
         <div className="mt-2 flex items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border backdrop-blur-xl transition-all duration-300"
-            style={{
-              background: 'rgba(255,255,255,0.08)',
-              borderColor: 'var(--color-button-warm-border)',
-              boxShadow: '0 0 16px var(--color-button-warm-glow)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 24px var(--color-button-warm-glow)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 16px var(--color-button-warm-glow)';
-            }}
-          >
-            <ArrowLeft size={20} style={{ color: 'var(--color-text-primary)' }} />
-          </button>
+          <BackButton onClick={handleCancel} className="shrink-0" />
 
           <div className="min-w-0 flex-1 text-center">
             <H2 className="px-1 text-center">Add Fragments</H2>
