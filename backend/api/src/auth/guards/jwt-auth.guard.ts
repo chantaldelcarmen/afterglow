@@ -27,7 +27,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const supabase = this.supabase.getClient();
+      const supabase = this.supabase.getAnonClient();
       const { data, error } = await supabase.auth.getUser(token);
 
       if (error || !data?.user) {
