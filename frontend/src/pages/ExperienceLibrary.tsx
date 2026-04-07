@@ -9,6 +9,7 @@ import { colors } from "../design-tokens";
 import { Link } from "react-router-dom";
 import { AppLogo } from "../components/AppLogo";
 
+
 export default function ExperienceLibrary() {
   const [search, setSearch] = useState("");
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -17,15 +18,12 @@ export default function ExperienceLibrary() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [mounted, setMounted] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadExperiences() {
       try {
-        // For testing empty states:
-        // await getUserExperiences();
-        // setExperiences([]);
-
         const data = await getUserExperiences();
         setExperiences(data);
       } catch (err) {
@@ -91,8 +89,6 @@ export default function ExperienceLibrary() {
     acc[year].push(exp);
     return acc;
   }, {} as Record<number, Experience[]>);
-
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(false);
