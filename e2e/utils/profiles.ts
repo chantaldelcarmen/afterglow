@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 export const profiles = {
   user: {
     email: process.env.USER_EMAIL!,
