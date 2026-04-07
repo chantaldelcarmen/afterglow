@@ -11,6 +11,17 @@ export function Profile() {
   const navigate = useNavigate();
   const [experienceCount, setExperienceCount] = useState<number>(0);
   const [fragmentCount, setFragmentCount] = useState<number>(0);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -25,7 +36,8 @@ export function Profile() {
       .catch(() => {
         setExperienceCount(0);
         setFragmentCount(0);
-      });
+      })
+      .finally(() => setDataLoading(false));
   }, [user]);
 
   if (loading) return null;
@@ -38,93 +50,101 @@ export function Profile() {
   const email = user.email ?? "";
 
   return (
-    <div className="h-full flex flex-col px-6 pb-8 space-y-8 overflow-y-auto">
-      <AppLogo />
+    <div className="h-full flex flex-col px-6 pb-8 overflow-y-auto">
+      {/* Header */}
+      <div
+        className="transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
+        <AppLogo />
+      </div>
 
-      {/* Profile section */}
-      <section className="space-y-4">
-        <H2>Your Profile</H2>
+      {/* Content */}
+      <div
+        className="space-y-8 transition-all duration-700"
+        style={{
+          opacity: dataLoading ? 0 : 1,
+          transform: dataLoading ? "translateY(12px)" : "translateY(0)",
+          pointerEvents: dataLoading ? "none" : "auto",
+        }}
+      >
+        {/* Profile section */}
+        <section className="space-y-4">
+          <H2>Your Profile</H2>
 
-        {/* Avatar + name */}
-        <div className="flex flex-col items-center space-y-3 py-4">
+          <div className="flex flex-col items-center space-y-3 py-4">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold"
+              style={{
+                background: "var(--color-button-plum-bg)",
+                border: "2px solid var(--color-surface-glass-card-border)",
+              }}
+            >
+              <span style={{ color: "var(--color-text-primary)" }}>
+                {displayName[0].toUpperCase()}
+              </span>
+            </div>
+            <div className="text-center">
+              <Body style={{ color: "var(--color-text-primary)" }}>{displayName}</Body>
+              <BodySmall style={{ color: "var(--color-text-muted)" }}>{email}</BodySmall>
+            </div>
+          </div>
+
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold"
+            className="flex rounded-2xl overflow-hidden"
             style={{
-              background: "var(--color-button-plum-bg)",
-              border: "2px solid var(--color-surface-glass-card-border)",
+              background: "var(--color-surface-glass-card)",
+              border: "1px solid var(--color-surface-glass-card-border)",
             }}
           >
-            <span style={{ color: "var(--color-text-primary)" }}>
-              {displayName[0].toUpperCase()}
-            </span>
+            <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+              <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
+                {experienceCount}
+              </span>
+              <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
+            </div>
+            <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
+            <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+              <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
+                {fragmentCount}
+              </span>
+              <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
+            </div>
           </div>
-          <div className="text-center">
-            <Body style={{ color: "var(--color-text-primary)" }}>{displayName}</Body>
-            <BodySmall style={{ color: "var(--color-text-muted)" }}>{email}</BodySmall>
-          </div>
-        </div>
+        </section>
 
-        {/* Stats */}
-        <div
-          className="flex rounded-2xl overflow-hidden"
-          style={{
-            background: "var(--color-surface-glass-card)",
-            border: "1px solid var(--color-surface-glass-card-border)",
-          }}
-        >
-          <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-            <span
-              className="text-2xl font-semibold"
-              style={{ color: "var(--color-accent-gold)" }}
-            >
-              {experienceCount}
-            </span>
-            <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
-          </div>
-          <div
-            className="w-px self-stretch"
-            style={{ background: "var(--color-surface-glass-card-border)" }}
-          />
-          <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-            <span
-              className="text-2xl font-semibold"
-              style={{ color: "var(--color-accent-coral)" }}
-            >
-              {fragmentCount}
-            </span>
-            <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
-          </div>
-        </div>
-      </section>
+        {/* Settings button */}
+        <section className="space-y-3">
+          <H2>Settings</H2>
+          <button
+            onClick={() => navigate("/settings")}
+            className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
+            style={{
+              background: "var(--color-button-plum-bg)",
+              borderColor: "var(--color-button-plum-border)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--color-button-plum-bg)";
+              e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
+            }}
+          >
+            <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
+          </button>
+        </section>
 
-      {/* Settings button */}
-      <section className="space-y-3">
-        <H2>Settings</H2>
-        <button
-          onClick={() => navigate("/settings")}
-          className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
-          style={{
-            background: "var(--color-button-plum-bg)",
-            borderColor: "var(--color-button-plum-border)",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
-            e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "var(--color-button-plum-bg)";
-            e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
-          }}
-        >
-          <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
-        </button>
-      </section>
-
-      {/* Privacy note */}
-      <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
-        Your memories are precious. We're committed to keeping your data private and secure.
-      </p>
+        <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
+          Your memories are precious. We're committed to keeping your data private and secure.
+        </p>
+      </div>
     </div>
   );
 }

@@ -14,6 +14,17 @@ export default function Home() {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -21,7 +32,6 @@ export default function Home() {
       .then((res) => res.json())
       .then(async (data: Experience[]) => {
         setExperiences(data);
-        // fetch signed URLs for experiences that have an anchor fragment
         const urlEntries = await Promise.all(
           data
             .filter((exp) => exp.anchor_fragment_id)
@@ -51,7 +61,7 @@ export default function Home() {
     navigate(`/experience/${random.id}`);
   };
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
@@ -65,7 +75,14 @@ export default function Home() {
   return (
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pb-4 px-6">
+      <div
+        className="sticky top-0 z-20 pb-4 px-6 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         <AppLogo />
         <H2>Welcome Back</H2>
         <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
@@ -74,8 +91,14 @@ export default function Home() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-24 md:pb-0 px-6 space-y-6">
-
+      <div
+        className="flex-1 overflow-y-auto pb-24 md:pb-0 px-6 space-y-6 transition-all duration-700"
+        style={{
+          opacity: loading ? 0 : 1,
+          transform: loading ? "translateY(12px)" : "translateY(0)",
+          pointerEvents: loading ? "none" : "auto",
+        }}
+      >
         {error && (
           <p className="text-sm text-center" style={{ color: "var(--color-accent-coral)" }}>{error}</p>
         )}
@@ -99,28 +122,25 @@ export default function Home() {
             }}
             onClick={() => navigate(`/experience/${featured.id}`)}
           >
-            {/* Background image */}
             {signedUrls[featured.id] && (
               <img
                 src={signedUrls[featured.id]}
                 alt={featured.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                style={{ opacity: imageLoaded[featured.id] ? 1 : 0 }}
+                onLoad={() => setImageLoaded((prev) => ({ ...prev, [featured.id]: true }))}
               />
             )}
 
-            {/* Gradient overlay */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }}
             />
-
-            {/* Inner glow */}
             <div
               className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
               style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15), transparent 70%)" }}
             />
 
-            {/* Text content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
               <BodySmall className="mb-2" style={{ color: "var(--color-text-muted)", fontFamily: "var(--font-serif)" }}>
                 Continue Reliving
@@ -148,7 +168,6 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          /* Empty hero */
           <div
             className="relative overflow-hidden h-52 rounded-[28px] border backdrop-blur-xl flex flex-col items-center justify-center text-center px-6 gap-4"
             style={{
@@ -186,16 +205,16 @@ export default function Home() {
                     e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
                   }}
                 >
-                  {/* Background image */}
                   {signedUrls[exp.id] && (
                     <img
                       src={signedUrls[exp.id]}
                       alt={exp.title}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                      style={{ opacity: imageLoaded[exp.id] ? 1 : 0 }}
+                      onLoad={() => setImageLoaded((prev) => ({ ...prev, [exp.id]: true }))}
                     />
                   )}
 
-                  {/* bottom gradient overlay */}
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }}
@@ -216,7 +235,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Surprise Me */}
         {experiences.length > 0 && (
           <GlassButton
             size="md"

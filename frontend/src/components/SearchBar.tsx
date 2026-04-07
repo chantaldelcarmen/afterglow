@@ -34,7 +34,7 @@ export function SearchBar({ onActiveChange, onQueryChange, value }: SearchBarPro
       <Search size={18} className="opacity-50" style={{ color: colors.text.primary }} />
       <input
         type="text"
-        placeholder="Search experiences..."
+        placeholder="search experiences..."
         className="flex-1 bg-transparent outline-none placeholder:opacity-40"
         style={{
           ...typography.styles.body,
