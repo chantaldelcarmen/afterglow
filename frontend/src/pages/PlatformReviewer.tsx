@@ -5,27 +5,67 @@ import { AppLogo } from "../components/AppLogo";
 import { useAuth } from "../utils/AuthContext";
 import { GlassButton } from "../components/GlassButton";
 
+const MOCK_FLAGGED = [
+  {
+    id: "1702-8402-1023",
+    title: "Rooftop Summer Night",
+    user_id: "alex",
+    experience_date: "2025-07-12",
+    created_at: "2026-04-05",
+    location: "Calgary, AB",
+    status: "Pending",
+    emotion_tags: ["joy", "nostalgia"],
+    risk_signal: "Public link enabled",
+  },
+  {
+    id: "4444-1256-2300",
+    title: "Movie Night",
+    user_id: "sam",
+    experience_date: "2025-11-03",
+    created_at: "2026-05-01",
+    location: "Vancouver, BC",
+    status: "Pending",
+    emotion_tags: ["calm", "comfort"],
+    risk_signal: null,
+  },
+  {
+    id: "2345-5421-8988",
+    title: "First Solo Trip",
+    user_id: "jordan",
+    experience_date: "2025-09-20",
+    created_at: "2025-12-07",
+    location: "Barcelona, Spain",
+    status: "Escalated",
+    emotion_tags: ["excitement", "anxiety", "pride", "joy"],
+    risk_signal: "Public link enabled",
+  },
+];
+
 export function PlatformReviewer() {
   const [loading, setLoading] = useState(true);
   const [error] = useState("");
   const [mounted, setMounted] = useState(false);
   const { loading: authLoading } = useAuth();
-  
-  /*
-  useEffect(() => {
-    setMounted(false);
-    const timer = setTimeout(() => setMounted(true), 50);
-    return () => {
-      clearTimeout(timer);
-      setMounted(true);
-    };
-  }, []);
-  */
+  const [flaggedContent, setFlaggedContent] = useState<typeof MOCK_FLAGGED>([]);
+  const [selectedExp, setSelectedExp] = useState<typeof MOCK_FLAGGED[0] | null>(null);
 
   useEffect(() => {
+    const sorted = [...MOCK_FLAGGED].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    setFlaggedContent(sorted);
     setLoading(false);
     setMounted(true);
   }, []);
+
+
+  const handleApprove = (id: any) => {
+    setFlaggedContent((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const handleEscalate = (id: any) => {
+    setFlaggedContent((prev) => prev.map((e) => e.id === id ? {...e, status: "escalated"} : e));
+  };
 
   if (authLoading) {
     return (
@@ -34,12 +74,6 @@ export function PlatformReviewer() {
       </div>
     );
   }
-
-  const flaggedContent = [
-  { title: "Rooftop Summer Night", user_id: "alex", tags: ["joy", "nostalgia"], risk_signals: "Public link enabled" , status: "Pending"},
-  { title: "Movie Night", user_id: "sam", tags: ["calm"], risk_signals: null, status: "Approved" },
-  { title: "Grad day", user_id: "sam", tags: [], risk_signals: "User report about sharing settings", status: "Escalated"}, 
-  ];
 
   return (
     <div className="h-full flex flex-col">
@@ -72,10 +106,12 @@ export function PlatformReviewer() {
         {error && (
           <p className="text-sm text-center" style={{ color: "var(--color-accent-coral)" }}>{error}</p>
         )}
+
         {flaggedContent.length > 0 ? (
           <div className="space-y-4"> 
             {flaggedContent.map((experience) => (
               <div 
+                key={experience.id}
                 className="relative overflow-hidden rounded-[28px] border backdrop-blur-xl p-8 transition-all duration-300"
                 style={{
                   background: "var(--color-surface-glass-card)", 
@@ -97,23 +133,27 @@ export function PlatformReviewer() {
                     <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
                       Experience
                     </BodySmall>
-                    <div                
-                      className="px-3 py-1 rounded-full border text-xs"
-                      style={{ borderColor: "var(--color-surface-glass-card-border)", fontSize: "13px" }}
-                    >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full inline-block flex-shrink-0"
+                        style={{
+                          background:
+                            experience.status === "Pending" ? "#facc15" : "#f87171" 
+                          }}
+                      />
                       <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                        {experience.status}
+                        {experience.status == "Pending" ? "Pending" : "Escalated"}
                       </BodySmall>
                     </div>
                   </div>
                   {/**Second row: Experience title, created at data */}
                   <div className="flex items-center justify-between">
                     <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                      {experience.title}
+                      "{experience.title}"
                     </BodySmall>
                     <div>
                       <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                        Submitted time
+                        Submitted {experience.created_at}
                       </BodySmall>
                     </div>
                   </div>
@@ -125,7 +165,7 @@ export function PlatformReviewer() {
                   </div>
                   {/**Fourth row: Experience tags */}
                   <div className="flex gap-2 flex-wrap mt-2">
-                    {(experience.tags ?? []).map((tag) => (
+                    {(experience.emotion_tags ?? []).map((tag) => (
                       <div
                         key={tag}
                         className="px-3 py-1 rounded-full border text-xs"
@@ -135,12 +175,13 @@ export function PlatformReviewer() {
                           fontSize: "13px" }}
                       >
                         <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                          {tag}
+                          🏷 {tag}
                         </BodySmall>
                       </div>
                     ))}
                   </div>
-                  {experience.risk_signals && (
+                  {/**Fifth row/box contains the risk signal */}
+                  {experience.risk_signal && (
                     <div 
                       className="rounded-[20px] border p-3 flex flex-col gap-2 mt-3"
                       style={{
@@ -150,15 +191,17 @@ export function PlatformReviewer() {
                       }}
                     >
                       <BodySmall>Risk Signals</BodySmall>
-                      <BodySmall>- {experience.risk_signals}</BodySmall>
+                      <BodySmall>• {experience.risk_signal}</BodySmall>
                     </div>
                   )}
                   {/**Buttons: approve and view metadata */}
                   <div className="flex gap-6 mt-4">
-                    <GlassButton className="flex-1">
+                    <GlassButton className="flex-1" onClick={() => setSelectedExp(experience)}>
                         View metadata
                     </GlassButton>
-                    <GlassButton className="flex-1">Approve</GlassButton>
+                    <GlassButton className="flex-1" onClick={() => handleApprove(experience.id)}>
+                      Approve
+                    </GlassButton>
                   </div>
                 </div>
               </div>
@@ -177,6 +220,75 @@ export function PlatformReviewer() {
           </div>
         )}
       </div>
+      {/**Metadata View */}
+      {selectedExp && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={() => setSelectedExp(null)}
+        >
+          <div 
+            className="relative overflow-hidden rounded-[28px] border backdrop-blur-xl p-9 flex flex-col gap-2 items-start"
+            style={{
+              background: "var(--color-surface-glass-card)", 
+              borderColor: "var(--color-surface-glass-card-border)",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+            onClick={((e) => e.stopPropagation())}
+          >
+            <div className="flex items-baseline justify-center gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Experience: </Body>
+              <Body style={{ fontSize: "13px"}}>"{selectedExp.title}"</Body>
+            </div>
+            <div className="flex items-baseline justify-center gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Experience ID: </Body>
+              <Body style={{ fontSize: "13px"}}>{selectedExp.id}</Body>
+            </div>
+            <div className="flex items-baseline justify-center gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Owner:</Body>
+              <Body style={{ fontSize: "13px"}}>@{selectedExp.user_id}</Body>
+            </div>
+            <div className="flex items-baseline justify-center gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Location: </Body>
+              <Body style={{ fontSize: "13px"}}>{selectedExp.location}</Body>
+            </div>
+            <div className="flex items-baseline justify-center gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Date: </Body>
+              <Body style={{ fontSize: "13px"}}>{selectedExp.experience_date}</Body>
+            </div>
+            <div className="flex items-baseline justify-center gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Created at: </Body>
+              <Body style={{ fontSize: "13px"}}>{selectedExp.created_at}</Body>
+            </div>
+            <div className="flex gap-2 flex-wrap mt-2">
+              {(selectedExp.emotion_tags ?? []).map((tag) => (
+              <div
+                key={tag}
+                className="px-3 py-1 rounded-full border text-xs"
+                style={{ 
+                  background: "var(--color-surface-glass-card)",
+                  borderColor: "var(--color-surface-glass-card-border)", 
+                  fontSize: "13px" }}
+              >
+                <Body style={{ fontSize: "13px"}}>
+                  🏷 {tag}
+                </Body>
+              </div>
+              ))}
+            </div>
+            {/**Buttons: approve and escalate flagged experience */}
+            <div className="flex gap-6 mt-4">
+              <GlassButton className="flex-1" onClick={() => {handleEscalate(selectedExp.id); setSelectedExp(null)}}>
+                Escalate
+              </GlassButton>
+              <GlassButton className="flex-1" onClick={() => {handleApprove(selectedExp.id); setSelectedExp(null)}}>
+                Approve
+              </GlassButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
