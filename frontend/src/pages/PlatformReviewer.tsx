@@ -7,9 +7,9 @@ import { GlassButton } from "../components/GlassButton";
 
 export function PlatformReviewer() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const [mounted, setMounted] = useState(false);
-  const { user, role, loading: authLoading } = useAuth();
+  const { loading: authLoading } = useAuth();
   
   /*
   useEffect(() => {
