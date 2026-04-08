@@ -184,81 +184,103 @@ export default function ExperienceDetail() {
     color: colors.text.muted,
   };
 
-  return (
-    <div className="relative w-full pb-28 md:pb-8">
+  const iconBtnStyle = {
+    background: "rgba(0,0,0,0.35)",
+    border: `1px solid ${colors.button.warmBorder}`,
+    boxShadow: `0 0 16px ${colors.button.warmGlow}`,
+  };
 
-      {/* Back + Edit + Delete buttons */}
-      <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
-          style={{
-            background: "rgba(0,0,0,0.35)",
-            border: `1px solid ${colors.button.warmBorder}`,
-            boxShadow: `0 0 16px ${colors.button.warmGlow}`,
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 24px ${colors.button.warmGlow}`; }}
-          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 16px ${colors.button.warmGlow}`; }}
-        >
-          <ArrowLeft size={20} style={{ color: colors.text.primary }} />
-        </button>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate(`/experience/${id}/edit`)}
-            className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
-            style={{
-              background: "rgba(0,0,0,0.35)",
-              border: `1px solid ${colors.button.warmBorder}`,
-              boxShadow: `0 0 16px ${colors.button.warmGlow}`,
-            }}
-          >
-            <Pencil size={16} style={{ color: colors.text.primary }} />
-          </button>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
-            style={{
-              background: "rgba(0,0,0,0.35)",
-              border: `1px solid ${colors.button.warmBorder}`,
-              boxShadow: `0 0 16px ${colors.button.warmGlow}`,
-            }}
-          >
-            <Trash2 size={16} style={{ color: colors.accent.coral }} />
-          </button>
+  const reliveButtonStyle = {
+    background: colors.button.plumGlassBg,
+    borderColor: colors.button.plumGlassBorder,
+    boxShadow: isButtonHovered
+      ? `0 4px 16px rgba(0,0,0,0.35), 0 0 25px ${colors.button.plumGlassGlowHover}`
+      : `0 2px 10px rgba(0,0,0,0.35), 0 0 18px ${colors.button.plumGlassGlow}`,
+  };
+
+  const contentSections = (
+    <>
+      {/* About section */}
+      <div
+        className="rounded-2xl border backdrop-blur-xl p-5"
+        style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
+      >
+        <H2 className="mb-2">About this moment</H2>
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+          {experience.location && <BodySmall style={{ color: colors.text.muted }}>· {experience.location}</BodySmall>}
+          {experience.is_draft && (
+            <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: colors.surface.glass, color: colors.text.muted }}>Draft</span>
+          )}
         </div>
+        {experience.emotion_tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {experience.emotion_tags.map((tag) => (
+              <span key={tag} className="px-3 py-1 rounded-full border text-xs backdrop-blur-xl" style={{ background: colors.surface.glass, borderColor: colors.surface.glassCardBorder, color: colors.text.primary }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <BodySmall style={{ color: colors.text.mutedDim, fontSize: "13px", lineHeight: "1.6" }}>
+          {experience.description || "No description yet."}
+        </BodySmall>
       </div>
 
-      {/* Delete confirmation */}
+      {/* Fragments section */}
+      <div
+        className="rounded-2xl border backdrop-blur-xl p-5"
+        style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
+      >
+        <H2 className="mb-3">Fragments</H2>
+        <FragmentGallery fragments={fragments} />
+      </div>
+
+      {/* Reflections section */}
+      <div
+        className="rounded-2xl border backdrop-blur-xl p-5"
+        style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
+      >
+        <H2 className="mb-3">Reflections</H2>
+        {reflectionError && <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>{reflectionError}</BodySmall>}
+        {reflections.length === 0 ? (
+          <BodySmall style={{ color: colors.text.mutedDim }}>No reflections yet.</BodySmall>
+        ) : (
+          <div className="space-y-3">
+            {reflections.map((reflection) => (
+              <div key={reflection.id} className="rounded-xl border p-4" style={{ background: colors.surface.glass, borderColor: colors.surface.glassCardBorder }}>
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <BodySmall style={{ color: colors.text.mutedDim, fontSize: "11px" }}>
+                    {new Date(reflection.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </BodySmall>
+                  <div className="flex shrink-0 gap-2">
+                    <button onClick={() => openEditReflection(reflection)} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={reflectionActionButtonStyle}>Edit</button>
+                    <button onClick={() => { setReflectionError(""); setReflectionToDelete(reflection); }} disabled={deletingReflectionId === reflection.id} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={{ ...reflectionActionButtonStyle, color: colors.accent.coral }}>
+                      {deletingReflectionId === reflection.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </div>
+                <BodySmall style={{ color: colors.text.primary, lineHeight: "1.6" }}>{reflection.content}</BodySmall>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <div className="relative w-full pb-28 md:pb-0">
+
+      {/* Modals -- fixed, work on both layouts */}
       {showDeleteConfirm && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div
-            className="w-full rounded-2xl border p-6 space-y-4"
-            style={{
-              background: colors.surface.glassCard,
-              borderColor: colors.surface.glassCardBorder,
-              boxShadow: effects.shadows.card,
-            }}
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full max-w-sm rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
             <H2>Delete experience?</H2>
-            <BodySmall style={{ color: colors.text.muted }}>
-              This will permanently delete this experience and all its fragments. This cannot be undone.
-            </BodySmall>
+            <BodySmall style={{ color: colors.text.muted }}>This will permanently delete this experience and all its fragments. This cannot be undone.</BodySmall>
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 rounded-full border py-3 text-sm"
-                style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => void handleDelete()}
-                disabled={deleting}
-                className="flex-1 rounded-full py-3 text-sm"
-                style={{ background: colors.accent.coral, color: "#fff" }}
-              >
-                {deleting ? "Deleting..." : "Delete"}
-              </button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
+              <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}>{deleting ? "Deleting..." : "Delete"}</button>
             </div>
           </div>
         </div>
@@ -266,45 +288,12 @@ export default function ExperienceDetail() {
 
       {editingReflection && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div
-            className="w-full max-w-md rounded-2xl border p-6 space-y-4"
-            style={{
-              background: colors.surface.glassCard,
-              borderColor: colors.surface.glassCardBorder,
-              boxShadow: effects.shadows.card,
-            }}
-          >
+          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
             <H2>Edit reflection</H2>
-            <textarea
-              value={reflectionDraft}
-              onChange={(e) => setReflectionDraft(e.target.value)}
-              rows={5}
-              className="w-full resize-none rounded-[28px] border px-5 py-4 backdrop-blur-xl transition-all duration-300 focus:outline-none"
-              style={{
-                background: colors.surface.glass,
-                borderColor: colors.surface.glassCardBorder,
-                color: colors.text.primary,
-                lineHeight: "1.6",
-              }}
-              placeholder="Update your reflection"
-            />
+            <textarea value={reflectionDraft} onChange={(e) => setReflectionDraft(e.target.value)} rows={5} className="w-full resize-none rounded-[28px] border px-5 py-4 backdrop-blur-xl transition-all duration-300 focus:outline-none" style={{ background: colors.surface.glass, borderColor: colors.surface.glassCardBorder, color: colors.text.primary, lineHeight: "1.6" }} placeholder="Update your reflection" />
             <div className="flex gap-3">
-              <button
-                onClick={closeEditReflection}
-                disabled={savingReflection}
-                className="flex-1 rounded-full border py-3 text-sm"
-                style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => void handleSaveReflection()}
-                disabled={savingReflection}
-                className="flex-1 rounded-full py-3 text-sm"
-                style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}
-              >
-                {savingReflection ? "Saving..." : "Save"}
-              </button>
+              <button onClick={closeEditReflection} disabled={savingReflection} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
+              <button onClick={() => void handleSaveReflection()} disabled={savingReflection} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}>{savingReflection ? "Saving..." : "Save"}</button>
             </div>
           </div>
         </div>
@@ -312,199 +301,102 @@ export default function ExperienceDetail() {
 
       {reflectionToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div
-            className="w-full max-w-md rounded-2xl border p-6 space-y-4"
-            style={{
-              background: colors.surface.glassCard,
-              borderColor: colors.surface.glassCardBorder,
-              boxShadow: effects.shadows.card,
-            }}
-          >
+          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
             <H2>Delete reflection?</H2>
-            <BodySmall style={{ color: colors.text.muted }}>
-              This will permanently remove this saved reflection.
-            </BodySmall>
+            <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this saved reflection.</BodySmall>
             <div className="flex gap-3">
-              <button
-                onClick={() => setReflectionToDelete(null)}
-                disabled={deletingReflectionId === reflectionToDelete.id}
-                className="flex-1 rounded-full border py-3 text-sm"
-                style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => void handleDeleteReflection()}
-                disabled={deletingReflectionId === reflectionToDelete.id}
-                className="flex-1 rounded-full py-3 text-sm"
-                style={{ background: colors.accent.coral, color: "#fff" }}
-              >
-                {deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
-              </button>
+              <button onClick={() => setReflectionToDelete(null)} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
+              <button onClick={() => void handleDeleteReflection()} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}>{deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Hero image */}
-      <div className="relative h-[336px] md:h-120 overflow-hidden">
-        {coverImage ? (
-          <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
-        ) : (
-          <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
-        )}
-        <ImageOverlay />
-        <GlowOverlay />
-
-        <div className="absolute bottom-8 left-6 right-6 md:left-0 md:right-0 md:mx-auto md:max-w-2xl md:px-6 md:text-center">
-          <H1 className="mb-2">{experience.title}</H1>
-          {formattedDate && (
-            <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>
-          )}
-          <div className="mt-4 md:flex md:justify-center">
-            <button
-              onClick={() => navigate(`/relive/${id}`)}
-              className="w-full md:w-64 rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
-              style={{
-                background: colors.button.plumGlassBg,
-                borderColor: colors.button.plumGlassBorder,
-                boxShadow: isButtonHovered
-                  ? `0 4px 16px rgba(0,0,0,0.35), 0 0 25px ${colors.button.plumGlassGlowHover}`
-                  : `0 2px 10px rgba(0,0,0,0.35), 0 0 18px ${colors.button.plumGlassGlow}`,
-              }}
-              onMouseEnter={() => setIsButtonHovered(true)}
-              onMouseLeave={() => setIsButtonHovered(false)}
-            >
-              <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+      {/* ===== MOBILE LAYOUT ===== */}
+      <div className="md:hidden">
+        {/* Buttons overlaid on hero */}
+        <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 24px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 16px ${colors.button.warmGlow}`; }}>
+            <ArrowLeft size={20} style={{ color: colors.text.primary }} />
+          </button>
+          <div className="flex gap-2">
+            <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
+              <Pencil size={16} style={{ color: colors.text.primary }} />
+            </button>
+            <button onClick={() => setShowDeleteConfirm(true)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
+              <Trash2 size={16} style={{ color: colors.accent.coral }} />
             </button>
           </div>
         </div>
+
+        {/* Hero image */}
+        <div className="relative h-[336px] overflow-hidden">
+          {coverImage ? (
+            <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
+          )}
+          <ImageOverlay />
+          <GlowOverlay />
+          <div className="absolute bottom-8 left-6 right-6">
+            <H1 className="mb-2">{experience.title}</H1>
+            {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+            <div className="mt-4">
+              <button onClick={() => navigate(`/relive/${id}`)} className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300" style={reliveButtonStyle} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)}>
+                <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 pt-6 space-y-4">{contentSections}</div>
       </div>
 
-      {/* Content */}
-      <div className="px-6 pt-6 space-y-4 md:pt-4 md:max-w-2xl md:mx-auto">
+      {/* ===== DESKTOP LAYOUT ===== */}
+      <div className="hidden md:block px-8 pt-8 pb-12">
+        {/* Buttons row */}
+        <div className="flex justify-between mb-6">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 24px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 16px ${colors.button.warmGlow}`; }}>
+            <ArrowLeft size={20} style={{ color: colors.text.primary }} />
+          </button>
+          <div className="flex gap-2">
+            <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
+              <Pencil size={16} style={{ color: colors.text.primary }} />
+            </button>
+            <button onClick={() => setShowDeleteConfirm(true)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
+              <Trash2 size={16} style={{ color: colors.accent.coral }} />
+            </button>
+          </div>
+        </div>
 
-        {/* About section */}
-        <div
-          className="rounded-2xl border backdrop-blur-xl p-5"
-          style={{
-            background: colors.surface.glassCard,
-            borderColor: colors.surface.glassCardBorder,
-            boxShadow: effects.shadows.card,
-          }}
-        >
-          <H2 className="mb-2">About this moment</H2>
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
-            {experience.location && <BodySmall style={{ color: colors.text.muted }}>· {experience.location}</BodySmall>}
-            {experience.is_draft && (
-              <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: colors.surface.glass, color: colors.text.muted }}>
-                Draft
-              </span>
+        {/* 2-column grid */}
+        <div className="grid grid-cols-2 gap-8 min-h-[600px]">
+          {/* Left: sticky anchor image */}
+          <div
+            className="relative overflow-hidden rounded-3xl border backdrop-blur-xl sticky top-8 h-[calc(100vh-120px)]"
+            style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
+          >
+            {coverImage ? (
+              <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
             )}
+            <ImageOverlay />
+            <GlowOverlay />
           </div>
 
-          {experience.emotion_tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {experience.emotion_tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 rounded-full border text-xs backdrop-blur-xl"
-                  style={{
-                    background: colors.surface.glass,
-                    borderColor: colors.surface.glassCardBorder,
-                    color: colors.text.primary,
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
+          {/* Right: scrollable content */}
+          <div className="space-y-6">
+            <div>
+              <H1 className="mb-1">{experience.title}</H1>
+              {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
             </div>
-          )}
-
-          <BodySmall style={{ color: colors.text.mutedDim, fontSize: "13px", lineHeight: "1.6" }}>
-            {experience.description || "No description yet."}
-          </BodySmall>
-        </div>
-
-        {/* Fragments section */}
-        <div
-          className="rounded-2xl border backdrop-blur-xl p-5"
-          style={{
-            background: colors.surface.glassCard,
-            borderColor: colors.surface.glassCardBorder,
-            boxShadow: effects.shadows.card,
-          }}
-        >
-          <H2 className="mb-3">Fragments</H2>
-          <FragmentGallery fragments={fragments} />
-        </div>
-
-        {/* Reflections section */}
-        <div
-          className="rounded-2xl border backdrop-blur-xl p-5"
-          style={{
-            background: colors.surface.glassCard,
-            borderColor: colors.surface.glassCardBorder,
-            boxShadow: effects.shadows.card,
-          }}
-        >
-          <H2 className="mb-3">Reflections</H2>
-          {reflectionError && (
-            <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>
-              {reflectionError}
-            </BodySmall>
-          )}
-          {reflections.length === 0 ? (
-            <BodySmall style={{ color: colors.text.mutedDim }}>No reflections yet.</BodySmall>
-          ) : (
-            <div className="space-y-3">
-              {reflections.map((reflection) => (
-                <div
-                  key={reflection.id}
-                  className="rounded-xl border p-4"
-                  style={{
-                    background: colors.surface.glass,
-                    borderColor: colors.surface.glassCardBorder,
-                  }}
-                >
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <BodySmall style={{ color: colors.text.mutedDim, fontSize: "11px" }}>
-                      {new Date(reflection.created_at).toLocaleDateString("en-US", {
-                        month: "long", day: "numeric", year: "numeric",
-                      })}
-                    </BodySmall>
-                    <div className="flex shrink-0 gap-2">
-                      <button
-                        onClick={() => openEditReflection(reflection)}
-                        className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200"
-                        style={reflectionActionButtonStyle}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => {
-                          setReflectionError("");
-                          setReflectionToDelete(reflection);
-                        }}
-                        disabled={deletingReflectionId === reflection.id}
-                        className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200"
-                        style={{
-                          ...reflectionActionButtonStyle,
-                          color: colors.accent.coral,
-                        }}
-                      >
-                        {deletingReflectionId === reflection.id ? "Deleting..." : "Delete"}
-                      </button>
-                    </div>
-                  </div>
-                  <BodySmall style={{ color: colors.text.primary, lineHeight: "1.6" }}>
-                    {reflection.content}
-                  </BodySmall>
-                </div>
-              ))}
-            </div>
-          )}
+            <button onClick={() => navigate(`/relive/${id}`)} className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300" style={reliveButtonStyle} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)}>
+              <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+            </button>
+            {contentSections}
+          </div>
         </div>
       </div>
     </div>
