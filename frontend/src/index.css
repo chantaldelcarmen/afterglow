@@ -92,7 +92,7 @@
   --color-surface-glass-card: rgba(255,255,255,0.12);
   --color-surface-glass-card-border: rgba(255,255,255,0.10);
   --color-surface-glass-card-border-hover: rgba(255,255,255,0.30);
-  --color-surface-nav: rgba(18,12,24,1);
+  --color-surface-nav: rgba(18,12,24,0.55);
   --color-surface-nav-border: rgba(255,255,255,0.10);
 
   /* Text */

@@ -46,7 +46,7 @@ export function AmbientBackground({ children }: { children: ReactNode }) {
       />
 
       {/* Dark scrim for readability */}
-      <div className="fixed inset-0 pointer-events-none" style={{ background: "rgba(0,0,0,0.25)", zIndex: 1 }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ background: "rgba(0,0,0,0.15)", zIndex: 1 }} />
 
       {/* Film grain */}
       <div
