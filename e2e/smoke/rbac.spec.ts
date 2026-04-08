@@ -90,7 +90,6 @@ test.describe('RBAC smoke test', {}, () => {
         await page.getByRole('button', { name: /yes, sign out/i }).waitFor({ state: 'visible' });
         await expect(page.getByRole('button', { name: /yes, sign out/i })).toBeEnabled();
         await page.getByRole('button', {name: /yes, sign out/i}).click({timeout: 5000});
-        await page.getByRole('button', { name: /yes, sign out/i }).click();
         await page.waitForURL('/signin');
 
         // sign in as user and attempt admin route

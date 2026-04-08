@@ -5,7 +5,7 @@ import { profiles } from '../utils/profiles';
 test.describe('Testing auth flows', {}, () => {
     let context;
     test.afterEach(async () => {
-        await context.close();
+        if (context) await context.close();
     });
 
     test('user is able to sign in and log out', async ({ browser }) => {
@@ -24,7 +24,7 @@ test.describe('Testing auth flows', {}, () => {
         ]);
 
         // go to profile page and log out
-        await page.locator('a[href="/profile"]').click();
+        await page.getByRole('link', { name: 'Profile' }).click();
         await expect(page).toHaveURL(/profile/);
 
         await expect(page.getByRole('heading', {name: /your profile/i})).toBeVisible();

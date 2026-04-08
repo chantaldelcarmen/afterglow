@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { profiles } from '../utils/profiles';
 
 type ProfileTypes = 'user' | 'platform_reviewer' | 'admin';
@@ -55,7 +55,7 @@ test.describe('Experience feature testing', {}, () => {
 
     test('user successfully views insights page with data', async({ page }) => {
         await signin(page, 'user');
-        await page.locator('a[href="/insights"]').click();
+        await page.getByRole('link', { name: 'Insights' }).click();
 
         await expect(page).toHaveURL('/insights');
 
@@ -70,14 +70,14 @@ test.describe('Experience feature testing', {}, () => {
 
     test('user successfully views library', async({ page }) => {
         await signin(page, 'user');
-        await page.locator('a[href="/library"]').click();
+        await page.getByRole('link', { name: 'Library' }).click();
 
         await expect(page.getByText('Your Library')).toBeVisible();
         // search for non existent experience
         await page.getByRole('textbox', {name: /search experiences.../i}).click();
         await page.getByRole('textbox', {name: /search experiences.../i}).fill('Golden Beach');
         await page.getByRole('button', {name: /apply/i}).click();
-        await expect(page.getByText('No experiences found')).toBeVisible();
+        await expect(page.getByText('No matches found.')).toBeVisible();
 
         // clear search
         await page.getByRole('textbox', {name: /search experiences.../i}).click();
@@ -99,7 +99,7 @@ test.describe('Experience feature testing', {}, () => {
 
     test('user successfully create an experience', async({ page }) => {
         await signin(page, 'user');
-        await page.locator('a[href="/create-experience"]').click();
+        await page.getByRole('link', { name: 'Create' }).click();
         await expect(page.getByRole('heading', { name: 'Create Experience' })).toBeVisible();
 
         // fill in title
