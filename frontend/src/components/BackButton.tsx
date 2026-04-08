@@ -13,13 +13,14 @@ export function BackButton({ onClick, className = "" }: BackButtonProps) {
     <button
       type="button"
       onClick={onClick ?? (() => navigate(-1))}
-      className={`flex w-10 h-10 rounded-full items-center justify-center backdrop-blur-xl transition-all duration-300 ${className}`}
+      className={`flex w-8 h-8 rounded-full items-center justify-center backdrop-blur-xl transition-all duration-300 border ${className}`}
       style={{
         background: "rgba(0,0,0,0.35)",
-        boxShadow: "0 0 16px var(--color-button-warm-glow)",
+        borderColor: "var(--color-surface-glass-card-border)",
+        boxShadow: "0 0 12px var(--color-button-warm-glow)",
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px var(--color-button-warm-glow)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--color-button-warm-glow)"; }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 18px var(--color-button-warm-glow)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 12px var(--color-button-warm-glow)"; }}
     >
       <ArrowLeft size={20} style={{ color: "var(--color-text-primary)" }} />
     </button>
