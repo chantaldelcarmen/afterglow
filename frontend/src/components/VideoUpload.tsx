@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Video } from 'lucide-react';
 import type { UploadProgress } from '../types/fragment';
 import { uploadFragment } from '../lib/storage';
@@ -22,19 +22,27 @@ export default function VideoUpload({
     error: null,
   });
   const inputRef = useRef<HTMLInputElement>(null);
-  const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  const previewRef = useRef<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!preview) return;
-
     return () => {
-      URL.revokeObjectURL(preview);
+      if (previewRef.current) {
+        URL.revokeObjectURL(previewRef.current);
+      }
     };
-  }, [preview]);
+  }, []);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null;
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
+    }
+
+    const nextPreview = selected ? URL.createObjectURL(selected) : null;
+    previewRef.current = nextPreview;
     setFile(selected);
+    setPreview(nextPreview);
     setProgress({ status: 'idle', error: null });
 
     if (!selected) {
@@ -43,7 +51,12 @@ export default function VideoUpload({
   }
 
   function clearSelection() {
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
+      previewRef.current = null;
+    }
     setFile(null);
+    setPreview(null);
     setCaption('');
     setProgress({ status: 'idle', error: null });
     if (inputRef.current) inputRef.current.value = '';
@@ -65,7 +78,9 @@ export default function VideoUpload({
       await uploadFragment(experienceId, file, caption.trim() || undefined);
 
       setProgress({ status: 'done', error: null });
+      previewRef.current = null;
       setFile(null);
+      setPreview(null);
       setCaption('');
       if (inputRef.current) inputRef.current.value = '';
       onUploaded?.();
