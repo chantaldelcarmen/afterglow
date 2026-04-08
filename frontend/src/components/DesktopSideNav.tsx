@@ -52,52 +52,54 @@ export function DesktopSideNav() {
 
   return (
     <aside
-      className="hidden md:flex flex-col h-screen w-60 border-r backdrop-blur-xl sticky top-0 shrink-0"
+      className="hidden md:flex flex-col w-60 border-r backdrop-blur-xl shrink-0 self-stretch"
       style={{
-        background: "var(--color-surface-glass-card)",
-        borderColor: "var(--color-surface-glass-card-border)",
+        background: "var(--color-surface-nav)",
+        borderColor: "var(--color-surface-nav-border)",
         zIndex: 40,
       }}
     >
-      {/* Logo */}
-      <div className="px-6 py-8">
-        <h1
-          className="text-4xl"
-          style={{
-            fontFamily: "var(--font-serif)",
-            color: "var(--color-text-title-glow)",
-            textShadow: "var(--shadow-title-glow)",
-          }}
-        >
-          Afterglow
-        </h1>
-      </div>
-
-      {/* Nav items */}
-      <nav className="flex-1 px-4 space-y-1">
-        {NAV_ITEMS.map((item) => (
-          <SideNavLink key={item.to} {...item} />
-        ))}
-
-        {/* Role-based items */}
-        {isReviewer && (
-          <div
-            className="pt-4 mt-4 border-t space-y-1"
-            style={{ borderColor: "var(--color-surface-glass-card-border)" }}
+      <div className="sticky top-0 h-screen flex flex-col">
+        {/* Logo */}
+        <div className="px-6 py-8">
+          <h1
+            className="text-4xl"
+            style={{
+              fontFamily: "var(--font-serif)",
+              color: "var(--color-text-title-glow)",
+              textShadow: "var(--shadow-title-glow)",
+            }}
           >
-            {isAdmin && (
-              <SideNavLink to="/admin" icon={Shield} label="Admin Dashboard" />
-            )}
-            <SideNavLink to="/reviewer" icon={Shield} label="Review Queue" />
-          </div>
-        )}
-      </nav>
+            Afterglow
+          </h1>
+        </div>
 
-      {/* Footer */}
-      <div className="px-6 py-6">
-        <p className="text-xs" style={{ color: "var(--color-text-muted-dim)" }}>
-          {footerLabel}
-        </p>
+        {/* Nav items */}
+        <nav className="flex-1 px-4 space-y-1">
+          {NAV_ITEMS.map((item) => (
+            <SideNavLink key={item.to} {...item} />
+          ))}
+
+          {/* Role-based items */}
+          {isReviewer && (
+            <div
+              className="pt-4 mt-4 border-t space-y-1"
+              style={{ borderColor: "var(--color-surface-nav-border)" }}
+            >
+              {isAdmin && (
+                <SideNavLink to="/admin" icon={Shield} label="Admin Dashboard" />
+              )}
+              <SideNavLink to="/reviewer" icon={Shield} label="Review Queue" />
+            </div>
+          )}
+        </nav>
+
+        {/* Footer */}
+        <div className="px-6 py-6">
+          <p className="text-xs" style={{ color: "var(--color-text-muted-dim)" }}>
+            {footerLabel}
+          </p>
+        </div>
       </div>
     </aside>
   );
