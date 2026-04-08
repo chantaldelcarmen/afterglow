@@ -21,6 +21,7 @@ import { PlatformReviewer } from "./pages/PlatformReviewer";
 import { Unauthorized } from "./pages/Unauthorized";
 import { AmbientBackground } from "./components/AmbientBackground";
 import { BottomNav } from "./components/BottomNav";
+import { DesktopSideNav } from "./components/DesktopSideNav";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingOrbProvider } from "./utils/FloatingOrbProvider";
 import { UploadDraftProvider } from "./utils/UploadDraftProvider";
@@ -32,7 +33,18 @@ function AppNav() {
   const location = useLocation();
   if (PUBLIC_PATHS.includes(location.pathname)) return null;
   if (FULLSCREEN_PATHS.some((p) => location.pathname.startsWith(p))) return null;
-  return <BottomNav />;
+  return (
+    <div className="md:hidden">
+      <BottomNav />
+    </div>
+  );
+}
+
+function AppSidebar() {
+  const location = useLocation();
+  if (PUBLIC_PATHS.includes(location.pathname)) return null;
+  if (FULLSCREEN_PATHS.some((p) => location.pathname.startsWith(p))) return null;
+  return <DesktopSideNav />;
 }
 
 export default function App() {
@@ -41,30 +53,35 @@ export default function App() {
       <FloatingOrbProvider>
         <UploadDraftProvider>
           <AmbientBackground>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/unauthorized" element={<Unauthorized />} />
+            <div className="md:flex md:min-h-screen">
+              <AppSidebar />
+              <div className="flex-1 min-w-0">
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/signin" element={<SignIn />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/logout" element={<Logout />} />
+                  <Route path="/unauthorized" element={<Unauthorized />} />
 
-              {/* Authenticated routes */}
-              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
-              <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
-              <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
-              <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
-              <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
-              <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+                  {/* Authenticated routes */}
+                  <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                  <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
+                  <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
+                  <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                  <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
+                  <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
+                  <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
+                  <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
 
-              {/* Role-restricted routes */}
-              <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
-            </Routes>
+                  {/* Role-restricted routes */}
+                  <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+                </Routes>
+              </div>
+            </div>
             <AppNav />
           </AmbientBackground>
         </UploadDraftProvider>
