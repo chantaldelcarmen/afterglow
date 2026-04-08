@@ -9,7 +9,7 @@ interface SubpageHeaderProps {
 
 export function SubpageHeader({ title, subtitle, onBack }: SubpageHeaderProps) {
   return (
-    <div className="sticky top-0 z-20 pt-6 pb-10 px-6">
+    <div className="sticky top-0 z-20 pt-6 pb-6 px-6">
       <div className="relative flex items-center justify-center mb-1">
         <div className="absolute left-0">
           <BackButton onClick={onBack} />

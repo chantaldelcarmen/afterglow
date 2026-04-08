@@ -83,7 +83,7 @@ export default function CreateExperience() {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">
-        <div className="space-y-6 pt-5">
+        <div className="space-y-6">
           <div className="space-y-5">
             {/* Title */}
             <div>
