@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { AboutApp } from "./pages/AboutApp";
 //import AppLayout from "./components/AppLayout";
 import Home from "./pages/Home";
 import ExperienceLibrary from "./pages/ExperienceLibrary";
@@ -73,6 +74,7 @@ export default function App() {
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                   <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
+                  <Route path="/about" element={<ProtectedRoute><AboutApp /></ProtectedRoute>} />
                   <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
                   <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
                   <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
