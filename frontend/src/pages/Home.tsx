@@ -158,6 +158,7 @@ export default function Home() {
               )}
               <GlassButton
                 size="sm"
+                className="mt-4"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/experience/${featured.id}`);
