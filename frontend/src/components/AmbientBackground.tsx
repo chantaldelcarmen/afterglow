@@ -8,27 +8,27 @@ export function AmbientBackground({ children }: { children: ReactNode }) {
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Pink - bottom left */}
         <div
-          className="absolute bottom-50 -left-10 w-52 h-52 rounded-full blur-[20px] opacity-55"
+          className="absolute bottom-50 -left-10 w-52 h-52 rounded-full blur-[20px] opacity-40"
           style={{ backgroundColor: "var(--color-accent-pink)" }}
         />
         {/* Turquoise - bottom right */}
         <div
-          className="absolute bottom-0 -right-20 w-36 h-36 rounded-full blur-[25px] opacity-35"
+          className="absolute bottom-0 -right-20 w-36 h-36 rounded-full blur-[25px] opacity-25"
           style={{ backgroundColor: "var(--color-accent-turquoise)" }}
         />
         {/* Gold - center */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 left-[45%] -translate-x-1/2 w-48 h-48 rounded-full blur-2xl opacity-45"
+          className="absolute top-1/2 -translate-y-1/2 left-[45%] -translate-x-1/2 w-48 h-48 rounded-full blur-2xl opacity-30"
           style={{ backgroundColor: "var(--color-accent-gold)" }}
         />
         {/* Coral - top left */}
         <div
-          className="absolute top-32 left-6 w-32 h-32 rounded-full blur-[20px] opacity-35"
+          className="absolute top-32 left-6 w-32 h-32 rounded-full blur-[20px] opacity-25"
           style={{ backgroundColor: "var(--color-accent-coral)" }}
         />
         {/* Lavender - top right */}
         <div
-          className="absolute -top-4 -right-6 w-36 h-36 rounded-full blur-[25px] opacity-[0.38]"
+          className="absolute -top-4 -right-6 w-36 h-36 rounded-full blur-[25px] opacity-25"
           style={{ backgroundColor: "var(--color-accent-lavender)" }}
         />
       </div>
@@ -44,6 +44,9 @@ export function AmbientBackground({ children }: { children: ReactNode }) {
           filter: "blur(25px)",
         }}
       />
+
+      {/* Dark scrim for readability */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: "rgba(0,0,0,0.25)", zIndex: 1 }} />
 
       {/* Film grain */}
       <div
