@@ -53,37 +53,41 @@ export default function App() {
       <FloatingOrbProvider>
         <UploadDraftProvider>
           <AmbientBackground>
-            <div className="md:flex md:min-h-screen">
-              <AppSidebar />
-              <div className="flex-1 min-w-0 md:ml-60">
-                <div className="md:max-w-4xl md:mx-auto h-full">
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/logout" element={<Logout />} />
-                  <Route path="/unauthorized" element={<Unauthorized />} />
+            <Routes>
+              <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
+              <Route path="*" element={
+                <div className="md:flex md:min-h-screen">
+                  <AppSidebar />
+                  <div className="flex-1 min-w-0 md:ml-60">
+                    <div className="md:max-w-4xl md:mx-auto h-full">
+                      <Routes>
+                        {/* Public routes */}
+                        <Route path="/signin" element={<SignIn />} />
+                        <Route path="/signup" element={<SignUp />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/logout" element={<Logout />} />
+                        <Route path="/unauthorized" element={<Unauthorized />} />
 
-                  {/* Authenticated routes */}
-                  <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-                  <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
-                  <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
-                  <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                  <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
-                  <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
-                  <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
-                  <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+                        {/* Authenticated routes */}
+                        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                        <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
+                        <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
+                        <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
+                        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                        <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
+                        <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
+                        <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
 
-                  {/* Role-restricted routes */}
-                  <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
-                  <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
-                </Routes>
+                        {/* Role-restricted routes */}
+                        <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
+                        <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+                      </Routes>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              } />
+            </Routes>
             <AppNav />
           </AmbientBackground>
         </UploadDraftProvider>
