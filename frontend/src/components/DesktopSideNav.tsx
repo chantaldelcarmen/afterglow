@@ -53,8 +53,8 @@ export function DesktopSideNav() {
     <aside
       className="hidden md:flex flex-col w-60 border-r backdrop-blur-xl shrink-0 self-stretch"
       style={{
-        background: "var(--color-surface-glass-card)",
-        borderColor: "var(--color-surface-glass-card-border)",
+        background: "var(--color-surface-nav)",
+        borderColor: "var(--color-surface-nav-border)",
         zIndex: 40,
       }}
     >
@@ -83,7 +83,7 @@ export function DesktopSideNav() {
           {isReviewer && (
             <div
               className="pt-4 mt-4 border-t space-y-1"
-              style={{ borderColor: "var(--color-surface-glass-card-border)" }}
+              style={{ borderColor: "var(--color-surface-nav-border)" }}
             >
               {isAdmin && (
                 <SideNavLink to="/admin" icon={Shield} label="Admin Dashboard" />
