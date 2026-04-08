@@ -185,7 +185,7 @@ export default function ExperienceDetail() {
   };
 
   return (
-    <div className="w-full max-w-[430px] pb-28">
+    <div className="relative w-full max-w-[430px] pb-28">
 
       {/* Back button */}
       <div className="absolute top-8 left-6 z-10">
