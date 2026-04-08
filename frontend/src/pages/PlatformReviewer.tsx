@@ -39,7 +39,7 @@ export function PlatformReviewer() {
 
   useEffect(() => {
     const sorted = [...MOCK_FLAGGED].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
     );
     setFlaggedContent(sorted);
     setLoading(false);
