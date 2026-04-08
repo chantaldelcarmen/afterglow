@@ -188,7 +188,7 @@ export default function ExperienceDetail() {
     <div className="relative w-full pb-28 md:pb-8">
 
       {/* Back + Edit + Delete buttons */}
-      <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6 md:max-w-2xl md:mx-auto">
+      <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
@@ -382,7 +382,7 @@ export default function ExperienceDetail() {
       </div>
 
       {/* Content */}
-      <div className="px-6 pt-6 space-y-4 md:max-w-2xl md:mx-auto">
+      <div className="px-6 pt-6 space-y-4 md:pt-4 md:max-w-2xl md:mx-auto">
 
         {/* About section */}
         <div
