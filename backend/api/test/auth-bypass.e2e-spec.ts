@@ -10,7 +10,7 @@ import request from 'supertest';
 import { SupabaseService } from '../src/supabase/supabase.service';
 import { JwtAuthGuard } from '../src/auth/guards/jwt-auth.guard';
 import { Role } from '../src/enums/role.enum';
-import { describe, it, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, beforeAll, afterAll, jest } from '@jest/globals';
 
 // testing rbac using mock guards
 describe('Authentication and Authorization (RBAC) Tests', () => {

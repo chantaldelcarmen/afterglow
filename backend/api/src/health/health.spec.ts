@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 import { HealthController } from './health.controller';
+import { describe, it, beforeAll, afterAll } from '@jest/globals';
 
 describe('HealthController (unit)', () => {
   let app: INestApplication<App>;

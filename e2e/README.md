@@ -6,10 +6,10 @@ How to run e2e tests:
     -  docker compose up -d
 
 2. Run the tests with from project root: 
-    - For a full system test (smoke + regression testing)
-        - npx playwright test
     - For system smoke testing only
         - npx playwright test e2e/smoke
+    - For security tests
+        - npx jest e2e/security/api-bypass.spec.ts
 
 Additional commands:
     - npx playwright test -- headed

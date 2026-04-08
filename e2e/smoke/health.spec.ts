@@ -5,7 +5,7 @@ test.describe('Health smoke test', {}, () => {
 
     // frontend page is up
     test('frontend landing page health check', async({ page }) => {
-        await page.goto('http://localhost:3000');
+        await page.goto('/');
         // landing page should have 'Afterglow' on the page
         await expect(page.getByText('Afterglow')).toBeVisible();
     });
