@@ -51,14 +51,14 @@ export function DesktopSideNav() {
 
   return (
     <aside
-      className="hidden md:flex flex-col w-60 border-r backdrop-blur-xl shrink-0 self-stretch"
+      className="hidden md:flex flex-col w-60 border-r backdrop-blur-xl fixed left-0 top-0 h-screen"
       style={{
         background: "rgba(18,12,24,0.55)",
         borderColor: "var(--color-surface-nav-border)",
         zIndex: 40,
       }}
     >
-      <div className="sticky top-0 h-screen flex flex-col">
+      <div className="flex flex-col h-full">
         {/* Logo */}
         <div className="px-6 py-8">
           <h1
