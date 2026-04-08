@@ -48,7 +48,7 @@ export function Settings() {
           <H2>Settings</H2>
 
           <button
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/profile/edit")}
             className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
             style={rowStyle}
           >

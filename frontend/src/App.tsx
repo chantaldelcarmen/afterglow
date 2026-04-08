@@ -16,6 +16,7 @@ import Upload from "./pages/Upload";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { EditExperience } from "./pages/EditExperience";
+import { EditProfile } from "./pages/EditProfile";
 import { ReliveExperience } from "./pages/ReliveExperience";
 import { Insights } from "./pages/Insights";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -73,6 +74,7 @@ export default function App() {
                   <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                  <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
                   <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
                   <Route path="/about" element={<ProtectedRoute><AboutApp /></ProtectedRoute>} />
                   <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
