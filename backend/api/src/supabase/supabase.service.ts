@@ -12,7 +12,7 @@ export class SupabaseService {
     const key = this.config.get<string>('SUPABASE_SERVICE_KEY');
     const anonKey = this.config.get<string>('SUPABASE_PUBLISHABLE_DEFAULT_KEY');
 
-    if (!url || !key) {
+    if (!url || !key || !anonKey) {
       throw new Error('Missing Supabase environment variables');
     }
 
