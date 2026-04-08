@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
-import { BackButton } from "../components/BackButton";
+import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
@@ -103,16 +103,7 @@ export function EditExperience() {
 
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
-        <div className="relative flex items-center justify-center mb-1">
-          <div className="absolute left-0"><BackButton /></div>
-          <H2>Edit Experience</H2>
-        </div>
-        <BodySmall className="text-center mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-          Update your memory
-        </BodySmall>
-      </div>
+      <SubpageHeader title="Edit Experience" subtitle="Update your memory" />
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { H2, Body, BodySmall } from "../components/Typography";
-import { BackButton } from "../components/BackButton";
+import { Body, BodySmall } from "../components/Typography";
+import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
@@ -79,16 +79,7 @@ export default function CreateExperience() {
 
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
-        <div className="relative flex items-center justify-center mb-1">
-          <div className="absolute left-0"><BackButton /></div>
-          <H2>Create Experience</H2>
-        </div>
-        <BodySmall className="text-center mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-          Craft a container for your memory fragments
-        </BodySmall>
-      </div>
+      <SubpageHeader title="Create Experience" subtitle="Craft a container for your memory fragments" />
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">
