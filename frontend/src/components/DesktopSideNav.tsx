@@ -1,5 +1,5 @@
-import { Home, Library, Plus, UserCircle, Sparkles, Shield } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Home, Library, Plus, UserCircle, Sparkles, Shield, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../utils/AuthContext";
 
@@ -44,11 +44,10 @@ function SideNavLink({ to, icon: Icon, label }: { to: string; icon: LucideIcon; 
 
 export function DesktopSideNav() {
   const { role } = useAuth();
+  const navigate = useNavigate();
 
   const isReviewer = role === "platform_reviewer" || role === "admin";
   const isAdmin = role === "admin";
-  const footerLabel =
-    isAdmin ? "Platform Admin" : isReviewer ? "Content Reviewer" : "Memory Keeper";
 
   return (
     <aside
@@ -95,10 +94,17 @@ export function DesktopSideNav() {
         </nav>
 
         {/* Footer */}
-        <div className="px-6 py-6">
-          <p className="text-xs" style={{ color: "var(--color-text-muted-dim)" }}>
-            {footerLabel}
-          </p>
+        <div className="px-4 py-6">
+          <button
+            onClick={() => navigate("/logout")}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300"
+            style={{ color: "var(--color-text-muted)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-text-primary)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-muted)"; }}
+          >
+            <LogOut size={20} strokeWidth={1.5} style={{ color: "inherit" }} />
+            <span className="text-sm font-medium" style={{ color: "inherit" }}>Log out</span>
+          </button>
         </div>
       </div>
     </aside>
