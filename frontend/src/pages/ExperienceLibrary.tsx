@@ -136,7 +136,7 @@ export default function ExperienceLibrary() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-24 px-6">
         <div
           className="transition-all duration-700 space-y-6"
           style={{
