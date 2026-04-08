@@ -55,6 +55,7 @@ let expIdA: string | null;
 let expIdA_2: string | null;
 let expIdA_3: string | null;
 let fragIdAAnchor: string | null;
+let refIdA: string | null;
 
 let fragIdA: string | null;
 
@@ -73,6 +74,10 @@ beforeAll(async () => {
   const { data: fragmentA } = await req(tokenA, 'GET', `/experiences/${expIdA}/fragments`);
   fragIdA = fragmentA[0]?.id ?? null;
   fragIdAAnchor = experienceA[0]?.anchor_fragment_id ?? null;
+
+  // use experience id of user A to grab one reflection (if it exists)
+  const { data: reflectionA } = await req(tokenA, 'GET', `/experiences/${expIdA}/reflections`);
+  refIdA = reflectionA[0]?.id ?? null;
 
   // create a draft experience with no anchor fragment for data integrity test
   const { data: newExp } = await req(tokenA, 'POST', '/experiences', {
@@ -161,6 +166,42 @@ describe('Data Integrity (3 cases)', () => {
   it('Call DELETE /experiences/:id/fragments/:fragmentId where fragmentId is the current anchor -- confirm 400 (cannot delete anchor)', async () => {
     const { status_code } = await req(tokenA, 'DELETE', `/experiences/${expIdA}/fragments/${fragIdAAnchor}`);
     expect(status_code).toBe(400);
+  });
+
+  // Reflections API endpoints tests
+  describe('Reflections testing', () => {
+    it('Call GET /experiences/:id/reflections with no valid JWT -- expect 401', async () => {
+      const { status_code } = await req(null, 'GET', `/experiences/${expIdA}/reflections`);
+      expect(status_code).toBe(401);
+    });
+
+    it('Call GET /experiences/:id/reflections with User Bs JWT on User As reflections - confirm 403', async () => {
+      const { status_code } = await req(tokenB, 'GET', `/experiences/${expIdA}/reflections`);
+      expect([403, 404]).toContain(status_code);
+    });
+
+    it('Call POST /experiences/:id/reflections with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
+      const { status_code } = await req(tokenB, 'POST', `/experiences/${expIdA}/reflections`);
+      expect([403, 404]).toContain(status_code);
+    });
+
+    it('Call PATCH /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
+      const { status_code } = await req(tokenB, 'PATCH', `/experiences/${expIdA}/reflections/${refIdA}`);
+      expect([403, 404]).toContain(status_code);
+    });
+  
+    it('Call DELETE /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
+      const { status_code } = await req(tokenB, 'DELETE', `/experiences/${expIdA}/reflections/${refIdA}`);
+      expect([403, 404]).toContain(status_code);
+    });
+  });
+
+  // Patterns API endpoint tests
+  describe('Patterns testing', () => {
+    it('Call GET /patterns with no valid JWT -- expect 401', async () => {
+      const { status_code } = await req(null, 'GET', `/patterns`);
+      expect(status_code).toBe(401);
+    });
   });
 });
 
