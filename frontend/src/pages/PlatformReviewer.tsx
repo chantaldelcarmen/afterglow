@@ -8,36 +8,24 @@ import { GlassButton } from "../components/GlassButton";
 const MOCK_FLAGGED = [
   {
     id: "1702-8402-1023",
-    title: "Rooftop Summer Night",
     user_id: "alex",
-    experience_date: "2025-07-12",
-    created_at: "2026-04-05",
-    location: "Calgary, AB",
+    submitted_at: "2026-04-05",
     status: "Pending",
     emotion_tags: ["joy", "nostalgia"],
-    risk_signal: "Public link enabled",
   },
   {
     id: "4444-1256-2300",
-    title: "Movie Night",
     user_id: "sam",
-    experience_date: "2025-11-03",
-    created_at: "2026-05-01",
-    location: "Vancouver, BC",
+    submitted_at: "2026-04-03",
     status: "Pending",
     emotion_tags: ["calm", "comfort"],
-    risk_signal: null,
   },
   {
     id: "2345-5421-8988",
-    title: "First Solo Trip",
     user_id: "jordan",
-    experience_date: "2025-09-20",
-    created_at: "2025-12-07",
-    location: "Barcelona, Spain",
+    submitted_at: "2025-12-07",
     status: "Escalated",
     emotion_tags: ["excitement", "anxiety", "pride", "joy"],
-    risk_signal: "Public link enabled",
   },
 ];
 
@@ -127,77 +115,52 @@ export function PlatformReviewer() {
                 />
 
                 {/**Card Content */}
-                <div className="relative z-10 flex flex-col gap-2">  
-                  {/**First row: Experience, status */}              
+                <div className="relative z-10 flex flex-col gap-2">
+                  {/* Row: ref + status */}
                   <div className="flex items-center justify-between">
                     <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                      Experience
+                      Ref #{experience.id.slice(0, 8)}
                     </BodySmall>
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
                       <span
                         className="w-2 h-2 rounded-full inline-block flex-shrink-0"
-                        style={{
-                          background:
-                            experience.status === "Pending" ? "#facc15" : "#f87171" 
-                          }}
+                        style={{ background: experience.status === "Pending" ? "#a78bfa" : "#f87171" }}
                       />
                       <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                        {experience.status == "Pending" ? "Pending" : "Escalated"}
+                        {experience.status}
                       </BodySmall>
                     </div>
                   </div>
-                  {/**Second row: Experience title, created at data */}
-                  <div className="flex items-center justify-between">
-                    <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                      "{experience.title}"
-                    </BodySmall>
-                    <div>
-                      <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                        Submitted {experience.created_at}
-                      </BodySmall>
-                    </div>
-                  </div>
-                  {/**Third row: Owner */}
+                  {/* Row: owner + submitted */}
                   <div className="flex items-center justify-between">
                     <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
                       Owner: @{experience.user_id}
                     </BodySmall>
+                    <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
+                      Submitted {experience.submitted_at}
+                    </BodySmall>
                   </div>
-                  {/**Fourth row: Experience tags */}
+                  {/* Emotion tags */}
                   <div className="flex gap-2 flex-wrap mt-2">
                     {(experience.emotion_tags ?? []).map((tag) => (
                       <div
                         key={tag}
                         className="px-3 py-1 rounded-full border text-xs"
-                        style={{ 
+                        style={{
                           background: "var(--color-surface-glass-card)",
-                          borderColor: "var(--color-surface-glass-card-border)", 
-                          fontSize: "13px" }}
+                          borderColor: "var(--color-surface-glass-card-border)",
+                        }}
                       >
                         <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
-                          🏷 {tag}
+                          {tag}
                         </BodySmall>
                       </div>
                     ))}
                   </div>
-                  {/**Fifth row/box contains the risk signal */}
-                  {experience.risk_signal && (
-                    <div 
-                      className="rounded-[20px] border p-3 flex flex-col gap-2 mt-3"
-                      style={{
-                        background: "rgba(0, 0, 0, 0.25)", 
-                        borderColor: "var(--color-surface-glass-card-border)",
-                        boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1) 0 8px 24px rgba(0, 0, 0, 0.3)",
-                      }}
-                    >
-                      <BodySmall>Risk Signals</BodySmall>
-                      <BodySmall>• {experience.risk_signal}</BodySmall>
-                    </div>
-                  )}
-                  {/**Buttons: approve and view metadata */}
+                  {/* Buttons */}
                   <div className="flex gap-6 mt-4">
                     <GlassButton className="flex-1" onClick={() => setSelectedExp(experience)}>
-                        View metadata
+                      View metadata
                     </GlassButton>
                     <GlassButton className="flex-1" onClick={() => handleApprove(experience.id)}>
                       Approve
@@ -237,29 +200,21 @@ export function PlatformReviewer() {
             }}
             onClick={((e) => e.stopPropagation())}
           >
-            <div className="flex items-baseline justify-center gap-2">
-              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Experience: </Body>
-              <Body style={{ fontSize: "13px"}}>"{selectedExp.title}"</Body>
+            <div className="flex items-baseline gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Reference ID:</Body>
+              <Body style={{ fontSize: "13px"}}>#{selectedExp.id}</Body>
             </div>
-            <div className="flex items-baseline justify-center gap-2">
-              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Experience ID: </Body>
-              <Body style={{ fontSize: "13px"}}>{selectedExp.id}</Body>
-            </div>
-            <div className="flex items-baseline justify-center gap-2">
+            <div className="flex items-baseline gap-2">
               <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Owner:</Body>
               <Body style={{ fontSize: "13px"}}>@{selectedExp.user_id}</Body>
             </div>
-            <div className="flex items-baseline justify-center gap-2">
-              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Location: </Body>
-              <Body style={{ fontSize: "13px"}}>{selectedExp.location}</Body>
+            <div className="flex items-baseline gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Submitted:</Body>
+              <Body style={{ fontSize: "13px"}}>{selectedExp.submitted_at}</Body>
             </div>
-            <div className="flex items-baseline justify-center gap-2">
-              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Date: </Body>
-              <Body style={{ fontSize: "13px"}}>{selectedExp.experience_date}</Body>
-            </div>
-            <div className="flex items-baseline justify-center gap-2">
-              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Created at: </Body>
-              <Body style={{ fontSize: "13px"}}>{selectedExp.created_at}</Body>
+            <div className="flex items-baseline gap-2">
+              <Body style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>Status:</Body>
+              <Body style={{ fontSize: "13px"}}>{selectedExp.status}</Body>
             </div>
             <div className="flex gap-2 flex-wrap mt-2">
               {(selectedExp.emotion_tags ?? []).map((tag) => (
