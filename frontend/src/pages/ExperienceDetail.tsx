@@ -185,10 +185,10 @@ export default function ExperienceDetail() {
   };
 
   return (
-    <div className="w-full max-w-[430px] pb-28">
+    <div className="relative w-full pb-28 md:pb-8">
 
-      {/* Back button */}
-      <div className="absolute top-8 left-6 z-10">
+      {/* Back + Edit + Delete buttons */}
+      <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6 md:max-w-2xl md:mx-auto">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
@@ -202,32 +202,30 @@ export default function ExperienceDetail() {
         >
           <ArrowLeft size={20} style={{ color: colors.text.primary }} />
         </button>
-      </div>
-
-      {/* Edit + Delete buttons */}
-      <div className="absolute top-8 right-6 z-10 flex gap-2">
-        <button
-          onClick={() => navigate(`/experience/${id}/edit`)}
-          className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
-          style={{
-            background: "rgba(0,0,0,0.35)",
-            border: `1px solid ${colors.button.warmBorder}`,
-            boxShadow: `0 0 16px ${colors.button.warmGlow}`,
-          }}
-        >
-          <Pencil size={16} style={{ color: colors.text.primary }} />
-        </button>
-        <button
-          onClick={() => setShowDeleteConfirm(true)}
-          className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
-          style={{
-            background: "rgba(0,0,0,0.35)",
-            border: `1px solid ${colors.button.warmBorder}`,
-            boxShadow: `0 0 16px ${colors.button.warmGlow}`,
-          }}
-        >
-          <Trash2 size={16} style={{ color: colors.accent.coral }} />
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate(`/experience/${id}/edit`)}
+            className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
+            style={{
+              background: "rgba(0,0,0,0.35)",
+              border: `1px solid ${colors.button.warmBorder}`,
+              boxShadow: `0 0 16px ${colors.button.warmGlow}`,
+            }}
+          >
+            <Pencil size={16} style={{ color: colors.text.primary }} />
+          </button>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300"
+            style={{
+              background: "rgba(0,0,0,0.35)",
+              border: `1px solid ${colors.button.warmBorder}`,
+              boxShadow: `0 0 16px ${colors.button.warmGlow}`,
+            }}
+          >
+            <Trash2 size={16} style={{ color: colors.accent.coral }} />
+          </button>
+        </div>
       </div>
 
       {/* Delete confirmation */}
@@ -349,7 +347,7 @@ export default function ExperienceDetail() {
       )}
 
       {/* Hero image */}
-      <div className="relative h-[336px] overflow-hidden">
+      <div className="relative h-[336px] md:h-120 overflow-hidden">
         {coverImage ? (
           <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
@@ -358,15 +356,15 @@ export default function ExperienceDetail() {
         <ImageOverlay />
         <GlowOverlay />
 
-        <div className="absolute bottom-8 left-6 right-6">
+        <div className="absolute bottom-8 left-6 right-6 md:left-0 md:right-0 md:mx-auto md:max-w-2xl md:px-6 md:text-center">
           <H1 className="mb-2">{experience.title}</H1>
           {formattedDate && (
             <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>
           )}
-          <div className="mt-4">
+          <div className="mt-4 md:flex md:justify-center">
             <button
               onClick={() => navigate(`/relive/${id}`)}
-              className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
+              className="w-full md:w-64 rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
               style={{
                 background: colors.button.plumGlassBg,
                 borderColor: colors.button.plumGlassBorder,
@@ -384,7 +382,7 @@ export default function ExperienceDetail() {
       </div>
 
       {/* Content */}
-      <div className="px-6 pt-6 space-y-4">
+      <div className="px-6 pt-6 space-y-4 md:max-w-2xl md:mx-auto">
 
         {/* About section */}
         <div
