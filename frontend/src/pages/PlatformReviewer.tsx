@@ -48,11 +48,15 @@ export function PlatformReviewer() {
 
 
   const handleApprove = (id: any) => {
-    setFlaggedContent((prev) => prev.filter((e) => e.id !== id));
+    setFlaggedContent((prev) => prev.map((e) => e.id === id ? { ...e, status: "Approved" } : e));
   };
 
   const handleEscalate = (id: any) => {
-    setFlaggedContent((prev) => prev.map((e) => e.id === id ? {...e, status: "escalated"} : e));
+    setFlaggedContent((prev) => prev.map((e) => e.id === id ? { ...e, status: "Escalated" } : e));
+  };
+
+  const handleReset = () => {
+    setFlaggedContent([...MOCK_FLAGGED]);
   };
 
   if (authLoading) {
@@ -75,7 +79,18 @@ export function PlatformReviewer() {
       >
         <AppLogo />
         <BackButton></BackButton>
-        <H2>Reviewer Dashboard</H2>
+        <div className="flex items-center justify-between">
+          <H2>Reviewer Dashboard</H2>
+          <button
+            onClick={handleReset}
+            className="text-xs px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer"
+            style={{ borderColor: "var(--color-button-warm-border)", color: "var(--color-text-muted)", boxShadow: "0 0 10px var(--color-button-warm-glow)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 18px var(--color-button-warm-glow)"; e.currentTarget.style.color = "var(--color-text-primary)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 10px var(--color-button-warm-glow)"; e.currentTarget.style.color = "var(--color-text-muted)"; }}
+          >
+            Reset demo
+          </button>
+        </div>
         <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
           Review submitted user experiences
         </BodySmall>
@@ -124,7 +139,7 @@ export function PlatformReviewer() {
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2 h-2 rounded-full inline-block flex-shrink-0"
-                        style={{ background: experience.status === "Pending" ? "#a78bfa" : "#f87171" }}
+                        style={{ background: experience.status === "Pending" ? "#a78bfa" : experience.status === "Approved" ? "#34d399" : "#f87171" }}
                       />
                       <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
                         {experience.status}
