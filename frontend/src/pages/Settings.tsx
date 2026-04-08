@@ -11,13 +11,15 @@ export function Settings() {
 
   return (
     <div className="h-full flex flex-col pb-8 overflow-y-auto">
-      <div className="sticky top-0 z-20 pt-8 px-6 pb-4">
-        <BackButton />
+      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
+        <div className="relative flex items-center justify-center mb-1">
+          <div className="absolute left-0"><BackButton /></div>
+          <H2>Settings</H2>
+        </div>
       </div>
       <div className="px-6 space-y-8">
 
         <section className="space-y-3">
-          <H2>Settings</H2>
 
           <button
             onClick={handleLogOut}

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
-import { AppLogo } from "../components/AppLogo";
 import { BackButton } from "../components/BackButton";
 import { apiFetch } from "../lib/api";
 
@@ -81,24 +80,14 @@ export default function CreateExperience() {
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pb-4 px-6">
-        {/* Mobile Header */}
-        <div className="md:hidden">
-          <AppLogo />
-          <H2 className="px-1">Create Experience</H2>
-          <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Craft a container for your memory fragments
-          </BodySmall>
+      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
+        <div className="relative flex items-center justify-center mb-1">
+          <div className="absolute left-0"><BackButton /></div>
+          <H2>Create Experience</H2>
         </div>
-
-        {/* Desktop Header + Back Button */}
-        <div className="hidden md:block">
-          <BackButton className="mb-4" />
-          <H2 className="px-1">Create Experience</H2>
-          <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Craft a container for your memory fragments
-          </BodySmall>
-        </div>
+        <BodySmall className="text-center mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
+          Craft a container for your memory fragments
+        </BodySmall>
       </div>
 
       {/* Scrollable Content */}
