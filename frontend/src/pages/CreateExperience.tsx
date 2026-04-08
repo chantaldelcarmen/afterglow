@@ -78,7 +78,7 @@ export default function CreateExperience() {
   const isFormValid = !!title.trim() && !!date.trim();
 
   return (
-    <div className="max-w-175 mx-auto h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <SubpageHeader title="Create Experience" subtitle="Craft a container for your memory fragments" />
 
       {/* Scrollable Content */}

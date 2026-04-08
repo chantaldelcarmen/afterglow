@@ -77,8 +77,7 @@ export function Insights() {
   return (
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4">
-        <div className="max-w-[1400px] mx-auto px-6">
+      <div className="sticky top-0 z-20 pt-6 pb-4 px-6">
           <AppLogo />
           <H2 className="px-1">Your Patterns</H2>
           <BodySmall
@@ -87,12 +86,11 @@ export function Insights() {
           >
             Discover emotional patterns through AI-powered analysis of your memories
           </BodySmall>
-        </div>
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pb-28 md:pb-0">
-        <div className="max-w-[1400px] mx-auto px-6">
+        <div className="px-6">
 
           {/* Stat Cards */}
           <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">

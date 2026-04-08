@@ -56,6 +56,7 @@ export default function App() {
             <div className="md:flex md:min-h-screen">
               <AppSidebar />
               <div className="flex-1 min-w-0 md:ml-60">
+                <div className="md:max-w-4xl md:mx-auto h-full">
                 <Routes>
                   {/* Public routes */}
                   <Route path="/signin" element={<SignIn />} />
@@ -80,6 +81,7 @@ export default function App() {
                   <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
                 </Routes>
+                </div>
               </div>
             </div>
             <AppNav />

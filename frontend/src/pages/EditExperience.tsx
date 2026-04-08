@@ -97,7 +97,7 @@ export function EditExperience() {
   if (fetching) return <LoadingScreen />;
 
   return (
-    <div className="max-w-175 mx-auto h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <SubpageHeader title="Edit Experience" subtitle="Update your memory" />
 
       {/* Scrollable Content */}

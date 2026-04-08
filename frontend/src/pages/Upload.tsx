@@ -99,7 +99,7 @@ export default function Upload() {
   if (!experienceId) return <Navigate to="/" replace />;
 
   return (
-    <div className="max-w-175 mx-auto h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <div className="sticky top-0 z-20 px-6 pb-4 pt-4 md:pt-8">
         <div className="md:hidden">
           <AppLogo />
