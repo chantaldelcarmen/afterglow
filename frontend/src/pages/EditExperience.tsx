@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
+import { LoadingScreen } from "../components/LoadingScreen";
 import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
 
@@ -93,13 +94,7 @@ export function EditExperience() {
 
   const isFormValid = !!title.trim() && !!date.trim();
 
-  if (fetching) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
-      </div>
-    );
-  }
+  if (fetching) return <LoadingScreen />;
 
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">

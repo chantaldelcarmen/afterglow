@@ -55,7 +55,7 @@ export default function App() {
           <AmbientBackground>
             <div className="md:flex md:min-h-screen">
               <AppSidebar />
-              <div className="flex-1 min-w-0 md:pl-60">
+              <div className="flex-1 min-w-0 md:ml-60">
                 <Routes>
                   {/* Public routes */}
                   <Route path="/signin" element={<SignIn />} />

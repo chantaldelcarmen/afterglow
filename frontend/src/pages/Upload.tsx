@@ -9,6 +9,7 @@ import { apiFetch } from '../lib/api';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
 import { H2, BodySmall, Body } from '../components/Typography';
+import { LoadingScreen } from '../components/LoadingScreen';
 import { AppLogo } from '../components/AppLogo';
 import PhotoUpload from '../components/PhotoUpload';
 import FragmentGallery from '../components/FragmentGallery';
@@ -93,13 +94,7 @@ export default function Upload() {
     navigate(-1);
   }
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <BodySmall style={{ color: 'var(--color-text-muted-dim)' }}>Loading...</BodySmall>
-      </div>
-    );
-  }
+  if (authLoading) return <LoadingScreen />;
   if (!user) return <Navigate to="/signin" replace />;
   if (!experienceId) return <Navigate to="/" replace />;
 

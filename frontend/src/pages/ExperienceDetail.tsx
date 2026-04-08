@@ -13,6 +13,7 @@ import type { Fragment } from "../types/fragment";
 import type { Reflection } from "../lib/reflections";
 import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
+import { LoadingScreen } from "../components/LoadingScreen";
 import { ImageOverlay } from "../components/ImageOverlay";
 import { GlowOverlay } from "../components/GlowOverlay";
 import FragmentGallery from "../components/FragmentGallery";
@@ -150,11 +151,7 @@ export default function ExperienceDetail() {
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-screen">
-      <Body style={{ color: colors.text.muted }}>Loading...</Body>
-    </div>
-  );
+  if (loading) return <LoadingScreen />;
 
   if (error) return (
     <div className="flex items-center justify-center h-screen">

@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useAuth } from "../utils/AuthContext";
+import { LoadingScreen } from "./LoadingScreen";
 
 type Props = {
   allowedRoles?: string[];
@@ -12,7 +13,7 @@ export function ProtectedRoute({ allowedRoles, children }: Props) {
 
   const roleLoading = !!user && role === null && !!allowedRoles;
 
-  if (loading || roleLoading) return <div className="fixed inset-0 flex items-center justify-center text-white/50">Loading...</div>;
+  if (loading || roleLoading) return <LoadingScreen />;
 
   if (!user) return <Navigate to="/signin" replace />;
 
