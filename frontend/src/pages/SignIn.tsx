@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall, Subtitle } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
@@ -19,25 +19,31 @@ export function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      navigate("/");
-    }
-
+    if (error) { setError(error.message); } else { navigate("/"); }
     setLoading(false);
   };
 
   return (
-    <div className="h-full flex flex-col justify-center space-y-3 overflow-hidden">
+    <div
+      className="h-full flex flex-col justify-center space-y-3 overflow-hidden transition-all duration-700"
+      style={{
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "translateY(0)" : "translateY(12px)",
+      }}
+    >
       <form onSubmit={handleSignIn} className="w-full max-w-md mx-auto space-y-4 px-6">
         <AppLogo />
         <H2 className="text-center mb-6">Welcome Back</H2>

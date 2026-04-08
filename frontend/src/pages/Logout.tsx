@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { AppLogo } from "../components/AppLogo";
@@ -6,18 +7,27 @@ import supabase from "../utils/supabase";
 
 export function Logout() {
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/signin");
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+      className="min-h-screen flex flex-col transition-all duration-700"
+      style={{
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "translateY(0)" : "translateY(12px)",
+      }}
+    >
       <AppLogo />
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm mx-auto px-6 text-center pb-24">
@@ -42,6 +52,7 @@ export function Logout() {
         </Body>
 
         <div className="w-full space-y-3">
+          {/* Sign Out Button */}
           <button
             onClick={handleLogout}
             className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 transition-all duration-300"
@@ -64,25 +75,23 @@ export function Logout() {
             <Body style={{ color: "var(--color-text-primary)" }}>Yes, Sign Out</Body>
           </button>
 
+          {/* Cancel Button */}
           <button
-            onClick={handleCancel}
+            onClick={() => navigate(-1)}
             className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 transition-all duration-300"
             style={{
               background: "var(--color-surface-glass)",
               borderColor: "var(--color-button-warm-border)",
               boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "0 0 12px rgba(246,237,227,0.25)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25)";
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 12px rgba(246,237,227,0.25)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25)"; }}
           >
             <Body style={{ color: "var(--color-text-primary)" }}>Cancel</Body>
           </button>
         </div>
 
+        {/* Privacy note */}
         <BodySmall
           className="text-center mt-8 leading-relaxed"
           style={{ color: "var(--color-text-muted-dim)" }}

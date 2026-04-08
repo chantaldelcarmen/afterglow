@@ -5,15 +5,7 @@ import { AppLogo } from "../components/AppLogo";
 import { BackButton } from "../components/BackButton";
 import { apiFetch } from "../lib/api";
 
-const EMOTION_OPTIONS = [
-  "Joy",
-  "Nostalgic",
-  "Calm",
-  "Bittersweet",
-  "Overwhelmed",
-  "Grateful",
-  "Anxious",
-];
+const EMOTION_OPTIONS = ["Joy", "Nostalgic", "Calm", "Bittersweet", "Overwhelmed", "Grateful", "Anxious"];
 
 const inputStyle = {
   background: "var(--color-surface-glass-card)",
@@ -46,6 +38,13 @@ export function EditExperience() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -63,9 +62,7 @@ export function EditExperience() {
   }, [id]);
 
   const handleEmotionToggle = (tag: string) => {
-    setEmotionTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
+    setEmotionTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
   };
 
   const handleSave = async () => {
@@ -105,7 +102,14 @@ export function EditExperience() {
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pb-4 px-6">
+      <div
+        className="sticky top-0 z-20 pb-4 px-6 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         {/* Mobile Header */}
         <div className="md:hidden">
           <AppLogo />
@@ -126,7 +130,14 @@ export function EditExperience() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">
+      <div
+        className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(12px)",
+          transitionDelay: "100ms",
+        }}
+      >
         <div className="space-y-6 pt-5">
           <div className="space-y-5">
             {/* Title */}
@@ -227,9 +238,7 @@ export function EditExperience() {
                         background: isActive ? "var(--color-button-plum-bg-selected)" : "var(--color-button-plum-bg-dim)",
                         borderColor: isActive ? "var(--color-button-plum-border-hover)" : "var(--color-button-plum-border-dim)",
                         color: "var(--color-text-primary)",
-                        boxShadow: isActive
-                          ? "0 2px 10px rgba(0,0,0,0.35), 0 0 20px var(--color-button-plum-glow-hover)"
-                          : "none",
+                        boxShadow: isActive ? "0 2px 10px rgba(0,0,0,0.35), 0 0 20px var(--color-button-plum-glow-hover)" : "none",
                         fontWeight: isActive ? 600 : 400,
                       }}
                     >
@@ -250,6 +259,7 @@ export function EditExperience() {
 
           {/* Buttons */}
           <div className="pt-6 space-y-3">
+            {/* Cancel - mobile only */}
             <button
               onClick={() => navigate(-1)}
               className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
@@ -258,16 +268,13 @@ export function EditExperience() {
                 borderColor: "var(--color-button-warm-border)",
                 boxShadow: "0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25), 0 0 18px rgba(246,237,227,0.25)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25), 0 0 18px rgba(246,237,227,0.25)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25), 0 0 12px rgba(246,237,227,0.20)"; }}
             >
               <Body style={{ color: "var(--color-text-muted)" }}>Cancel</Body>
             </button>
 
+            {/* Save Changes */}
             <button
               onClick={handleSave}
               disabled={!isFormValid || loading}
@@ -275,10 +282,9 @@ export function EditExperience() {
               style={{
                 background: "var(--color-button-plum-bg)",
                 borderColor: "var(--color-button-plum-border)",
-                boxShadow:
-                  isButtonHovered && isFormValid
-                    ? "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)"
-                    : "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
+                boxShadow: isButtonHovered && isFormValid
+                  ? "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)"
+                  : "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
               }}
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}

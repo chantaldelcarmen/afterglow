@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
@@ -21,30 +21,21 @@ export function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
+    if (password !== confirmPassword) { setError("Passwords do not match"); return; }
     setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } },
-    });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      navigate("/");
-    }
-
+    const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+    if (error) { setError(error.message); } else { navigate("/"); }
     setLoading(false);
   };
 
@@ -59,135 +50,62 @@ export function SignUp() {
   };
 
   return (
-    <div className="h-full flex flex-col justify-center space-y-3 overflow-hidden">
+    <div
+      className="h-full flex flex-col justify-center space-y-3 overflow-hidden transition-all duration-700"
+      style={{
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "translateY(0)" : "translateY(12px)",
+      }}
+    >
       <form onSubmit={handleSignUp} className="w-full max-w-md mx-auto space-y-4 px-6">
         <AppLogo />
         <H2 className="text-center mb-6">Create Account</H2>
 
-        {error && (
-          <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>
-            {error}
-          </p>
-        )}
+        {error && <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>{error}</p>}
 
-        {/* Full Name */}
         <div>
           <label htmlFor="fullName" className="block mb-2">
             <BodySmall style={{ color: "var(--color-text-muted)" }}>Full Name</BodySmall>
           </label>
-          <input
-            id="fullName"
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Full Name"
-            required
-            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
-            style={inputStyle}
-            onFocus={focusStyle}
-            onBlur={blurStyle}
-          />
+          <input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" required className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none" style={inputStyle} onFocus={focusStyle} onBlur={blurStyle} />
         </div>
 
-        {/* Email */}
         <div>
           <label htmlFor="email" className="block mb-2">
             <BodySmall style={{ color: "var(--color-text-muted)" }}>Email</BodySmall>
           </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            required
-            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
-            style={inputStyle}
-            onFocus={focusStyle}
-            onBlur={blurStyle}
-          />
+          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" required className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none" style={inputStyle} onFocus={focusStyle} onBlur={blurStyle} />
         </div>
 
-        {/* Password */}
         <div>
           <label htmlFor="password" className="block mb-2">
             <BodySmall style={{ color: "var(--color-text-muted)" }}>Password</BodySmall>
           </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
-            style={inputStyle}
-            onFocus={focusStyle}
-            onBlur={blurStyle}
-          />
+          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none" style={inputStyle} onFocus={focusStyle} onBlur={blurStyle} />
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label htmlFor="confirmPassword" className="block mb-2">
             <BodySmall style={{ color: "var(--color-text-muted)" }}>Confirm Password</BodySmall>
           </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
-            style={inputStyle}
-            onFocus={focusStyle}
-            onBlur={blurStyle}
-          />
+          <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" required className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none" style={inputStyle} onFocus={focusStyle} onBlur={blurStyle} />
         </div>
 
-        {/* Create Account Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 transition-all duration-300 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            background: "var(--color-button-plum-bg)",
-            borderColor: "var(--color-button-plum-border)",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
-            e.currentTarget.style.borderColor = "var(--color-button-plum-border-hover)";
-            e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "var(--color-button-plum-bg)";
-            e.currentTarget.style.borderColor = "var(--color-button-plum-border)";
-            e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
-          }}
+        <button type="submit" disabled={loading} className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 transition-all duration-300 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ background: "var(--color-button-plum-bg)", borderColor: "var(--color-button-plum-border)", boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-button-plum-bg-hover)"; e.currentTarget.style.borderColor = "var(--color-button-plum-border-hover)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "var(--color-button-plum-bg)"; e.currentTarget.style.borderColor = "var(--color-button-plum-border)"; e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)"; }}
         >
-          <Body style={{ color: "var(--color-text-primary)" }}>
-            {loading ? "Creating account..." : "Create Account"}
-          </Body>
+          <Body style={{ color: "var(--color-text-primary)" }}>{loading ? "Creating account..." : "Create Account"}</Body>
         </button>
 
-        {/* Sign In Link */}
         <div className="text-center pt-2">
           <Body style={{ color: "var(--color-text-muted)" }}>
             Already have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/signin")}
-              className="transition-all duration-300 hover:underline"
-              style={{ color: "var(--color-text-primary)" }}
-            >
-              Sign in
-            </button>
+            <button type="button" onClick={() => navigate("/signin")} className="transition-all duration-300 hover:underline" style={{ color: "var(--color-text-primary)" }}>Sign in</button>
           </Body>
         </div>
 
-        {/* Privacy note */}
         <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
           By creating an account, you agree to keep your memories private and secure. We never share your data.
         </p>
