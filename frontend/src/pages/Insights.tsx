@@ -45,6 +45,16 @@ export function Insights() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingReflection, setLoadingReflection] = useState(true);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadStats() {
@@ -76,7 +86,14 @@ export function Insights() {
   return (
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pt-6 pb-4">
+      <div
+        className="sticky top-0 z-20 pt-6 pb-4 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         <div className="max-w-[1400px] mx-auto px-6">
           <H1 className="px-1">Your Patterns</H1>
           <BodySmall
@@ -89,25 +106,19 @@ export function Insights() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-28 md:pb-0">
+      <div
+        className="flex-1 overflow-y-auto pb-28 md:pb-0 transition-all duration-700"
+        style={{
+          opacity: loadingStats ? 0 : 1,
+          transform: loadingStats ? "translateY(12px)" : "translateY(0)",
+          pointerEvents: loadingStats ? "none" : "auto",
+        }}
+      >
         <div className="max-w-[1400px] mx-auto px-6">
 
           {/* Stat Cards */}
           <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
-            {loadingStats ? (
-              <div className="space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="rounded-3xl border backdrop-blur-xl p-5 h-24 animate-pulse"
-                    style={{
-                      background: colors.surface.glassCard,
-                      borderColor: colors.surface.glassCardBorder,
-                    }}
-                  />
-                ))}
-              </div>
-            ) : error ? (
+            {error ? (
               <div
                 className="rounded-3xl border backdrop-blur-xl p-5"
                 style={{
@@ -150,8 +161,7 @@ export function Insights() {
             <div
               className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
               style={{
-                background:
-                  "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.15), transparent 70%)",
+                background: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.15), transparent 70%)",
               }}
             />
 
@@ -182,7 +192,6 @@ export function Insights() {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
@@ -44,6 +44,16 @@ export default function CreateExperience() {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
+  }, []);
 
   const handleEmotionToggle = (tag: string) => {
     setEmotionTags((prev) =>
@@ -81,7 +91,14 @@ export default function CreateExperience() {
   return (
     <div className="max-w-175 mx-auto h-full flex flex-col">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pb-4 px-6">
+      <div
+        className="sticky top-0 z-20 pb-4 px-6 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         {/* Mobile Header */}
         <div className="md:hidden">
           <AppLogo />
@@ -102,7 +119,14 @@ export default function CreateExperience() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">
+      <div
+        className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(12px)",
+          transitionDelay: "100ms",
+        }}
+      >
         <div className="space-y-6 pt-5">
           <div className="space-y-5">
             {/* Title */}
@@ -217,16 +241,13 @@ export default function CreateExperience() {
             </div>
           </div>
 
-          {/* Error */}
           {error && (
             <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>
               {error}
             </p>
           )}
 
-          {/* Buttons */}
           <div className="pt-6 space-y-3">
-            {/* Cancel - mobile only */}
             <button
               onClick={() => navigate(-1)}
               className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
@@ -245,7 +266,6 @@ export default function CreateExperience() {
               <Body style={{ color: "var(--color-text-muted)" }}>Cancel</Body>
             </button>
 
-            {/* Create Experience */}
             <button
               onClick={handleCreate}
               disabled={!isFormValid || loading}
@@ -265,7 +285,6 @@ export default function CreateExperience() {
             </button>
           </div>
 
-          {/* Helper Text */}
           <BodySmall
             className="text-center pt-2"
             style={{ color: "var(--color-text-muted-dim)", fontStyle: "italic", fontSize: "13px" }}
