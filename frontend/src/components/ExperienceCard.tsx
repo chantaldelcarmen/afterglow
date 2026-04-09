@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { colors, typography } from "../design-tokens";
-import { ImageOverlay } from "./ImageOverlay";
-import { GlowOverlay } from "./GlowOverlay";
 import { H3, BodySmall } from "./Typography";
 
 interface ExperienceCardProps {
@@ -31,7 +29,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
     <div
       className="relative overflow-hidden h-44 rounded-[28px] border backdrop-blur-xl transition-all duration-300 cursor-pointer"
       style={{
-        background: "transparent",
+        background: "var(--color-surface-glass-card)",
         borderColor: isHovered ? colors.surface.glassCardBorderHover : colors.surface.glassCardBorder,
         boxShadow: isHovered ? hoverShadow : baseShadow,
       }}
@@ -49,8 +47,14 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
         />
       )}
 
-      <ImageOverlay />
-      <GlowOverlay />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }}
+      />
+      <div
+        className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
+        style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15), transparent 70%)" }}
+      />
 
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <H3
