@@ -9,8 +9,10 @@ import { apiFetch } from '../lib/api';
 import { getFragments } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
 import { H2, BodySmall, Body } from '../components/Typography';
+import { LoadingScreen } from '../components/LoadingScreen';
 import { AppLogo } from '../components/AppLogo';
 import PhotoUpload from '../components/PhotoUpload';
+import VideoUpload from '../components/VideoUpload';
 import FragmentGallery from '../components/FragmentGallery';
 import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
 
@@ -40,6 +42,24 @@ export default function Upload() {
     !!experienceId &&
     photoDraft.experienceId === experienceId &&
     !!photoDraft.file;
+
+  const mobileHelperText =
+    selectedType === 'video'
+      ? 'Choose a short video to upload'
+      : hasActivePhotoDraft
+        ? 'Your selected photo is ready to upload'
+        : selectedType === 'text'
+          ? 'Text fragments are coming soon'
+          : 'Tap the camera or video orb to choose a fragment';
+
+  const desktopHelperText =
+    selectedType === 'video'
+      ? 'Choose a short video to upload'
+      : hasActivePhotoDraft
+        ? 'Your selected photo is ready to upload'
+        : selectedType === 'text'
+          ? 'Text fragments are coming soon'
+          : 'Choose a fragment type to continue';
 
   const loadFragments = useCallback(async (expId: string) => {
     try {
@@ -93,18 +113,12 @@ export default function Upload() {
     navigate(-1);
   }
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <BodySmall style={{ color: 'var(--color-text-muted-dim)' }}>Loading...</BodySmall>
-      </div>
-    );
-  }
+  if (authLoading) return <LoadingScreen />;
   if (!user) return <Navigate to="/signin" replace />;
   if (!experienceId) return <Navigate to="/" replace />;
 
   return (
-    <div className="max-w-175 mx-auto h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <div className="sticky top-0 z-20 px-6 pb-4 pt-4 md:pt-8">
         <div className="md:hidden">
           <AppLogo />
@@ -156,10 +170,10 @@ export default function Upload() {
         <div className="text-center mb-5 mt-2">
           <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontSize: '12px' }}>
             <span className="md:hidden">
-              {hasActivePhotoDraft ? 'Your selected photo is ready to upload' : 'Tap the camera orb to choose a photo'}
+              {mobileHelperText}
             </span>
             <span className="hidden md:inline">
-              {hasActivePhotoDraft ? 'Your selected photo is ready to upload' : 'Choose a fragment type to continue'}
+              {desktopHelperText}
             </span>
           </BodySmall>
         </div>
@@ -252,7 +266,19 @@ export default function Upload() {
             />
           </div>
         )}
-        {(selectedType === 'video' || selectedType === 'text') && (
+        {selectedType === 'video' && (
+          <div className="max-w-sm mx-auto mb-5">
+            <VideoUpload
+              experienceId={experienceId}
+              onUploaded={() => {
+                loadFragments(experienceId);
+                setSelectedType(null);
+              }}
+              onCancel={() => setSelectedType(null)}
+            />
+          </div>
+        )}
+        {selectedType === 'text' && (
           <div
             className="max-w-sm mx-auto mb-6 rounded-[28px] border backdrop-blur-xl px-5 py-6 text-center"
             style={{
@@ -262,7 +288,7 @@ export default function Upload() {
             }}
           >
             <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}>
-              {selectedType === 'video' ? 'Video' : 'Text'} fragments coming soon
+              Text fragments coming soon
             </BodySmall>
           </div>
         )}

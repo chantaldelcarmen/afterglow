@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { H2, Body, BodySmall } from "../components/Typography";
-import { AppLogo } from "../components/AppLogo";
-import { BackButton } from "../components/BackButton";
+import { Body, BodySmall } from "../components/Typography";
+import { LoadingScreen } from "../components/LoadingScreen";
+import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = ["Joy", "Nostalgic", "Calm", "Bittersweet", "Overwhelmed", "Grateful", "Anxious"];
@@ -91,43 +91,11 @@ export function EditExperience() {
 
   const isFormValid = !!title.trim() && !!date.trim();
 
-  if (fetching) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
-      </div>
-    );
-  }
+  if (fetching) return <LoadingScreen />;
 
   return (
-    <div className="max-w-175 mx-auto h-full flex flex-col">
-      {/* Sticky Header */}
-      <div
-        className="sticky top-0 z-20 pb-4 px-6 transition-all duration-700"
-        style={{
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(-12px)",
-          transitionDelay: "50ms",
-        }}
-      >
-        {/* Mobile Header */}
-        <div className="md:hidden">
-          <AppLogo />
-          <H2 className="px-1">Edit Experience</H2>
-          <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Update your memory
-          </BodySmall>
-        </div>
-
-        {/* Desktop Header + Back Button */}
-        <div className="hidden md:block">
-          <BackButton className="mb-4" />
-          <H2 className="px-1">Edit Experience</H2>
-          <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Update your memory
-          </BodySmall>
-        </div>
-      </div>
+    <div className="h-full flex flex-col">
+      <SubpageHeader title="Edit Experience" subtitle="Update your memory" />
 
       {/* Scrollable Content */}
       <div

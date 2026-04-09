@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { colors, effects } from "../design-tokens";
-import { H1, H3, Body, BodySmall } from "../components/Typography";
+import { H2, H3, Body, BodySmall } from "../components/Typography";
 import { InsightCard } from "../components/InsightCard";
 import type { MappedPatternStats, AIReflection } from "../lib/patterns";
 import { getPatternStats, getAIReflection } from "../lib/patterns";
 import type { Insight } from "../data/insights-data";
+import { AppLogo } from "../components/AppLogo";
 
 function buildInsights(stats: MappedPatternStats): Insight[] {
   return [
@@ -87,22 +88,21 @@ export function Insights() {
     <div className="h-full flex flex-col">
       {/* Sticky Header */}
       <div
-        className="sticky top-0 z-20 pt-6 pb-4 transition-all duration-700"
+        className="sticky top-0 z-20 pt-6 pb-4 px-6 transition-all duration-700"
         style={{
           opacity: mounted ? 1 : 0,
           transform: mounted ? "translateY(0)" : "translateY(-12px)",
           transitionDelay: "50ms",
         }}
       >
-        <div className="max-w-[1400px] mx-auto px-6">
-          <H1 className="px-1">Your Patterns</H1>
+          <AppLogo />
+          <H2 className="px-1">Your Patterns</H2>
           <BodySmall
             className="px-1 mt-1"
             style={{ color: colors.text.mutedDim, fontSize: "13px" }}
           >
             Discover emotional patterns through AI-powered analysis of your memories
           </BodySmall>
-        </div>
       </div>
 
       {/* Scrollable Content */}
@@ -114,7 +114,7 @@ export function Insights() {
           pointerEvents: loadingStats ? "none" : "auto",
         }}
       >
-        <div className="max-w-[1400px] mx-auto px-6">
+        <div className="px-6">
 
           {/* Stat Cards */}
           <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">

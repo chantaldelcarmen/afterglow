@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
+import { LoadingScreen } from "../components/LoadingScreen";
 import { AppLogo } from "../components/AppLogo";
 import { GlassButton } from "../components/GlassButton";
 import { useAuth } from "../utils/AuthContext";
@@ -61,13 +62,7 @@ export default function Home() {
     navigate(`/experience/${random.id}`);
   };
 
-  if (authLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
-      </div>
-    );
-  }
+  if (authLoading) return <LoadingScreen />;
 
   const featured = experiences[0] ?? null;
   const recent = experiences.slice(1, 3);
@@ -158,6 +153,7 @@ export default function Home() {
               )}
               <GlassButton
                 size="sm"
+                className="mt-4"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/experience/${featured.id}`);

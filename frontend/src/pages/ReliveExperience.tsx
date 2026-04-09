@@ -377,14 +377,10 @@ export function ReliveExperience() {
             {currentFragment && (
               <motion.div
                 key={currentFragment.id}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1, y: [0, -5, 0] }}
-                transition={{
-                  scale: { duration: 0.6 },
-                  opacity: { duration: 0.6 },
-                  y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                }}
-                className="relative z-20"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="relative z-20 md:absolute md:inset-0"
               >
                 <FragmentCard fragment={currentFragment} isActive />
                 {/* Peak phase: glowing pulse behind the anchor fragment */}
@@ -623,7 +619,7 @@ function FragmentCard({
 }) {
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border backdrop-blur-xl w-60 h-90 md:w-90 md:h-135"
+      className="relative overflow-hidden rounded-3xl border backdrop-blur-xl w-60 h-90 md:w-full md:h-full md:rounded-none md:border-0"
       style={{
         background: colors.surface.glass,
         borderColor: isActive ? colors.button.warmBorder : "rgba(255,255,255,0.1)",
@@ -658,11 +654,18 @@ function FragmentCard({
         </div>
       )}
 
-      {/* Bottom gradient overlay */}
+      {/* Radial vignette — darkens all edges */}
       <div
         className="absolute inset-0"
         style={{
-          background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%)",
+          background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%)",
+        }}
+      />
+      {/* Top + bottom gradient — keeps controls and captions legible */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 65%, rgba(0,0,0,0.65) 100%)",
         }}
       />
     </div>
