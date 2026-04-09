@@ -44,7 +44,7 @@ export class PatternsService {
       .from('experiences')
       .select('location, experience_date, emotion_tags, created_at')
       .eq('user_id', userId)
-      // .eq('is_draft', false)
+      .eq('is_draft', false)
       .returns<ExperienceRow[]>();
 
     if (error) {
