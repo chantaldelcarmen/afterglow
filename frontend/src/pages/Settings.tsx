@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { BackButton } from "../components/BackButton";
 import { AppLogo } from "../components/AppLogo";
@@ -13,6 +14,13 @@ import {
 
 export function Settings() {
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
 
   const handleLogOut = () => {
     navigate("/logout");
@@ -38,12 +46,26 @@ export function Settings() {
 
   return (
     <div className="h-full flex flex-col pb-8 overflow-y-auto">
-      <div className="sticky top-0 z-20 pt-8 px-6 pb-4">
+      <div
+        className="sticky top-0 z-20 pt-8 px-6 pb-4 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(-12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         <AppLogo />
         <BackButton />
       </div>
 
-      <div className="px-6 space-y-6">
+      <div
+        className="px-6 space-y-6 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(12px)",
+          transitionDelay: "100ms",
+        }}
+      >
         <section className="space-y-4">
           <H2>Settings</H2>
 
