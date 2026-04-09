@@ -152,7 +152,7 @@ export default function Upload() {
 
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(`/experience/${experienceId}`)}
             className="shrink-0 rounded-full border px-5 py-2 text-sm backdrop-blur-xl transition-all duration-300"
             style={{
               background: 'var(--color-button-plum-bg)',

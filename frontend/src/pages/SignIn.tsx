@@ -107,11 +107,25 @@ export function SignIn() {
           />
         </div>
 
+        {/**Forgot Password Button */}
+        <div className="text-right pt-2">
+          <Body style={{ color: "var(--color-text-muted)" }}>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="transition-all duration-300 hover:underline"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              Forgot Password?
+            </button>
+          </Body>
+        </div>
+
         {/* Sign In Button */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 transition-all duration-300 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 transition-all duration-300 mt-9 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             background: "var(--color-button-plum-bg)",
             borderColor: "var(--color-button-plum-border)",
@@ -132,7 +146,7 @@ export function SignIn() {
             {loading ? "Signing in..." : "Sign In"}
           </Body>
         </button>
-
+        
         {/* Sign Up Link */}
         <div className="text-center pt-4">
           <Body style={{ color: "var(--color-text-muted)" }}>
