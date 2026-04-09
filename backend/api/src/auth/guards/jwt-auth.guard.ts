@@ -27,16 +27,14 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const supabase = this.supabase.getAnonClient();
-      const { data, error } = await supabase.auth.getUser(token);
+      const { data, error } = await this.supabase.getAnonClient().auth.getUser(token);
 
       if (error || !data?.user) {
         throw new UnauthorizedException('Invalid or expired token');
       }
 
-      // Fetch the user's role from the profiles table
-      const { data: profile, error: profileError } = await this.supabase
-        .getClient()
+      // Fetch the user's role from the profiles table (service client bypasses RLS)
+      const { data: profile, error: profileError } = await this.supabase.getClient()
         .from('profiles')
         .select('role')
         .eq('id', data.user.id)
