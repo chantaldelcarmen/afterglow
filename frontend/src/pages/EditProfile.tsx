@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Camera } from "lucide-react";
 import { H2, BodySmall } from "../components/Typography";
 import { BackButton } from "../components/BackButton";
@@ -8,7 +8,14 @@ import { useNavigate } from "react-router-dom";
 
 export function EditProfile() {
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
   const [name, setName] = useState("Sarah Mitchell");
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
   const [email, setEmail] = useState("sarah.mitchell@example.com");
   const [bio, setBio] = useState("Capturing life's fleeting moments");
 
@@ -43,12 +50,18 @@ export function EditProfile() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="sticky top-0 z-20 pt-8 px-6 pb-4">
+      <div
+        className="sticky top-0 z-20 pt-8 px-6 pb-4 transition-all duration-700"
+        style={{ opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(-12px)", transitionDelay: "50ms" }}
+      >
         <AppLogo />
         <BackButton />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0 space-y-6">
+      <div
+        className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0 space-y-6 transition-all duration-700"
+        style={{ opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(12px)", transitionDelay: "100ms" }}
+      >
         <section className="space-y-2">
           <H2>Edit Profile</H2>
         </section>
