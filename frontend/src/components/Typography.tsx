@@ -54,7 +54,7 @@ export function BodySmall({ children, className = "", style }: TypographyProps) 
   return (
     <p
       className={`font-sans text-body-sm text-text-muted ${className}`}
-      style={{ textShadow: "var(--shadow-text)", ...style }}
+      style={{ textShadow: "var(--shadow-text-strong)", ...style }}
     >
       {children}
     </p>

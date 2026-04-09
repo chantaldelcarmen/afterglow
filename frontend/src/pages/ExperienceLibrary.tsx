@@ -102,7 +102,7 @@ export default function ExperienceLibrary() {
   const years = Object.keys(experiencesByYear).sort((a, b) => Number(b) - Number(a));
 
   return (
-    <div className="max-w-[1000px] mx-auto h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <div
         className="sticky top-0 z-20 pb-6 px-6 transition-all duration-700"
         style={{
@@ -136,7 +136,7 @@ export default function ExperienceLibrary() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-24 px-6">
         <div
           className="transition-all duration-700 space-y-6"
           style={{

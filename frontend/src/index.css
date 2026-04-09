@@ -77,7 +77,7 @@
   --text-h2: 20px;
   --text-h3: 18px;
   --text-body: 14px;
-  --text-body-sm: 12px;
+  --text-body-sm: 14px;
 
   /* Brand */
   --color-brand-purple: #783CA0;
@@ -89,10 +89,10 @@
   --color-surface-bg-outer: var(--color-brand-midnight);
   --color-surface-glass: rgba(255,255,255,0.04);
   --color-surface-glass-border: rgba(255,255,255,0.12);
-  --color-surface-glass-card: rgba(255,255,255,0.08);
+  --color-surface-glass-card: rgba(255,255,255,0.12);
   --color-surface-glass-card-border: rgba(255,255,255,0.10);
   --color-surface-glass-card-border-hover: rgba(255,255,255,0.30);
-  --color-surface-nav: rgba(50,20,50,1);
+  --color-surface-nav: rgba(18,12,24,0.55);
   --color-surface-nav-border: rgba(255,255,255,0.10);
 
   /* Text */

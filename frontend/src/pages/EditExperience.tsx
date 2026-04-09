@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { H2, Body, BodySmall } from "../components/Typography";
-import { AppLogo } from "../components/AppLogo";
-import { BackButton } from "../components/BackButton";
+import { Body, BodySmall } from "../components/Typography";
+import { LoadingScreen } from "../components/LoadingScreen";
+import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = [
@@ -94,36 +94,11 @@ export function EditExperience() {
 
   const isFormValid = !!title.trim() && !!date.trim();
 
-  if (fetching) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
-      </div>
-    );
-  }
+  if (fetching) return <LoadingScreen />;
 
   return (
-    <div className="max-w-175 mx-auto h-full flex flex-col">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 pb-4 px-6">
-        {/* Mobile Header */}
-        <div className="md:hidden">
-          <AppLogo />
-          <H2 className="px-1">Edit Experience</H2>
-          <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Update your memory
-          </BodySmall>
-        </div>
-
-        {/* Desktop Header + Back Button */}
-        <div className="hidden md:block">
-          <BackButton className="mb-4" />
-          <H2 className="px-1">Edit Experience</H2>
-          <BodySmall className="px-1 mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-            Update your memory
-          </BodySmall>
-        </div>
-      </div>
+    <div className="h-full flex flex-col">
+      <SubpageHeader title="Edit Experience" subtitle="Update your memory" />
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-24 md:pb-0">

@@ -97,7 +97,7 @@ export function PlatformReviewer() {
       </div>
 
       {/**Scrollable Content */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto pb-24 md:pb-0 px-6 space-y-6 transition-all duration-700"
         style={{
           opacity: loading ? 0 : 1,
@@ -111,17 +111,17 @@ export function PlatformReviewer() {
         )}
 
         {flaggedContent.length > 0 ? (
-          <div className="space-y-4"> 
+          <div className="space-y-4">
             {flaggedContent.map((experience) => (
-              <div 
+              <div
                 key={experience.id}
                 className="relative overflow-hidden rounded-[28px] border backdrop-blur-xl p-8 transition-all duration-300"
                 style={{
-                  background: "var(--color-surface-glass-card)", 
+                  background: "var(--color-surface-glass-card)",
                   borderColor: "var(--color-surface-glass-card-border)",
                   boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
                 }}
-              > 
+              >
                 <div
                   className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
                   style={{
@@ -186,14 +186,14 @@ export function PlatformReviewer() {
             ))}
           </div>
         ) : (
-          <div 
+          <div
             className="relative overflow-hidden h-52 rounded-[28px] border backdrop-blur-xl flex flex-col items-center justify-center text-center px-6 gap-4"
             style={{
-              background: "var(--color-surface-glass-card)", 
+              background: "var(--color-surface-glass-card)",
               borderColor: "var(--color-surface-glass-card-border)",
               boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
             }}
-          > 
+          >
             <H2 style={{ color: "var(--color-text-muted)" }}>No flagged content</H2>
           </div>
         )}
@@ -205,10 +205,10 @@ export function PlatformReviewer() {
           style={{ background: "rgba(0,0,0,0.5)" }}
           onClick={() => setSelectedExp(null)}
         >
-          <div 
+          <div
             className="relative overflow-hidden rounded-[28px] border backdrop-blur-xl p-9 flex flex-col gap-2 items-start"
             style={{
-              background: "var(--color-surface-glass-card)", 
+              background: "var(--color-surface-glass-card)",
               borderColor: "var(--color-surface-glass-card-border)",
               maxHeight: "80vh",
               overflowY: "auto",
@@ -236,9 +236,9 @@ export function PlatformReviewer() {
               <div
                 key={tag}
                 className="px-3 py-1 rounded-full border text-xs"
-                style={{ 
+                style={{
                   background: "var(--color-surface-glass-card)",
-                  borderColor: "var(--color-surface-glass-card-border)", 
+                  borderColor: "var(--color-surface-glass-card-border)",
                   fontSize: "13px" }}
               >
                 <Body style={{ fontSize: "13px"}}>
