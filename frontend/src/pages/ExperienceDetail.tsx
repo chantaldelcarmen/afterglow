@@ -256,7 +256,7 @@ export default function ExperienceDetail() {
         {reflections.length === 0 ? (
           <BodySmall style={{ color: colors.text.mutedDim }}>No reflections yet.</BodySmall>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3">1
             {reflections.map((reflection) => (
               <div key={reflection.id} className="rounded-xl border p-4" style={{ background: colors.surface.glass, borderColor: colors.surface.glassCardBorder }}>
                 <div className="mb-3 flex items-start justify-between gap-3">
@@ -265,15 +265,15 @@ export default function ExperienceDetail() {
                   </BodySmall>
                   <div className="flex shrink-0 gap-2">
                     <button onClick={() => openEditReflection(reflection)} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={reflectionActionButtonStyle}
-  onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
-  onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
->Edit</button>
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+                    >Edit</button>
                     <button onClick={() => { setReflectionError(""); setReflectionToDelete(reflection); }} disabled={deletingReflectionId === reflection.id} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={{ ...reflectionActionButtonStyle, color: colors.accent.coral }}
-  onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; }}
-  onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
->
-  {deletingReflectionId === reflection.id ? "Deleting..." : "Delete"}
-</button>
+                      onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+                    >
+                      {deletingReflectionId === reflection.id ? "Deleting..." : "Delete"}
+                    </button>
                   </div>
                 </div>
                 <BodySmall style={{ color: colors.text.primary, lineHeight: "1.6" }}>{reflection.content}</BodySmall>
@@ -302,15 +302,15 @@ export default function ExperienceDetail() {
             <BodySmall style={{ color: colors.text.muted }}>This will permanently delete this experience and all its fragments. This cannot be undone.</BodySmall>
             <div className="flex gap-3">
               <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-  onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
-  onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
->Cancel</button>
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+              >Cancel</button>
               <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}
-  onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-  onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
->
-  {deleting ? "Deleting..." : "Delete"}
-</button>
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
         </div>
@@ -330,15 +330,15 @@ export default function ExperienceDetail() {
             />
             <div className="flex gap-3">
               <button onClick={closeEditReflection} disabled={savingReflection} className="flex-1 rounded-full border py-3 text-sm transition-all duration-200" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-  onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
-  onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
->Cancel</button>
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+              >Cancel</button>
               <button onClick={() => void handleSaveReflection()} disabled={savingReflection} className="flex-1 rounded-full py-3 text-sm transition-all duration-200" style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}
-  onMouseEnter={(e) => { e.currentTarget.style.background = colors.button.plumGlassBgHover; }}
-  onMouseLeave={(e) => { e.currentTarget.style.background = colors.button.plumGlassBg; }}
->
-  {savingReflection ? "Saving..." : "Save"}
-</button>
+                onMouseEnter={(e) => { e.currentTarget.style.background = colors.button.plumGlassBgHover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = colors.button.plumGlassBg; }}
+              >
+                {savingReflection ? "Saving..." : "Save"}
+              </button>
             </div>
           </div>
         </div>
@@ -351,15 +351,15 @@ export default function ExperienceDetail() {
             <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this saved reflection.</BodySmall>
             <div className="flex gap-3">
               <button onClick={() => setReflectionToDelete(null)} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full border py-3 text-sm transition-all duration-200" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-  onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
-  onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
->Cancel</button>
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+              >Cancel</button>
               <button onClick={() => void handleDeleteReflection()} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full py-3 text-sm transition-all duration-200" style={{ background: colors.accent.coral, color: "#fff" }}
-  onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-  onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
->
-  {deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
-</button>
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+              >
+                {deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
         </div>
