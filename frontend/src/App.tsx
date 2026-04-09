@@ -43,13 +43,6 @@ function AppNav() {
   );
 }
 
-function AppSidebar() {
-  const location = useLocation();
-  if (PUBLIC_PATHS.includes(location.pathname)) return null;
-  if (FULLSCREEN_PATHS.some((p) => location.pathname.startsWith(p))) return null;
-  return <DesktopSideNav />;
-}
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -57,21 +50,23 @@ export default function App() {
         <UploadDraftProvider>
           <AmbientBackground>
             <Routes>
+              {/* Full-bleed routes — no sidebar, no max-w */}
               <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
+
+              {/* Public routes — centered, no sidebar */}
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
+
+              {/* Authenticated routes — sidebar + max-w layout */}
               <Route path="*" element={
                 <div className="md:flex md:min-h-screen">
-                  <AppSidebar />
+                  <DesktopSideNav />
                   <div className="flex-1 min-w-0 md:ml-60">
                     <div className="md:max-w-4xl md:mx-auto h-full">
                       <Routes>
-                        {/* Public routes */}
-                        <Route path="/signin" element={<SignIn />} />
-                        <Route path="/signup" element={<SignUp />} />
-                        <Route path="/forgot-password" element={<ForgotPassword />} />
-                        <Route path="/logout" element={<Logout />} />
-                        <Route path="/unauthorized" element={<Unauthorized />} />
-
-                        {/* Authenticated routes */}
                         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                         <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
                         <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
@@ -84,8 +79,6 @@ export default function App() {
                         <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
                         <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
                         <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
-
-                        {/* Role-restricted routes */}
                         <Route path="/reviewer" element={<ProtectedRoute allowedRoles={["platform_reviewer", "admin"]}><PlatformReviewer /></ProtectedRoute>} />
                         <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
                       </Routes>
