@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   Shield,
   Users,
@@ -13,10 +14,24 @@ import { H1, H2, Body, BodySmall } from "../components/Typography";
 
 export function AdminDashboard() {
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { clearTimeout(timer); setMounted(false); };
+  }, []);
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto px-6 pb-40 md:pb-0">
+      <div
+        className="flex-1 overflow-y-auto px-6 pb-40 md:pb-0 transition-all duration-700"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(12px)",
+          transitionDelay: "50ms",
+        }}
+      >
         <div className="space-y-8 md:space-y-12">
           {/* Header with Navigation */}
           <div className="flex items-start justify-between mb-2 pt-6">
