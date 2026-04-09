@@ -1,11 +1,18 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import Anthropic from '@anthropic-ai/sdk';
 
 interface ExperienceRow {
   location: string | null;
   experience_date: string | null;
   emotion_tags: string[] | null;
   created_at: string;
+}
+
+interface AiExperienceRow {
+  title: string;
+  location: string | null;
+  emotion_tags: string[] | null;
 }
 
 export interface PatternsResponse {
@@ -21,6 +28,10 @@ export interface PatternsResponse {
 
 @Injectable()
 export class PatternsService {
+  private anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  private insightCache = new Map<string, { month: string; text: string }>();
+
   constructor(private readonly supabaseService: SupabaseService) {}
 
   /**
@@ -49,6 +60,115 @@ export class PatternsService {
       most_active_time_of_day: this.getMostActiveTimeOfDay(experiences),
     };
   }
+
+
+  /**
+   * Returns an AI-generated reflection for the current month.
+   * Only runs if the user has opted in via ai_reflection_enabled in user_settings.
+   * Result is cached in user_settings — cache invalidates automatically when the month changes.
+   * Only titles, emotion tags, and locations are sent to Claude — no descriptions, no fragment content, no user ID.
+   */
+  async getMonthlyInsight(
+    userId: string,
+  ): Promise<{ enabled: boolean; insight: string | null }> {
+    const { data: settings, error: settingsError } = await this.supabaseService
+      .getClient()
+      .from('user_settings')
+      .select('ai_reflection_enabled')
+      .eq('user_id', userId)
+      .single();
+
+    // PGRST116 = no row found - treat as opted-out (default)
+    if (settingsError && settingsError.code !== 'PGRST116') {
+      throw new InternalServerErrorException('Failed to fetch user settings');
+    }
+
+    if (!settings?.ai_reflection_enabled) {
+      return { enabled: false, insight: null };
+    }
+
+    const currentMonth = new Date().toISOString().slice(0, 7); // eg. "2026-04"
+    const cacheKey = `${userId}:${currentMonth}`;
+    const cached = this.insightCache.get(cacheKey);
+    if (cached?.month === currentMonth) {
+      return { enabled: true, insight: cached.text };
+    }
+
+    const [year, month] = currentMonth.split('-');
+    const start = `${year}-${month}-01`;
+    const end = new Date(+year, +month, 1).toISOString();
+
+    const { data: experiences, error: expError } = await this.supabaseService
+      .getClient()
+      .from('experiences')
+      .select('title, location, emotion_tags')
+      .eq('user_id', userId)
+      .eq('is_draft', false)
+      .gte('experience_date', start)
+      .lt('experience_date', end)
+      .returns<AiExperienceRow[]>();
+
+    if (expError) {
+      throw new InternalServerErrorException('Failed to fetch experiences');
+    }
+
+    if (!experiences || experiences.length === 0) {
+      return { enabled: true, insight: null };
+    }
+
+    const text = await this.generateInsight(experiences, currentMonth);
+
+    this.insightCache.set(cacheKey, { month: currentMonth, text });
+
+    return { enabled: true, insight: text };
+  }
+
+  /**
+   * Builds a prompt from sanitized experience data and calls Claude.
+   * Only receives title, location, and emotion_tags — nothing else reaches Claude.
+   */
+  private async generateInsight(
+    experiences: AiExperienceRow[],
+    monthKey: string,
+  ): Promise<string> {
+    const [year, month] = monthKey.split('-');
+    const monthLabel = new Date(+year, +month - 1).toLocaleString('default', {
+      month: 'long',
+      year: 'numeric',
+    });
+
+    const titles = experiences.map(e => e.title).filter(Boolean);
+    const tags = [
+      ...new Set(
+        experiences.flatMap(e => e.emotion_tags ?? []).filter(Boolean),
+      ),
+    ];
+    const locations = [
+      ...new Set(experiences.map(e => e.location).filter(Boolean)),
+    ];
+
+    const prompt = `
+      You are writing a warm, personal monthly reflection for a user of a private memory app.
+
+      Month: ${monthLabel}
+      Experience titles: ${titles.join(', ')}
+      Emotion tags: ${tags.length > 0 ? tags.join(', ') : 'none recorded'}
+      Locations visited: ${locations.length > 0 ? locations.join(', ') : 'none recorded'}
+
+      Write a warm, personal 3-4 sentence reflection in second person ("you").
+      Synthesize the emotional texture of the month — do not list or summarize individual experiences.
+      Do not mention the app, AI, or that this reflection was generated.
+    `.trim();
+
+    const response = await this.anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    return (response.content[0] as { type: 'text'; text: string }).text;
+  }
+  
 
   /**
    * Returns the month with the highest number of experiences.
