@@ -8,6 +8,8 @@ import { H2, BodySmall } from "../components/Typography";
 import { colors } from "../design-tokens";
 import { Link } from "react-router-dom";
 import { AppLogo } from "../components/AppLogo";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 
 export default function ExperienceLibrary() {
@@ -113,10 +115,15 @@ export default function ExperienceLibrary() {
         }}
       >
         <AppLogo />
-        <H2 className="px-1 mb-1">Your Library</H2>
-        <BodySmall className="px-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
-          search and filter to find your moments
-        </BodySmall>
+        <div className="flex items-start justify-between px-1 mb-1">
+          <div>
+            <H2>Your Library</H2>
+            <BodySmall className="mt-1 mb-4" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
+              search and filter to find your moments
+            </BodySmall>
+          </div>
+          <HelpButton content={HELP_CONTENT["/library"]} />
+        </div>
 
         <div ref={searchContainerRef}>
           <SearchBar

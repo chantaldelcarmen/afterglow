@@ -43,7 +43,6 @@ export const HELP_CONTENT: Record<string, HelpContent> = {
       "Experience count includes all your published experiences",
       "Fragment count includes all uploaded photos, videos and text",
       "Go to Settings to manage your account preferences",
-      "Tap Log out in the sidebar to sign out",
     ],
   },
 };
