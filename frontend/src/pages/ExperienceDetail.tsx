@@ -2,7 +2,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { getOneExperience, removeExperience } from "../lib/experience";
-import { getFragments, getFragmentSignedUrl } from "../lib/storage";
+import { deleteFragment, getFragments, getFragmentSignedUrl } from "../lib/storage";
 import { deleteReflection, getReflections, updateReflection } from "../lib/reflections";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
@@ -28,11 +28,14 @@ export default function ExperienceDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [reflectionError, setReflectionError] = useState("");
+  const [fragmentError, setFragmentError] = useState("");
   const [editingReflection, setEditingReflection] = useState<Reflection | null>(null);
   const [reflectionDraft, setReflectionDraft] = useState("");
   const [savingReflection, setSavingReflection] = useState(false);
   const [reflectionToDelete, setReflectionToDelete] = useState<Reflection | null>(null);
   const [deletingReflectionId, setDeletingReflectionId] = useState<string | null>(null);
+  const [fragmentToDelete, setFragmentToDelete] = useState<Fragment | null>(null);
+  const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(false);
@@ -146,6 +149,26 @@ export default function ExperienceDetail() {
     }
   }
 
+  async function handleDeleteFragment() {
+    if (!id || !fragmentToDelete) return;
+    setDeletingFragmentId(fragmentToDelete.id);
+    setFragmentError("");
+    try {
+      await deleteFragment(id, fragmentToDelete.id);
+      setFragments((current) =>
+        current.filter((fragment) => fragment.id !== fragmentToDelete.id)
+      );
+      setFragmentToDelete(null);
+    } catch (err) {
+      console.error(err);
+      setFragmentError(
+        err instanceof Error ? err.message : "Could not delete fragment."
+      );
+    } finally {
+      setDeletingFragmentId(null);
+    }
+  }
+
   if (loading) return <LoadingScreen />;
 
   if (error) return (
@@ -225,7 +248,19 @@ export default function ExperienceDetail() {
         style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
       >
         <H2 className="mb-3">Fragments</H2>
-        <FragmentGallery fragments={fragments} />
+        {fragmentError && <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>{fragmentError}</BodySmall>}
+        {fragments.length === 0 ? (
+          <BodySmall style={{ color: colors.text.mutedDim }}>No fragments yet.</BodySmall>
+        ) : (
+          <FragmentGallery
+            fragments={fragments}
+            deletingFragmentId={deletingFragmentId}
+            onRequestDelete={(fragment) => {
+              setFragmentError("");
+              setFragmentToDelete(fragment);
+            }}
+          />
+        )}
       </div>
 
       {/* Reflections section */}
@@ -302,6 +337,21 @@ export default function ExperienceDetail() {
               <button onClick={closeEditReflection} disabled={savingReflection} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
               <button onClick={() => void handleSaveReflection()} disabled={savingReflection} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}>
                 {savingReflection ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {fragmentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
+            <H2>Delete fragment?</H2>
+            <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this fragment from the experience.</BodySmall>
+            <div className="flex gap-3">
+              <button onClick={() => setFragmentToDelete(null)} disabled={deletingFragmentId === fragmentToDelete.id} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
+              <button onClick={() => void handleDeleteFragment()} disabled={deletingFragmentId === fragmentToDelete.id} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}>
+                {deletingFragmentId === fragmentToDelete.id ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
