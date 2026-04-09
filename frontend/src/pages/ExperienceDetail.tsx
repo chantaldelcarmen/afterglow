@@ -213,6 +213,12 @@ export default function ExperienceDetail() {
       : `0 2px 10px rgba(0,0,0,0.35), 0 0 18px ${colors.button.plumGlassGlow}`,
   };
 
+  const deleteModalPanelStyle = {
+    background: colors.surface.backgroundOuter,
+    borderColor: colors.surface.glassCardBorder,
+    boxShadow: effects.shadows.card,
+  };
+
   const contentSections = (
     <>
       {/* About section */}
@@ -308,7 +314,7 @@ export default function ExperienceDetail() {
       {/* Modals -- fixed, work on both layouts */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-sm rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
+          <div className="w-full max-w-sm rounded-2xl border p-6 space-y-4" style={deleteModalPanelStyle}>
             <H2>Delete experience?</H2>
             <BodySmall style={{ color: colors.text.muted }}>This will permanently delete this experience and all its fragments. This cannot be undone.</BodySmall>
             <div className="flex gap-3">
@@ -345,7 +351,7 @@ export default function ExperienceDetail() {
 
       {fragmentToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
+          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={deleteModalPanelStyle}>
             <H2>Delete fragment?</H2>
             <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this fragment from the experience.</BodySmall>
             <div className="flex gap-3">
@@ -360,7 +366,7 @@ export default function ExperienceDetail() {
 
       {reflectionToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}>
+          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={deleteModalPanelStyle}>
             <H2>Delete reflection?</H2>
             <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this saved reflection.</BodySmall>
             <div className="flex gap-3">

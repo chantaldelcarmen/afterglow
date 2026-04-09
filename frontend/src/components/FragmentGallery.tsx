@@ -128,15 +128,14 @@ export default function FragmentGallery({
                 onClick={() => onRequestDelete(f)}
                 disabled={deletingFragmentId === f.id}
                 aria-label={`Delete ${f.caption ?? `${f.type} fragment`}`}
-                className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
-                  background: 'rgba(13, 0, 15, 0.72)',
-                  borderColor: 'var(--color-surface-glass-card-border)',
+                  background: 'rgba(13, 0, 15, 0.9)',
                   color: 'var(--color-accent-coral)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.28)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.24)',
                 }}
               >
-                <Trash2 size={14} />
+                <Trash2 size={11} strokeWidth={2.2} />
               </button>
             )}
           </div>
