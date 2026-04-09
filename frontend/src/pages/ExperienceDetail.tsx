@@ -242,7 +242,30 @@ export default function ExperienceDetail() {
         className="rounded-2xl border backdrop-blur-xl p-5"
         style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
       >
-        <H2 className="mb-3">Fragments</H2>
+        <div className="flex items-center justify-between mb-3">
+          <H2>Fragments</H2>
+          <button
+            onClick={() => navigate(`/upload?experienceId=${id}`)}
+            className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200"
+            style={{
+              background: colors.surface.glass,
+              borderColor: colors.surface.glassCardBorder,
+              color: colors.text.muted,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover;
+              e.currentTarget.style.color = colors.text.primary;
+              e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
+              e.currentTarget.style.color = colors.text.muted;
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            + Add fragment
+          </button>
+        </div>
         <FragmentGallery fragments={fragments} />
       </div>
 
