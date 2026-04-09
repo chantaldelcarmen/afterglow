@@ -47,11 +47,11 @@ export function PlatformReviewer() {
   }, []);
 
 
-  const handleApprove = (id: any) => {
+  const handleApprove = (id: string) => {
     setFlaggedContent((prev) => prev.map((e) => e.id === id ? { ...e, status: "Approved" } : e));
   };
 
-  const handleEscalate = (id: any) => {
+  const handleEscalate = (id: string) => {
     setFlaggedContent((prev) => prev.map((e) => e.id === id ? { ...e, status: "Escalated" } : e));
   };
 
@@ -119,7 +119,7 @@ export function PlatformReviewer() {
                 style={{
                   background: "var(--color-surface-glass-card)", 
                   borderColor: "var(--color-surface-glass-card-border)",
-                  boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1) 0 8px 24px rgba(0, 0, 0, 0.3)",
+                  boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
                 }}
               > 
                 <div
@@ -191,7 +191,7 @@ export function PlatformReviewer() {
             style={{
               background: "var(--color-surface-glass-card)", 
               borderColor: "var(--color-surface-glass-card-border)",
-              boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1) 0 8px 24px rgba(0, 0, 0, 0.3)",
+              boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)",
             }}
           > 
             <H2 style={{ color: "var(--color-text-muted)" }}>No flagged content</H2>
