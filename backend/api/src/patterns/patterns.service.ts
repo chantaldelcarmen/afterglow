@@ -78,7 +78,8 @@ export class PatternsService {
       .eq('user_id', userId)
       .single();
 
-    if (settingsError) {
+    // PGRST116 = no row found - treat as opted-out (default)
+    if (settingsError && settingsError.code !== 'PGRST116') {
       throw new InternalServerErrorException('Failed to fetch user settings');
     }
 
@@ -86,8 +87,7 @@ export class PatternsService {
       return { enabled: false, insight: null };
     }
 
-    // const currentMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-04"
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentMonth = new Date().toISOString().slice(0, 7); // eg. "2026-04"
     const cacheKey = `${userId}:${currentMonth}`;
     const cached = this.insightCache.get(cacheKey);
     if (cached?.month === currentMonth) {
