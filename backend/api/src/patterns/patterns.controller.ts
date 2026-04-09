@@ -23,4 +23,13 @@ export class PatternsController {
   getPatterns(@Req() req: AuthenticatedRequest): Promise<PatternsResponse> {
     return this.patternsService.getPatterns(req.user.id);
   }
+
+  /**
+   * GET /patterns/ai-reflection
+   * Returns an AI-generated monthly insight for the authenticated user.
+   */
+  @Get('ai-reflection')
+  getMonthlyInsight(@Req() req: AuthenticatedRequest,): Promise<{ enabled: boolean; insight: string | null }> {
+    return this.patternsService.getMonthlyInsight(req.user.id);
+  }
 }

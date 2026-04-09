@@ -120,6 +120,7 @@ async function createExperience(params: {
   emotionTags: string[];
   imageUrl: string;
   imageCaption: string;
+  additionalImages?: { url: string; caption: string }[];
   textFragments: { text: string; caption?: string }[];
   reflectionText?: string;
 }): Promise<void> {
@@ -146,6 +147,10 @@ async function createExperience(params: {
   }
 
   const photoFragId = await uploadPhoto(params.userId, exp.id, params.imageUrl, params.imageCaption);
+
+  for (const extra of params.additionalImages ?? []) {
+    await uploadPhoto(params.userId, exp.id, extra.url, extra.caption);
+  }
 
   for (const tf of params.textFragments) {
     await supabase.from('fragments').insert({
@@ -211,6 +216,18 @@ async function seed() {
   const testUserId = userIds['user@afterglow.dev'];
   const testUser2Id = userIds['user2@afterglow.dev'];
   const reviewerUserId = userIds['reviewer@afterglow.dev'];
+
+  // Enable AI reflection for the primary test user so the monthly insight endpoint returns real data
+  if (testUserId) {
+    const now = new Date().toISOString();
+    await supabase
+      .from('user_settings')
+      .upsert(
+        { user_id: testUserId, ai_reflection_enabled: true, updated_at: now },
+        { onConflict: 'user_id' },
+      );
+    console.log('Enabled ai_reflection_enabled for user@afterglow.dev');
+  }
 
   if (!testUserId) {
     console.error('\nCould not resolve test user ID -- skipping sample data.');
@@ -489,6 +506,104 @@ async function seed() {
     imageUrl: 'https://picsum.photos/seed/artgallery/800/600',
     imageCaption: 'Main exhibition hall',
     textFragments: [{ text: 'Spent an hour in front of one painting. Did not look at my phone once. That felt significant.' }],
+  });
+
+  // April 2026 experiences (5) -- seeded so the AI monthly reflection endpoint has real data to work with
+  await createExperience({
+    userId: testUserId,
+    title: 'Cherry Blossom Walk',
+    description: 'Peak blossom season along the river pathway.',
+    location: 'Calgary, AB',
+    experienceDate: '2026-04-05',
+    emotionTags: ['Peaceful', 'Awe', 'Joy'],
+    imageUrl: 'https://picsum.photos/seed/blossom26a/800/600',
+    imageCaption: 'Pink canopy along the path',
+    additionalImages: [
+      { url: 'https://picsum.photos/seed/blossom26b/800/600', caption: 'Petals on the ground' },
+      { url: 'https://picsum.photos/seed/blossom26c/800/600', caption: 'Close-up of a branch' },
+    ],
+    textFragments: [
+      { text: 'The whole pathway was lined with pink. People kept stopping to look up, which meant you had to stop too.' },
+      { text: 'Found a bench by the water and just sat for a while. No earphones, no phone. Just the sound of petals falling.' },
+    ],
+  });
+
+  await createExperience({
+    userId: testUserId,
+    title: 'Spring Cleaning Weekend',
+    description: 'Finally tackled the closet and the spare room.',
+    location: 'Calgary, AB',
+    experienceDate: '2026-04-11',
+    emotionTags: ['Calm', 'Proud', 'Reflective'],
+    imageUrl: 'https://picsum.photos/seed/cleaning26a/800/600',
+    imageCaption: 'Before the chaos',
+    additionalImages: [
+      { url: 'https://picsum.photos/seed/cleaning26b/800/600', caption: 'Donation pile' },
+    ],
+    textFragments: [
+      { text: 'Found a box of things from three years ago. Kept two items. Felt lighter after.' },
+      { text: 'There is something genuinely satisfying about seeing a clean, empty shelf. I forgot that.' },
+      { text: 'Ended the day with a long walk. The kind of tired that feels earned.' },
+    ],
+    reflectionText: 'Clearing space in a room and clearing space in your head are the same thing sometimes.',
+  });
+
+  await createExperience({
+    userId: testUserId,
+    title: 'Brunch with Old Friends',
+    description: 'First time all four of us were in the same place in two years.',
+    location: 'Calgary, AB',
+    experienceDate: '2026-04-13',
+    emotionTags: ['Joy', 'Grateful', 'Nostalgic'],
+    imageUrl: 'https://picsum.photos/seed/brunch26a/800/600',
+    imageCaption: 'Table full of food',
+    additionalImages: [
+      { url: 'https://picsum.photos/seed/brunch26b/800/600', caption: 'Late morning light' },
+      { url: 'https://picsum.photos/seed/brunch26c/800/600', caption: 'Last slice of french toast' },
+    ],
+    textFragments: [
+      { text: 'We sat there for three hours and no one checked the time once. Picked up exactly where we left off.' },
+      { text: 'The restaurant kept trying to turn the table. We ordered more coffee until they gave up.' },
+    ],
+    reflectionText: 'Some friendships do not need maintenance. They just resume.',
+  });
+
+  await createExperience({
+    userId: testUserId,
+    title: 'Plant Market Score',
+    description: 'Found a rare monstera and a peace lily at the weekend market.',
+    location: 'Calgary, AB',
+    experienceDate: '2026-04-19',
+    emotionTags: ['Joy', 'Excited', 'Calm'],
+    imageUrl: 'https://picsum.photos/seed/plants26a/800/600',
+    imageCaption: 'New additions',
+    additionalImages: [
+      { url: 'https://picsum.photos/seed/plants26b/800/600', caption: 'The monstera up close' },
+    ],
+    textFragments: [
+      { text: 'The seller said the monstera was two years old. Already has three fenestrations. Walked away fast before I bought anything else.' },
+      { text: 'Spent the afternoon repotting everything. Got soil on the floor. Did not care.' },
+    ],
+  });
+
+  await createExperience({
+    userId: testUserId,
+    title: 'Evening Walk by the Bow',
+    description: 'Golden hour along the river after a long week.',
+    location: 'Calgary, AB',
+    experienceDate: '2026-04-25',
+    emotionTags: ['Peaceful', 'Reflective', 'Grateful'],
+    imageUrl: 'https://picsum.photos/seed/bowriver26a/800/600',
+    imageCaption: 'River at golden hour',
+    additionalImages: [
+      { url: 'https://picsum.photos/seed/bowriver26b/800/600', caption: 'Reflections on the water' },
+      { url: 'https://picsum.photos/seed/bowriver26c/800/600', caption: 'The path home' },
+    ],
+    textFragments: [
+      { text: 'The light on the water at that hour is something else. Oranges and pinks reflecting off the current.' },
+      { text: 'Walked for ninety minutes without really intending to. The week felt smaller by the time I got home.' },
+    ],
+    reflectionText: 'This city is genuinely beautiful in April. I forget that until I am standing in it.',
   });
 
   // -------------------------
