@@ -14,6 +14,7 @@ import { ImageOverlay } from "../components/ImageOverlay";
 import { GlowOverlay } from "../components/GlowOverlay";
 import FragmentGallery from "../components/FragmentGallery";
 
+
 export default function ExperienceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -130,6 +131,12 @@ export default function ExperienceDetail() {
       setSavingReflection(false);
     }
   }
+
+  async function handleDeleteFragment(fragmentId: string) {
+  if (!id) return;
+  await deleteFragment(id, fragmentId);
+  setFragments((current) => current.filter((f) => f.id !== fragmentId));
+}
 
   async function handleDeleteReflection() {
     if (!id || !reflectionToDelete) return;
@@ -263,10 +270,10 @@ export default function ExperienceDetail() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            + Add fragment
+            {fragments.length === 0 ? "+ Add fragment" : "Edit fragments"}
           </button>
         </div>
-        <FragmentGallery fragments={fragments} />
+        <FragmentGallery fragments={fragments} onDelete={handleDeleteFragment} />
       </div>
 
       {/* Reflections section */}
