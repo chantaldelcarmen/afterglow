@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { H2, Body, BodySmall } from "../components/Typography";
+import { Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";

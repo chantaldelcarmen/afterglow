@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { colors, effects } from "../design-tokens";
-import { H1, H2, H3, Body, BodySmall } from "../components/Typography";
+import { H2, H3, Body, BodySmall } from "../components/Typography";
 import { InsightCard } from "../components/InsightCard";
 import type { MappedPatternStats, AIReflection } from "../lib/patterns";
 import { getPatternStats, getAIReflection } from "../lib/patterns";
