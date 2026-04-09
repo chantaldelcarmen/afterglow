@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { getOneExperience, removeExperience } from "../lib/experience";
 import { getFragments, getFragmentSignedUrl } from "../lib/storage";
@@ -43,27 +43,30 @@ export default function ExperienceDetail() {
     };
   }, []);
 
-  useEffect(() => {
-    async function loadAll() {
-      if (!id) { setLoading(false); return; }
-      try {
-        const [data, frags, refs] = await Promise.all([
-          getOneExperience(id),
-          getFragments(id),
-          getReflections(id),
-        ]);
-        setExperience(data);
-        setFragments(frags);
-        setReflections(refs);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load experience.");
-      } finally {
-        setLoading(false);
-      }
+  const loadAll = useCallback(async () => {
+    if (!id) { setLoading(false); return; }
+    setLoading(true);
+    setError("");
+    try {
+      const [data, frags, refs] = await Promise.all([
+        getOneExperience(id),
+        getFragments(id),
+        getReflections(id),
+      ]);
+      setExperience(data);
+      setFragments(frags);
+      setReflections(refs);
+    } catch (err) {
+      console.error(err);
+      setError("Couldn't load this experience. Check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
-    loadAll();
   }, [id]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   useEffect(() => {
     async function loadCoverImage() {
@@ -149,8 +152,23 @@ export default function ExperienceDetail() {
   if (loading) return <LoadingScreen />;
 
   if (error) return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen gap-4 px-6 text-center">
       <Body style={{ color: colors.accent.coral }}>{error}</Body>
+      <BodySmall style={{ color: colors.text.muted }}>
+        <button
+          onClick={() => void loadAll()}
+          style={{ textDecoration: "underline" }}
+        >
+          Try again
+        </button>
+        {" or "}
+        <button
+          onClick={() => navigate("/library")}
+          style={{ textDecoration: "underline" }}
+        >
+          Go back to library
+        </button>
+      </BodySmall>
     </div>
   );
 
@@ -166,8 +184,8 @@ export default function ExperienceDetail() {
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
     ? new Date(displayDate).toLocaleDateString("en-US", {
-        month: "long", day: "numeric", year: "numeric",
-      })
+      month: "long", day: "numeric", year: "numeric",
+    })
     : null;
 
   const reflectionActionButtonStyle = {
