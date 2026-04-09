@@ -55,7 +55,7 @@ let expIdA: string | null;
 let expIdA_2: string | null;
 let expIdA_3: string | null;
 let fragIdAAnchor: string | null;
-let refIdA: string | null;
+let refIdA_3: string | null;
 
 let fragIdA: string | null;
 
@@ -75,15 +75,25 @@ beforeAll(async () => {
   fragIdA = fragmentA[0]?.id ?? null;
   fragIdAAnchor = experienceA[0]?.anchor_fragment_id ?? null;
 
-  // use experience id of user A to grab one reflection (if it exists)
-  const { data: reflectionA } = await req(tokenA, 'GET', `/experiences/${expIdA}/reflections`);
-  refIdA = reflectionA[0]?.id ?? null;
-
   // create a draft experience with no anchor fragment for data integrity test
   const { data: newExp } = await req(tokenA, 'POST', '/experiences', {
   title: 'Test draft no anchor',
   });
   expIdA_3 = newExp?.id ?? null;
+
+  // use test experience and set a reflection
+  const { data: newReflection } = await req(tokenA, 'POST', `/experiences/${expIdA_3}/reflections`, {
+    reflection_text: "test reflection",
+  });
+  refIdA_3 = newReflection?.id ?? null;
+
+  if (!expIdA_3) {
+    throw new Error('Failed to create test experience');
+  }
+
+  if (!refIdA_3) {
+    throw new Error('Failed to create test reflection');
+  }
 
   // getting user A user_id from their token
   const { data: { user } } = await supabase.auth.getUser(tokenA);
@@ -182,32 +192,32 @@ describe('Reflections testing', () => {
     expect([403, 404]).toContain(status_code);
   });
 
-  it('Call GET /experiences/:id/reflections with User Bs JWT - confirm 200', async () => {
+  it('Call GET /experiences/:id/reflections with User As JWT - confirm 200', async () => {
     const { status_code } = await req(tokenA, 'GET', `/experiences/${expIdA}/reflections`);
     expect(status_code).toBe(200);
   });
 
-  it('Call GET /experiences/:id/reflections with non-existent ID - confirm 404', async () => {
+  it('Call GET /experiences/:id/reflections with non-existent experience ID - confirm 404', async () => {
     const fakeExpId = '12345';
 
     const { status_code } = await req(tokenA, 'GET', `/experiences/${fakeExpId}/reflections`);
     expect(status_code).toBe(404);
   });
 
-  it('Call POST /experiences/:id/reflections with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
+  it('Call POST /experiences/:id/reflections with an experience ID that belongs to User A, using User Bs JWT - confirm 403', async () => {
     const { status_code } = await req(tokenB, 'POST', `/experiences/${expIdA}/reflections`, {reflection_text: "userBText"});
-    expect([403, 404]).toContain(status_code);
+    expect(status_code).toBe(403);
   });
 
-  it('Call PATCH /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
-    const { status_code } = await req(tokenB, 'PATCH', `/experiences/${expIdA}/reflections/${refIdA}`, {reflection_text: "userBText"});
-    expect([403, 404]).toContain(status_code);
+  it('Call PATCH /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403', async () => {
+    const { status_code } = await req(tokenB, 'PATCH', `/experiences/${expIdA_3}/reflections/${refIdA_3}`, {reflection_text: "userBText"});
+    expect(status_code).toBe(403);
   });
 
   
-  it('Call DELETE /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
-    const { status_code } = await req(tokenB, 'DELETE', `/experiences/${expIdA}/reflections/${refIdA}`);
-    expect([403, 404]).toContain(status_code);
+  it('Call DELETE /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403', async () => {
+    const { status_code } = await req(tokenB, 'DELETE', `/experiences/${expIdA_3}/reflections/${refIdA_3}`);
+    expect(status_code).toBe(403);
   });
 });
 
