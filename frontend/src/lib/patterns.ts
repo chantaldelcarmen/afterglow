@@ -68,10 +68,12 @@ export async function getPatternStats(): Promise<MappedPatternStats> {
   }
 }
 
-export async function getAIReflection(): Promise<AIReflection> {
+export async function getAIReflection(): Promise<AIReflection | null> {
   try {
     const res = await apiFetch('/patterns/ai-reflection', { method: 'GET' });
-    return res.json();
+    const data: { enabled: boolean; insight: string | null } = await res.json();
+    if (!data.enabled || !data.insight) return null;
+    return { reflection: data.insight, month: "" };
   } catch {
     // TODO: replace with real endpoint once #96 is merged
     return MOCK_REFLECTION;
