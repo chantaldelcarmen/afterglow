@@ -9,6 +9,7 @@ import { FragmentsModule } from './fragments/fragments.module';
 import { ExperiencesModule } from './experiences/experiences.module';
 import { PatternsModule } from './patterns/patterns.module';
 import { ReflectionsModule } from './reflections/reflections.module';
+import { DemoModule } from './demo/demo.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ReflectionsModule } from './reflections/reflections.module';
     ExperiencesModule,
     PatternsModule,
     ReflectionsModule,
+    DemoModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
