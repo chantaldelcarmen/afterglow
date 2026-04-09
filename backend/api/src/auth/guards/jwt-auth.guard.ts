@@ -35,7 +35,8 @@ export class JwtAuthGuard implements CanActivate {
       }
 
       // Fetch the user's role from the profiles table
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await this.supabase
+        .getClient()
         .from('profiles')
         .select('role')
         .eq('id', data.user.id)
