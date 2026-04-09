@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { AboutApp } from "./pages/AboutApp";
 //import AppLayout from "./components/AppLayout";
 import Home from "./pages/Home";
 import ExperienceLibrary from "./pages/ExperienceLibrary";
@@ -8,12 +9,14 @@ import CreateExperience from "./pages/CreateExperience";
 //import Profile from "./pages/Profile";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
+import { Stats } from "./pages/Stats";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { Logout } from "./pages/Logout";
 import Upload from "./pages/Upload";
 import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { EditExperience } from "./pages/EditExperience";
+import { EditProfile } from "./pages/EditProfile";
 import { ReliveExperience } from "./pages/ReliveExperience";
 import { Insights } from "./pages/Insights";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -74,7 +77,10 @@ export default function App() {
                         <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
                         <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
                         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                        <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
                         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                        <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
+                        <Route path="/about" element={<ProtectedRoute><AboutApp /></ProtectedRoute>} />
                         <Route path="/create-experience" element={<ProtectedRoute><CreateExperience /></ProtectedRoute>} />
                         <Route path="/experience/:id/edit" element={<ProtectedRoute><EditExperience /></ProtectedRoute>} />
                         <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
