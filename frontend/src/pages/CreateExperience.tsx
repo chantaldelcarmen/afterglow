@@ -81,6 +81,8 @@ export default function CreateExperience() {
     );
   };
 
+  const hasDraft = !!(title || date || location || description || emotionTags.length);
+
   const handleCreate = async () => {
     if (!title.trim() || !date.trim()) return;
     setError("");
@@ -101,6 +103,7 @@ export default function CreateExperience() {
       localStorage.removeItem(DRAFT_KEY);
       navigate(`/upload?experienceId=${created.id}`);
     } catch (err) {
+      // apiFetch throws Error("SESSION_EXPIRED") when the JWT is expired/invalid
       if (err instanceof Error && err.message === "SESSION_EXPIRED") {
         setError("SESSION_EXPIRED");
       } else {
@@ -308,7 +311,7 @@ export default function CreateExperience() {
             </button>
           </div>
 
-          {localStorage.getItem(DRAFT_KEY) && (
+          {hasDraft && (
             <BodySmall className="text-center" style={{ color: "var(--color-text-muted-dim)", fontSize: "12px" }}>
               Draft saved locally
             </BodySmall>
