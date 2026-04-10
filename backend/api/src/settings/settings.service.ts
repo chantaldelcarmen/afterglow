@@ -12,7 +12,7 @@ export class SettingsService {
       .from('user_settings')
       .upsert(
         { user_id: userId, ai_reflection_enabled: false },
-        { onConflict: 'user_id', ignoreDuplicates: false },
+        { onConflict: 'user_id', ignoreDuplicates: true },
       )
       .select()
       .single();
@@ -21,6 +21,7 @@ export class SettingsService {
       console.error('Supabase error:', JSON.stringify(error));
       throw error;
     }
+
     return { ai_reflection_enabled: data.ai_reflection_enabled };
   }
 

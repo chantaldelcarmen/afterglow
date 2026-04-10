@@ -31,3 +31,17 @@ export async function apiFetch(
   }
   return res;
 }
+
+export async function getSettings(): Promise<{ ai_reflection_enabled: boolean }> {
+  const res = await apiFetch('/settings');
+  return res.json();
+}
+
+export async function patchSettings(body: { ai_reflection_enabled: boolean }): Promise<{ ai_reflection_enabled: boolean }> {
+  const res = await apiFetch('/settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
