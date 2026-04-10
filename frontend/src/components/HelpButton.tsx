@@ -17,7 +17,7 @@ export function HelpButton({ content }: HelpButtonProps) {
         onClick={() => setOpen(true)}
         className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
         style={{
-          background: colors.surface.glass,
+          background: "rgba(0,0,0,0.45)",
           border: `1px solid ${colors.surface.glassCardBorderHover}`,
           color: colors.text.muted,
         }}
