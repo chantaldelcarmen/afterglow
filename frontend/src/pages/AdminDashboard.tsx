@@ -92,8 +92,12 @@ export function AdminDashboard() {
     setActivityLog((log) => ["Reset user list to defaults", ...log.slice(0, 4)]);
   };
  
-  if (!authLoading && role !== "admin") {
-    return <div>Unauthorized</div>;
+  if (!authLoading && role && role !== "admin") {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: colors.text.muted }}>You don't have access to this page.</Body>
+      </div>
+    );
   }
 
   return (
@@ -533,71 +537,63 @@ export function AdminDashboard() {
           </div>
 
           {/* Admin Controls */}
-            <div className="space-y-3">
-              <H2>Admin controls</H2>
+          <div className="space-y-3">
+            <H2>Admin controls</H2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* Manage reviewer access */}
-                <div
-                  className="rounded-2xl border backdrop-blur-xl p-4 transition-all duration-300 cursor-pointer"
-                  style={{
-                    background: colors.surface.glassCard,
-                    borderColor: colors.surface.glassCardBorder,
-                    boxShadow: effects.shadows.card,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = colors.button.warmBorder;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
-                  }}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Manage reviewer access */}
+              <div
+                className="rounded-2xl border backdrop-blur-xl p-4 transition-all duration-300 cursor-pointer"
+                style={{
+                  background: colors.surface.glassCard,
+                  borderColor: colors.surface.glassCardBorder,
+                  boxShadow: effects.shadows.card,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = colors.button.warmBorder;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
+                }}
+              >
+                <Body style={{ fontSize: "15px" }}>
+                  Manage reviewer access
+                </Body>
+                <BodySmall
+                  className="mt-1"
+                  style={{ color: colors.text.mutedDim, fontSize: "12px" }}
                 >
-                  <Body style={{ fontSize: "15px" }}>
-                    Manage reviewer access
-                  </Body>
+                  Assign or remove reviewer privileges for team members
+                </BodySmall>
+              </div>
 
-                  <BodySmall
-                    className="mt-1"
-                    style={{
-                      color: colors.text.mutedDim,
-                      fontSize: "12px",
-                    }}
-                  >
-                    Assign or remove reviewer privileges for team members
-                  </BodySmall>
-                </div>
-
-                {/* Platform settings */}
-                <div
-                  className="rounded-2xl border backdrop-blur-xl p-4 transition-all duration-300 cursor-pointer"
-                  style={{
-                    background: colors.surface.glassCard,
-                    borderColor: colors.surface.glassCardBorder,
-                    boxShadow: effects.shadows.card,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = colors.button.warmBorder;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
-                  }}
+              {/* Platform settings */}
+              <div
+                className="rounded-2xl border backdrop-blur-xl p-4 transition-all duration-300 cursor-pointer"
+                style={{
+                  background: colors.surface.glassCard,
+                  borderColor: colors.surface.glassCardBorder,
+                  boxShadow: effects.shadows.card,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = colors.button.warmBorder;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
+                }}
+              >
+                <Body style={{ fontSize: "15px" }}>
+                  Platform settings
+                </Body>
+                <BodySmall
+                  className="mt-1"
+                  style={{ color: colors.text.mutedDim, fontSize: "12px" }}
                 >
-                  <Body style={{ fontSize: "15px" }}>
-                    Platform settings
-                  </Body>
-
-                  <BodySmall
-                    className="mt-1"
-                    style={{
-                      color: colors.text.mutedDim,
-                      fontSize: "12px",
-                    }}
-                  >
-                    View safety defaults and platform-wide configuration
-                  </BodySmall>
-                </div>
+                  View safety defaults and platform-wide configuration
+                </BodySmall>
               </div>
             </div>
+          </div>
 
           {/* Recent Admin Activity - updates live with actions */}
           <div className="space-y-3">

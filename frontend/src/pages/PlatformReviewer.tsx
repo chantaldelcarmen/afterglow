@@ -70,8 +70,12 @@ export function PlatformReviewer() {
     );
   }
 
-  if (!authLoading && role !== "platform_reviewer") {
-    return <div>Unauthorized</div>;
+  if (!authLoading && role && role !== "platform_reviewer" && role !== "admin") {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: "var(--color-text-muted)" }}>You don't have access to this page.</Body>
+      </div>
+    );
   }
 
   return (
