@@ -16,6 +16,7 @@ export function Profile() {
   const [dataLoading, setDataLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState("");
+  
 
   useEffect(() => {
     setMounted(false);
@@ -47,18 +48,48 @@ export function Profile() {
     }
   }, [user]);
 
-  useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+  const isPrivilegedRole = role === "admin" || role === "platform_reviewer";
 
-  if (loading) return null;
-  if (!user) {
-    navigate("/signin");
-    return null;
+
+  useEffect(() => {
+    if (!isPrivilegedRole) {
+      loadStats();
+    } else {
+      setDataLoading(false);
+    }
+  }, [loadStats, isPrivilegedRole]);
+
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/signin");
+    }
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
+      </div>
+    );
   }
 
-  const displayName = user.user_metadata?.full_name ?? user.email ?? "User";
+  const rawName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  const displayName = rawName.trim();
   const email = user.email ?? "";
+  const initial = displayName.charAt(0).toUpperCase() || "U";
+
+  const roleLabel =
+    role === "admin"
+      ? "Admin"
+      : role === "platform_reviewer"
+      ? "Platform Reviewer"
+      : null;
 
   return (
     <div className="h-full flex flex-col px-6 pb-8 overflow-y-auto">
@@ -104,78 +135,93 @@ export function Profile() {
               }}
             >
               <span style={{ color: "var(--color-text-primary)" }}>
-                {displayName[0].toUpperCase()}
+                {initial}
               </span>
             </div>
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <Body style={{ color: "var(--color-text-primary)" }}>{displayName}</Body>
               <BodySmall style={{ color: "var(--color-text-muted)" }}>{email}</BodySmall>
+
+              {roleLabel && (
+                <div className="pt-1">
+                  <span
+                    className="inline-flex px-3 py-1 rounded-full border text-xs"
+                    style={{
+                      background: "var(--color-surface-glass-card)",
+                      borderColor: "var(--color-surface-glass-card-border)",
+                      color: "var(--color-text-muted-dim)",
+                    }}
+                  >
+                    {roleLabel}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          {role === 'user' && (
-            <>
-              <div
-                className="flex rounded-2xl overflow-hidden"
-                style={{
-                  background: "var(--color-surface-glass-card)",
-                  border: "1px solid var(--color-surface-glass-card-border)",
-                }}
-              >
-                <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-                  <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
-                    {experienceCount}
-                  </span>
-                  <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
-                </div>
-                <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
-                <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-                  <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
-                    {fragmentCount}
-                  </span>
-                  <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
-                </div>
+          {!isPrivilegedRole && (
+            <div
+              className="flex rounded-2xl overflow-hidden"
+              style={{
+                background: "var(--color-surface-glass-card)",
+                border: "1px solid var(--color-surface-glass-card-border)",
+              }}
+            >
+              <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+                <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
+                  {experienceCount}
+                </span>
+                <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
               </div>
-              {error && (
-                <div className="text-center space-y-2">
-                  <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
-                    {error}
-                  </p>
-                  <button
-                    onClick={() => void loadStats()}
-                    style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
-                  >
-                    Try again
-                  </button>
-                </div>
-              )}
-            </>
+              <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
+              <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+                <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
+                  {fragmentCount}
+                </span>
+                <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
+              </div>
+            </div>
+          )}
+          {!isPrivilegedRole && error && (
+            <div className="text-center space-y-2">
+              <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
+                {error}
+              </p>
+              <button
+                onClick={() => void loadStats()}
+                style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+              >
+                Try again
+              </button>
+            </div>
           )}
         </section>
 
-        {/* Settings button */}
-        <section className="space-y-3">
-          <H2>Settings</H2>
-          <button
-            onClick={() => navigate("/settings")}
-            className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
-            style={{
-              background: "var(--color-button-plum-bg)",
-              borderColor: "var(--color-button-plum-border)",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
-              e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-button-plum-bg)";
-              e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
-            }}
-          >
-            <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
-          </button>
-        </section>
+        {/* Settings button — users only */}
+        {!isPrivilegedRole && (
+          <section className="space-y-3">
+            <H2>Settings</H2>
+            <button
+              onClick={() => navigate("/settings")}
+              className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
+              style={{
+                background: "var(--color-button-plum-bg)",
+                borderColor: "var(--color-button-plum-border)",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--color-button-plum-bg)";
+                e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
+              }}
+            >
+              <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
+            </button>
+          </section>
+        )}
 
         <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
           Your memories are precious. We're committed to keeping your data private and secure.

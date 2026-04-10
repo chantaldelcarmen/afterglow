@@ -64,6 +64,9 @@ export default function ExperienceLibrary() {
   };
 
   const filteredExperiences = experiences.filter((exp: Experience) => {
+    // Exclude draft experiences from library view
+    if (exp.is_draft) return false;
+
     const q = search.toLowerCase().trim();
     const matchesSearch =
       q.length === 0 ||
