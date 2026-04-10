@@ -1,7 +1,7 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Pencil, Trash2, Anchor } from "lucide-react";
-import { getOneExperience, removeExperience } from "../lib/experience";
+import { getOneExperience, removeExperience, updateExperience } from "../lib/experience";
 import { deleteFragment, getFragments, getFragmentSignedUrl, setAnchorFragment } from "../lib/storage";
 import { deleteReflection, getReflections, updateReflection } from "../lib/reflections";
 import type { Experience } from "../types/experience";
@@ -37,6 +37,7 @@ export default function ExperienceDetail() {
   const [fragmentToDelete, setFragmentToDelete] = useState<Fragment | null>(null);
   const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
   const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     setMounted(false);
@@ -96,6 +97,19 @@ export default function ExperienceDetail() {
       console.error(err);
       setError("Could not delete experience.");
       setDeleting(false);
+    }
+  }
+
+  async function handlePublish() {
+    if (!id) return;
+    setPublishing(true);
+    try {
+      await updateExperience(id, {is_draft: false});
+      navigate("/library");
+    } catch (err) {
+      console.error(err);
+      setError("Could not publish. Make sure an anchor fragment is set and try again.");
+      setPublishing(false);
     }
   }
 
@@ -485,6 +499,16 @@ export default function ExperienceDetail() {
             <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
+            {isDraft && (
+              <button onClick={() => void handlePublish()} disabled={publishing} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={iconBtnStyle}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                  Publish
+                </BodySmall>
+              </button>
+            )}
             <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
               <Pencil size={16} style={{ color: colors.text.primary }} />
             </button>
@@ -549,6 +573,16 @@ export default function ExperienceDetail() {
             <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
+            {isDraft && (
+              <button onClick={() => void handlePublish()} disabled={publishing} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={iconBtnStyle}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                  Publish
+                </BodySmall>
+              </button>
+            )}
             <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}
