@@ -1,8 +1,8 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Anchor } from "lucide-react";
 import { getOneExperience, removeExperience, updateExperience } from "../lib/experience";
-import { deleteFragment, getFragments, getFragmentSignedUrl } from "../lib/storage";
+import { deleteFragment, getFragments, getFragmentSignedUrl, setAnchorFragment } from "../lib/storage";
 import { deleteReflection, getReflections, updateReflection } from "../lib/reflections";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
@@ -36,6 +36,7 @@ export default function ExperienceDetail() {
   const [deletingReflectionId, setDeletingReflectionId] = useState<string | null>(null);
   const [fragmentToDelete, setFragmentToDelete] = useState<Fragment | null>(null);
   const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
+  const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(false);
@@ -183,6 +184,21 @@ export default function ExperienceDetail() {
     }
   }
 
+  async function handleSetAnchor(fragment: Fragment) {
+    if (!id) return;
+    setSettingAnchorId(fragment.id);
+    setFragmentError("");
+    try {
+      await setAnchorFragment(id, fragment.id);
+      setExperience((prev) => prev ? { ...prev, anchor_fragment_id: fragment.id } : prev);
+    } catch (err) {
+      console.error(err);
+      setFragmentError("Could not set anchor fragment.");
+    } finally {
+      setSettingAnchorId(null);
+    }
+  }
+
   if (loading) return <LoadingScreen />;
 
   if (error) return (
@@ -312,14 +328,27 @@ export default function ExperienceDetail() {
         {fragments.length === 0 ? (
           <BodySmall style={{ color: colors.text.mutedDim }}>No fragments yet.</BodySmall>
         ) : (
-          <FragmentGallery
-            fragments={fragments}
-            deletingFragmentId={deletingFragmentId}
-            onRequestDelete={(fragment) => {
-              setFragmentError("");
-              setFragmentToDelete(fragment);
-            }}
-          />
+          <>
+            <div className="flex items-center gap-1.5 mb-3">
+              <Anchor size={11} style={{ color: colors.text.mutedDim, flexShrink: 0 }} />
+              <BodySmall style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
+                {experience.anchor_fragment_id
+                  ? "Tap any fragment to change the peak moment."
+                  : "Tap a fragment to set it as the peak moment before publishing."}
+              </BodySmall>
+            </div>
+            <FragmentGallery
+              fragments={fragments}
+              anchorFragmentId={experience.anchor_fragment_id}
+              deletingFragmentId={deletingFragmentId}
+              settingAnchorId={settingAnchorId}
+              onRequestDelete={(fragment) => {
+                setFragmentError("");
+                setFragmentToDelete(fragment);
+              }}
+              onSetAnchor={handleSetAnchor}
+            />
+          </>
         )}
       </div>
 
