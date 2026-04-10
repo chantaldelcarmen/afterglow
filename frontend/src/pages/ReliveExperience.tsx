@@ -677,6 +677,15 @@ function FragmentCard({
             {fragment.text_context ?? fragment.caption}
           </Body>
         </div>
+      ) : fragment.signedUrl && fragment.type === "video" ? (
+        <video
+          src={fragment.signedUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
       ) : fragment.signedUrl ? (
         <img
           src={fragment.signedUrl}
