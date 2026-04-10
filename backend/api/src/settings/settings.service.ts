@@ -7,13 +7,21 @@ export class SettingsService {
   constructor(private readonly supabase: SupabaseService) {}
 
   async getSettings(userId: string) {
+    const { data: existing } = await this.supabase
+      .getClient()
+      .from('user_settings')
+      .select()
+      .eq('user_id', userId)
+      .single();
+
+    if (existing) {
+      return { ai_reflection_enabled: existing.ai_reflection_enabled };
+    }
+
     const { data, error } = await this.supabase
       .getClient()
       .from('user_settings')
-      .upsert(
-        { user_id: userId, ai_reflection_enabled: false },
-        { onConflict: 'user_id', ignoreDuplicates: false },
-      )
+      .insert({ user_id: userId, ai_reflection_enabled: false })
       .select()
       .single();
 
@@ -21,6 +29,7 @@ export class SettingsService {
       console.error('Supabase error:', JSON.stringify(error));
       throw error;
     }
+
     return { ai_reflection_enabled: data.ai_reflection_enabled };
   }
 
