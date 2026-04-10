@@ -1,12 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import type { Fragment } from '../types/fragment';
 import { getFragmentSignedUrl } from '../lib/storage';
 
 interface FragmentGalleryProps {
   fragments: Fragment[];
+  onRequestDelete?: (fragment: Fragment) => void;
+  deletingFragmentId?: string | null;
 }
 
-export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
+export default function FragmentGallery({
+  fragments,
+  onRequestDelete,
+  deletingFragmentId = null,
+}: FragmentGalleryProps) {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const signedUrlTargets = useMemo(
     () =>
@@ -64,56 +71,74 @@ export default function FragmentGallery({ fragments }: FragmentGalleryProps) {
     <div className="grid grid-cols-3 gap-3">
       {fragments.map((f) => (
         <div key={f.id} className="space-y-1">
-          {f.type === 'text' ? (
-            <div
-              className="w-full aspect-square rounded-2xl border backdrop-blur-xl flex items-center justify-center p-3"
-              style={{
-                background: 'var(--color-surface-glass)',
-                borderColor: 'var(--color-surface-glass-card-border)',
-              }}
-            >
-              <p
-                className="text-xs text-center line-clamp-4"
-                style={{ color: 'var(--color-text-primary)' }}
+          <div className="relative">
+            {f.type === 'text' ? (
+              <div
+                className="w-full aspect-square rounded-2xl border backdrop-blur-xl flex items-center justify-center p-3"
+                style={{
+                  background: 'var(--color-surface-glass)',
+                  borderColor: 'var(--color-surface-glass-card-border)',
+                }}
               >
-                {f.text_context ?? 'No text content'}
-              </p>
-            </div>
-          ) : signedUrls[f.id] && f.type === 'video' ? (
-            <video
-              src={signedUrls[f.id]}
-              controls
-              muted
-              playsInline
-              preload="metadata"
-              className="w-full aspect-square rounded-2xl object-cover border backdrop-blur-xl bg-black"
-              style={{
-                borderColor: 'var(--color-button-warm-border)',
-                boxShadow: 'var(--shadow-card)',
-              }}
-            />
-          ) : signedUrls[f.id] ? (
-            <img
-              src={signedUrls[f.id]}
-              alt={f.caption ?? 'Fragment'}
-              className="w-full aspect-square rounded-2xl object-cover border backdrop-blur-xl"
-              style={{
-                borderColor: 'var(--color-button-warm-border)',
-                boxShadow: 'var(--shadow-card)',
-              }}
-            />
-          ) : (
-            <div
-              className="w-full aspect-square rounded-2xl border backdrop-blur-xl flex items-center justify-center text-xs"
-              style={{
-                background: 'var(--color-surface-glass)',
-                borderColor: 'var(--color-surface-glass-card-border)',
-                color: 'var(--color-text-muted-dim)',
-              }}
-            >
-              {f.type === 'video' ? 'No video' : 'No image'}
-            </div>
-          )}
+                <p
+                  className="text-xs text-center line-clamp-4"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  {f.text_context ?? 'No text content'}
+                </p>
+              </div>
+            ) : signedUrls[f.id] && f.type === 'video' ? (
+              <video
+                src={signedUrls[f.id]}
+                controls
+                muted
+                playsInline
+                preload="metadata"
+                className="w-full aspect-square rounded-2xl object-cover border backdrop-blur-xl bg-black"
+                style={{
+                  borderColor: 'var(--color-button-warm-border)',
+                  boxShadow: 'var(--shadow-card)',
+                }}
+              />
+            ) : signedUrls[f.id] ? (
+              <img
+                src={signedUrls[f.id]}
+                alt={f.caption ?? 'Fragment'}
+                className="w-full aspect-square rounded-2xl object-cover border backdrop-blur-xl"
+                style={{
+                  borderColor: 'var(--color-button-warm-border)',
+                  boxShadow: 'var(--shadow-card)',
+                }}
+              />
+            ) : (
+              <div
+                className="w-full aspect-square rounded-2xl border backdrop-blur-xl flex items-center justify-center text-xs"
+                style={{
+                  background: 'var(--color-surface-glass)',
+                  borderColor: 'var(--color-surface-glass-card-border)',
+                  color: 'var(--color-text-muted-dim)',
+                }}
+              >
+                {f.type === 'video' ? 'No video' : 'No image'}
+              </div>
+            )}
+            {onRequestDelete && (
+              <button
+                type="button"
+                onClick={() => onRequestDelete(f)}
+                disabled={deletingFragmentId === f.id}
+                aria-label={`Delete ${f.caption ?? `${f.type} fragment`}`}
+                className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background: 'rgba(13, 0, 15, 0.9)',
+                  color: 'var(--color-accent-coral)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.24)',
+                }}
+              >
+                <Trash2 size={11} strokeWidth={2.2} />
+              </button>
+            )}
+          </div>
           {f.caption && (
             <p
               className="text-xs truncate"
