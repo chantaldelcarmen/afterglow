@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import ExperienceLibraryCard from "../components/ExperienceLibraryCard";
 import type { Experience } from "../types/experience";
 import { getUserExperiences } from "../lib/experience";
@@ -21,20 +21,23 @@ export default function ExperienceLibrary() {
   const [mounted, setMounted] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function loadExperiences() {
-      try {
-        const data = await getUserExperiences();
-        setExperiences(data);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load experiences.");
-      } finally {
-        setLoading(false);
-      }
+  const loadExperiences = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getUserExperiences();
+      setExperiences(data);
+    } catch (err) {
+      console.error(err);
+      setError("Could not load experiences.");
+    } finally {
+      setLoading(false);
     }
-    loadExperiences();
   }, []);
+
+  useEffect(() => {
+    loadExperiences();
+  }, [loadExperiences]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,7 +148,23 @@ export default function ExperienceLibrary() {
             pointerEvents: loading ? "none" : "auto",
           }}
         >
-          {error && <p className="mt-8" style={{ color: colors.accent.coral }}>{error}</p>}
+          {error && (
+            <div className="mt-8 text-center space-y-3">
+              <p style={{ color: colors.accent.coral }}>
+                Couldn't connect to Afterglow. Check your connection and try again.
+              </p>
+              <button
+                onClick={() => {
+                  setError("");
+                  setLoading(true);
+                  loadExperiences();
+                }}
+                style={{ color: colors.text.muted, textDecoration: "underline", fontSize: "13px" }}
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
           <div
             className="transition-opacity duration-300 space-y-6"
@@ -165,7 +184,7 @@ export default function ExperienceLibrary() {
               </div>
             ))}
 
-            {years.length === 0 && !loading && (
+            {years.length === 0 && !loading && !error && (
               <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 px-6 text-center">
                 <H2 className="mb-2">
                   {search || activeFilters.length > 0 || dateRange.start || dateRange.end

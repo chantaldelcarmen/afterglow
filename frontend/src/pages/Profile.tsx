@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
@@ -13,6 +13,7 @@ export function Profile() {
   const [fragmentCount, setFragmentCount] = useState<number>(0);
   const [dataLoading, setDataLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setMounted(false);
@@ -23,22 +24,30 @@ export function Profile() {
     };
   }, []);
 
-  useEffect(() => {
+
+  const loadStats = useCallback(async () => {
     if (!user) return;
-    getUserExperiences()
-      .then(async (experiences) => {
-        setExperienceCount(experiences.length);
-        const counts = await Promise.all(
-          experiences.map((exp) => getFragments(exp.id).then((f) => f.length).catch(() => 0))
-        );
-        setFragmentCount(counts.reduce((sum, n) => sum + n, 0));
-      })
-      .catch(() => {
-        setExperienceCount(0);
-        setFragmentCount(0);
-      })
-      .finally(() => setDataLoading(false));
+    setDataLoading(true);
+    try {
+      const experiences = await getUserExperiences();
+      setError("");
+      setExperienceCount(experiences.length);
+      const counts = await Promise.all(
+        experiences.map((exp) => getFragments(exp.id).then((f) => f.length).catch(() => 0))
+      );
+      setFragmentCount(counts.reduce((sum, n) => sum + n, 0));
+    } catch {
+      setExperienceCount(0);
+      setFragmentCount(0);
+      setError("Couldn't load your stats. Check your connection.");
+    } finally {
+      setDataLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   if (loading) return null;
   if (!user) {
@@ -115,6 +124,19 @@ export function Profile() {
               <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
             </div>
           </div>
+          {error && (
+            <div className="text-center space-y-2">
+              <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
+                {error}
+              </p>
+              <button
+                onClick={() => void loadStats()}
+                style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+              >
+                Try again
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Settings button */}

@@ -79,7 +79,7 @@ export default function CreateExperience() {
       const created = await res.json();
       navigate(`/upload?experienceId=${created.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create experience");
+      setError("Couldn't save your experience. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -215,9 +215,17 @@ export default function CreateExperience() {
           </div>
 
           {error && (
-            <p className="text-center text-sm" style={{ color: "var(--color-accent-coral)" }}>
-              {error}
-            </p>
+            <div className="text-center space-y-2">
+              <p className="text-sm" style={{ color: "var(--color-accent-coral)" }}>
+                Couldn't save your experience. Check your connection and try again.
+              </p>
+              <button
+                onClick={() => void handleCreate()}
+                style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+              >
+                Try again
+              </button>
+            </div>
           )}
 
           <div className="pt-6 space-y-3">
