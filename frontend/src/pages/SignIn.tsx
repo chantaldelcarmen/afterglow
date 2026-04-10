@@ -27,12 +27,52 @@ export function SignIn() {
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
 
+  const redirectByRole = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      navigate("/");
+      return;
+    }
+
+    if (data?.role === "admin") {
+      navigate("/admin");
+    } else if (data?.role === "platform_reviewer") {
+      navigate("/reviewer");
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setError(error.message); } else { navigate("/"); }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const userId = data.user?.id;
+
+    if (!userId) {
+      navigate("/");
+      setLoading(false);
+      return;
+    }
+
+    await redirectByRole(userId);
     setLoading(false);
   };
 

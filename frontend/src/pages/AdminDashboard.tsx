@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
+  Ban,
   Shield,
   Users,
   AlertTriangle,
@@ -8,19 +9,82 @@ import {
   Activity,
   UserCircle,
   LogOut,
+  RefreshCw,
 } from "lucide-react";
 import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
+import { useAuth } from "../utils/AuthContext";
+
+type UserEntry = {
+  id: string;
+  username: string;
+  email: string;
+  role: "experience_creator" | "platform_reviewer";
+  suspended: boolean;
+};
+
+const MOCK_USERS: UserEntry[] = [
+  { id: "u1", username: "alex", email: "alex@afterglow.dev", role: "experience_creator", suspended: false },
+  { id: "u2", username: "sam", email: "sam@afterglow.dev", role: "platform_reviewer", suspended: false },
+  { id: "u3", username: "jordan", email: "jordan@afterglow.dev", role: "platform_reviewer", suspended: false },
+  { id: "u4", username: "riley", email: "riley@afterglow.dev", role: "experience_creator", suspended: false },
+];
 
 export function AdminDashboard() {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
+  const { role, loading: authLoading } = useAuth();
+  const [users, setUsers] = useState<UserEntry[]>(MOCK_USERS);
+  const [activityLog, setActivityLog] = useState<string[]>([
+    "Assigned reviewer access to 2 team members",
+    "Updated sharing defaults for new experiences",
+    "Reviewed 7 safety reports from the last week",
+  ]);
+
 
   useEffect(() => {
     setMounted(false);
     const timer = setTimeout(() => setMounted(true), 50);
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
+
+  const handleToggleRole = (id: string) => {
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id !== id) return u;
+        const newRole =
+          u.role === "platform_reviewer" ? "experience_creator" : "platform_reviewer";
+        setActivityLog((log) => [
+          `Changed @${u.username} role to ${newRole.replace("_", " ")}`,
+          ...log.slice(0, 4),
+        ]);
+        return { ...u, role: newRole };
+      })
+    );
+  };
+ 
+  const handleToggleSuspend = (id: string) => {
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id !== id) return u;
+        const action = u.suspended ? "Reinstated" : "Suspended";
+        setActivityLog((log) => [
+          `${action} @${u.username}`,
+          ...log.slice(0, 4),
+        ]);
+        return { ...u, suspended: !u.suspended };
+      })
+    );
+  };
+ 
+  const handleResetUsers = () => {
+    setUsers(MOCK_USERS);
+    setActivityLog((log) => ["Reset user list to defaults", ...log.slice(0, 4)]);
+  };
+ 
+  if (!authLoading && role !== "admin") {
+    return <div>Unauthorized</div>;
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -132,7 +196,7 @@ export function AdminDashboard() {
                   Items in review
                 </BodySmall>
                 <div className="mt-1 flex items-baseline gap-1">
-                  <Body style={{ fontSize: "22px" }}>7</Body>
+                  <Body style={{ fontSize: "22px" }}>2</Body>
                   <BodySmall
                     style={{
                       color: colors.text.muted,
@@ -339,6 +403,192 @@ export function AdminDashboard() {
             </div>
           </div>
 
+          {/* User Management - Admin only */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <H2>User management</H2>
+                <BodySmall style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
+                  Assign roles and manage platform access
+                </BodySmall>
+              </div>
+              <button
+                onClick={handleResetUsers}
+                className="text-xs px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5"
+                style={{
+                  borderColor: colors.button.warmBorder,
+                  color: colors.text.muted,
+                  boxShadow: `0 0 10px ${colors.button.warmGlow}`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = colors.text.primary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = colors.text.muted;
+                }}
+                title="Reset demo"
+              >
+                <RefreshCw size={11} />
+                Reset
+              </button>
+            </div>
+ 
+            <div
+              className="rounded-2xl border backdrop-blur-xl overflow-hidden"
+              style={{
+                background: colors.surface.glassCard,
+                borderColor: colors.surface.glassCardBorder,
+                boxShadow: effects.shadows.card,
+              }}
+            >
+              {users.map((user, i) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between px-4 py-3 transition-all duration-200"
+                  style={{
+                    borderBottom:
+                      i < users.length - 1
+                        ? `1px solid ${colors.surface.glassCardBorder}`
+                        : undefined,
+                    opacity: user.suspended ? 0.5 : 1,
+                  }}
+                >
+                  {/* User info */}
+                  <div className="flex items-center gap-3">
+                    <UserCircle size={18} style={{ color: colors.text.muted }} />
+                    <div>
+                      <Body
+                        style={{
+                          fontSize: "13px",
+                          textDecoration: user.suspended ? "line-through" : "none",
+                          color: user.suspended ? colors.text.mutedDim : colors.text.primary,
+                        }}
+                      >
+                        @{user.username}
+                      </Body>
+                      <BodySmall style={{ color: colors.text.mutedDim, fontSize: "11px" }}>
+                        {user.email}
+                      </BodySmall>
+                    </div>
+                  </div>
+ 
+                  {/* Role badge + actions */}
+                  <div className="flex items-center gap-2">
+                    {/* Clickable role badge — toggles role */}
+                    <button
+                      onClick={() => !user.suspended && handleToggleRole(user.id)}
+                      disabled={user.suspended}
+                      className="px-2 py-0.5 rounded-full border transition-all duration-200"
+                      style={{
+                        background: colors.surface.glass,
+                        borderColor:
+                          user.role === "platform_reviewer"
+                            ? colors.accent.lavender
+                            : colors.button.warmBorder,
+                        color:
+                          user.role === "platform_reviewer"
+                            ? colors.accent.lavender
+                            : colors.text.muted,
+                        fontSize: "11px",
+                        cursor: user.suspended ? "not-allowed" : "pointer",
+                      }}
+                      title={user.suspended ? "Reinstate user first" : "Click to toggle role"}
+                    >
+                      {user.role === "platform_reviewer" ? "reviewer" : "creator"}
+                    </button>
+ 
+                    {/* Suspend / reinstate button */}
+                    <button
+                      onClick={() => handleToggleSuspend(user.id)}
+                      className="w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-200"
+                      style={{
+                        background: colors.surface.glass,
+                        borderColor: user.suspended
+                          ? colors.accent.coral
+                          : colors.surface.glassCardBorder,
+                      }}
+                      title={user.suspended ? "Reinstate user" : "Suspend user"}
+                    >
+                      <Ban
+                        size={13}
+                        style={{
+                          color: user.suspended ? colors.accent.coral : colors.text.muted,
+                        }}
+                      />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Admin Controls */}
+            <div className="space-y-3">
+              <H2>Admin controls</H2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Manage reviewer access */}
+                <div
+                  className="rounded-2xl border backdrop-blur-xl p-4 transition-all duration-300 cursor-pointer"
+                  style={{
+                    background: colors.surface.glassCard,
+                    borderColor: colors.surface.glassCardBorder,
+                    boxShadow: effects.shadows.card,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = colors.button.warmBorder;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
+                  }}
+                >
+                  <Body style={{ fontSize: "15px" }}>
+                    Manage reviewer access
+                  </Body>
+
+                  <BodySmall
+                    className="mt-1"
+                    style={{
+                      color: colors.text.mutedDim,
+                      fontSize: "12px",
+                    }}
+                  >
+                    Assign or remove reviewer privileges for team members
+                  </BodySmall>
+                </div>
+
+                {/* Platform settings */}
+                <div
+                  className="rounded-2xl border backdrop-blur-xl p-4 transition-all duration-300 cursor-pointer"
+                  style={{
+                    background: colors.surface.glassCard,
+                    borderColor: colors.surface.glassCardBorder,
+                    boxShadow: effects.shadows.card,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = colors.button.warmBorder;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
+                  }}
+                >
+                  <Body style={{ fontSize: "15px" }}>
+                    Platform settings
+                  </Body>
+
+                  <BodySmall
+                    className="mt-1"
+                    style={{
+                      color: colors.text.mutedDim,
+                      fontSize: "12px",
+                    }}
+                  >
+                    View safety defaults and platform-wide configuration
+                  </BodySmall>
+                </div>
+              </div>
+            </div>
+
           {/* Recent activity */}
           <div className="space-y-3">
             <H2>Recent admin activity</H2>
@@ -351,9 +601,9 @@ export function AdminDashboard() {
               }}
             >
               {[
-                "Assigned reviewer access to 3 team members",
+                "Assigned reviewer access to 2 team members",
                 "Updated sharing defaults for new experiences",
-                "Reviewed 2 safety reports from the last week",
+                "Reviewed 7 safety reports from the last week",
               ].map((item, index) => (
                 <div key={index} className="flex gap-2">
                   <div

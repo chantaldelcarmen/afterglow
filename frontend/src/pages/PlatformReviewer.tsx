@@ -1,5 +1,4 @@
 import { H2, BodySmall, Body } from "../components/Typography";
-import { BackButton } from "../components/BackButton";
 import { useEffect, useState } from "react";
 import { AppLogo } from "../components/AppLogo";
 import { useAuth } from "../utils/AuthContext";
@@ -33,7 +32,7 @@ export function PlatformReviewer() {
   const [loading, setLoading] = useState(true);
   const [error] = useState("");
   const [mounted, setMounted] = useState(false);
-  const { loading: authLoading } = useAuth();
+  const { role, loading: authLoading } = useAuth();
   const [flaggedContent, setFlaggedContent] = useState<typeof MOCK_FLAGGED>([]);
   const [selectedExp, setSelectedExp] = useState<typeof MOCK_FLAGGED[0] | null>(null);
 
@@ -55,6 +54,10 @@ export function PlatformReviewer() {
     setFlaggedContent((prev) => prev.map((e) => e.id === id ? { ...e, status: "Escalated" } : e));
   };
 
+  const handleReject = (id: string) => {
+    setFlaggedContent((prev) => prev.map((e) => e.id === id ? { ...e, status: "Rejected" } : e));
+  };
+
   const handleReset = () => {
     setFlaggedContent([...MOCK_FLAGGED]);
   };
@@ -65,6 +68,10 @@ export function PlatformReviewer() {
         <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
       </div>
     );
+  }
+
+  if (!authLoading && role !== "platform_reviewer") {
+    return <div>Unauthorized</div>;
   }
 
   return (
@@ -78,7 +85,6 @@ export function PlatformReviewer() {
         }}
       >
         <AppLogo />
-        <BackButton></BackButton>
         <div className="flex items-center justify-between">
           <H2>Reviewer Dashboard</H2>
           <button
@@ -139,7 +145,7 @@ export function PlatformReviewer() {
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2 h-2 rounded-full inline-block flex-shrink-0"
-                        style={{ background: experience.status === "Pending" ? "#a78bfa" : experience.status === "Approved" ? "#34d399" : "#f87171" }}
+                        style={{ background: experience.status === "Pending" ? "#a78bfa" : experience.status === "Approved" ? "#34d399" : experience.status === "Rejected" ? "#f87171"  : "#fb923c"}}
                       />
                       <BodySmall style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
                         {experience.status}
@@ -173,14 +179,11 @@ export function PlatformReviewer() {
                     ))}
                   </div>
                   {/* Buttons */}
-                  <div className="flex gap-6 mt-4">
-                    <GlassButton className="flex-1" onClick={() => setSelectedExp(experience)}>
-                      View metadata
-                    </GlassButton>
-                    <GlassButton className="flex-1" onClick={() => handleApprove(experience.id)}>
-                      Approve
-                    </GlassButton>
-                  </div>
+                  <div className="flex gap-3 mt-4">
+                  <GlassButton className="flex-1" onClick={() => setSelectedExp(experience)}>
+                    Review
+                  </GlassButton>
+                </div>
                 </div>
               </div>
             ))}
@@ -249,10 +252,13 @@ export function PlatformReviewer() {
             </div>
             {/**Buttons: approve and escalate flagged experience */}
             <div className="flex gap-6 mt-4">
-              <GlassButton className="flex-1" onClick={() => {handleEscalate(selectedExp.id); setSelectedExp(null)}}>
+              <GlassButton className="flex-1" onClick={() => { handleReject(selectedExp.id); setSelectedExp(null); }}>
+                Reject
+              </GlassButton>
+              <GlassButton className="flex-1" onClick={() => { handleEscalate(selectedExp.id); setSelectedExp(null); }}>
                 Escalate
               </GlassButton>
-              <GlassButton className="flex-1" onClick={() => {handleApprove(selectedExp.id); setSelectedExp(null)}}>
+              <GlassButton className="flex-1" onClick={() => { handleApprove(selectedExp.id); setSelectedExp(null); }}>
                 Approve
               </GlassButton>
             </div>

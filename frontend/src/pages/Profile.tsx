@@ -9,13 +9,14 @@ import { HelpButton } from "../components/HelpButton";
 import { HELP_CONTENT } from "../data/help-content";
 
 export function Profile() {
-  const { user, loading } = useAuth();
+  const { user, loading, role } = useAuth();
   const navigate = useNavigate();
   const [experienceCount, setExperienceCount] = useState<number>(0);
   const [fragmentCount, setFragmentCount] = useState<number>(0);
   const [dataLoading, setDataLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState("");
+  
 
   useEffect(() => {
     setMounted(false);
@@ -47,18 +48,48 @@ export function Profile() {
     }
   }, [user]);
 
-  useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+  const isPrivilegedRole = role === "admin" || role === "platform_reviewer";
 
-  if (loading) return null;
-  if (!user) {
-    navigate("/signin");
-    return null;
+
+  useEffect(() => {
+    if (!isPrivilegedRole) {
+      loadStats();
+    } else {
+      setDataLoading(false);
+    }
+  }, [loadStats, isPrivilegedRole]);
+
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/signin");
+    }
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
+      </div>
+    );
   }
 
-  const displayName = user.user_metadata?.full_name ?? user.email ?? "User";
+  const rawName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  const displayName = rawName.trim();
   const email = user.email ?? "";
+  const initial = displayName.charAt(0).toUpperCase() || "U";
+
+  const roleLabel =
+    role === "admin"
+      ? "Admin"
+      : role === "platform_reviewer"
+      ? "Platform Reviewer"
+      : null;
 
   return (
     <div className="h-full flex flex-col px-6 pb-8 overflow-y-auto">
@@ -104,15 +135,30 @@ export function Profile() {
               }}
             >
               <span style={{ color: "var(--color-text-primary)" }}>
-                {displayName[0].toUpperCase()}
+                {initial}
               </span>
             </div>
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <Body style={{ color: "var(--color-text-primary)" }}>{displayName}</Body>
               <BodySmall style={{ color: "var(--color-text-muted)" }}>{email}</BodySmall>
+
+              {roleLabel && (
+                <div className="pt-1">
+                  <span
+                    className="inline-flex px-3 py-1 rounded-full border text-xs"
+                    style={{
+                      background: "var(--color-surface-glass-card)",
+                      borderColor: "var(--color-surface-glass-card-border)",
+                      color: "var(--color-text-muted-dim)",
+                    }}
+                  >
+                    {roleLabel}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-
+          {!isPrivilegedRole && (
           <div
             className="flex rounded-2xl overflow-hidden"
             style={{
@@ -134,7 +180,8 @@ export function Profile() {
               <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
             </div>
           </div>
-          {error && (
+          )}
+          {!isPrivilegedRole && error && (
             <div className="text-center space-y-2">
               <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
                 {error}
