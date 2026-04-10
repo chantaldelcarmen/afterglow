@@ -107,18 +107,16 @@ export function SignIn() {
           />
         </div>
 
-        {/**Forgot Password Button */}
+        {/* Forgot Password Button */}
         <div className="text-right pt-2">
-          <Body style={{ color: "var(--color-text-muted)" }}>
-            <button
-              type="button"
-              onClick={() => navigate("/forgot-password")}
-              className="transition-all duration-300 hover:underline"
-              style={{ color: "var(--color-text-primary)" }}
-            >
-              Forgot Password?
-            </button>
-          </Body>
+          <button
+            type="button"
+            onClick={() => navigate("/forgot-password")}
+            className="transition-all duration-300 hover:underline"
+            style={{ color: "var(--color-text-primary)", fontSize: "14px" }}
+          >
+            Forgot Password?
+          </button>
         </div>
 
         {/* Sign In Button */}
