@@ -7,11 +7,12 @@ export class SettingsService {
   constructor(private readonly supabase: SupabaseService) {}
 
   async getSettings(userId: string) {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('user_settings')
       .upsert(
         { user_id: userId, ai_reflection_enabled: false },
-        { onConflict: 'user_id', ignoreDuplicates: false }
+        { onConflict: 'user_id', ignoreDuplicates: false },
       )
       .select()
       .single();
@@ -24,16 +25,17 @@ export class SettingsService {
   }
 
   async updateSettings(userId: string, dto: UpdateSettingsDto) {
-    const { data, error } = await this.supabase.getClient()
+    const { data, error } = await this.supabase
+      .getClient()
       .from('user_settings')
       .upsert(
         { user_id: userId, ...dto, updated_at: new Date().toISOString() },
-        { onConflict: 'user_id' }
+        { onConflict: 'user_id' },
       )
       .select()
       .single();
 
     if (error) throw error;
-        return { ai_reflection_enabled: data.ai_reflection_enabled };
+    return { ai_reflection_enabled: data.ai_reflection_enabled };
   }
 }

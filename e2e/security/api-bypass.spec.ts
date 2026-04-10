@@ -55,6 +55,7 @@ let expIdA: string | null;
 let expIdA_2: string | null;
 let expIdA_3: string | null;
 let fragIdAAnchor: string | null;
+let refIdA_3: string | null;
 
 let fragIdA: string | null;
 
@@ -79,6 +80,20 @@ beforeAll(async () => {
   title: 'Test draft no anchor',
   });
   expIdA_3 = newExp?.id ?? null;
+
+  // use test experience and set a reflection
+  const { data: newReflection } = await req(tokenA, 'POST', `/experiences/${expIdA_3}/reflections`, {
+    reflection_text: "test reflection",
+  });
+  refIdA_3 = newReflection?.id ?? null;
+
+  if (!expIdA_3) {
+    throw new Error('Failed to create test experience');
+  }
+
+  if (!refIdA_3) {
+    throw new Error('Failed to create test reflection');
+  }
 
   // getting user A user_id from their token
   const { data: { user } } = await supabase.auth.getUser(tokenA);
@@ -125,7 +140,7 @@ describe('Ownership Enforcement (6 cases)', () => {
   });
   
   it('Call PATCH /experiences/:id with an experience ID that belongs to User A, using User Bs JWT - confirm 403 or 404', async () => {
-    const { status_code } = await req(tokenB, 'PATCH', `/experiences/${expIdA}`);
+    const { status_code } = await req(tokenB, 'PATCH', `/experiences/${expIdA}`, {description: "fake-news"});
     expect([403, 404]).toContain(status_code);
   });
   
@@ -161,6 +176,62 @@ describe('Data Integrity (3 cases)', () => {
   it('Call DELETE /experiences/:id/fragments/:fragmentId where fragmentId is the current anchor -- confirm 400 (cannot delete anchor)', async () => {
     const { status_code } = await req(tokenA, 'DELETE', `/experiences/${expIdA}/fragments/${fragIdAAnchor}`);
     expect(status_code).toBe(400);
+  });
+});
+
+
+// Reflections API endpoints tests
+describe('Reflections testing', () => {
+  it('Call GET /experiences/:id/reflections with no valid JWT -- expect 401', async () => {
+    const { status_code } = await req(null, 'GET', `/experiences/${expIdA}/reflections`);
+    expect(status_code).toBe(401);
+  });
+
+  it('Call GET /experiences/:id/reflections with User Bs JWT on User As reflections - confirm 403 or 404', async () => {
+    const { status_code } = await req(tokenB, 'GET', `/experiences/${expIdA}/reflections`);
+    expect([403, 404]).toContain(status_code);
+  });
+
+  it('Call GET /experiences/:id/reflections with User As JWT - confirm 200', async () => {
+    const { status_code } = await req(tokenA, 'GET', `/experiences/${expIdA}/reflections`);
+    expect(status_code).toBe(200);
+  });
+
+  it('Call GET /experiences/:id/reflections with non-existent experience ID - confirm 404', async () => {
+    const fakeExpId = '12345';
+
+    const { status_code } = await req(tokenA, 'GET', `/experiences/${fakeExpId}/reflections`);
+    expect(status_code).toBe(404);
+  });
+
+  it('Call POST /experiences/:id/reflections with an experience ID that belongs to User A, using User Bs JWT - confirm 403', async () => {
+    const { status_code } = await req(tokenB, 'POST', `/experiences/${expIdA}/reflections`, {reflection_text: "userBText"});
+    expect(status_code).toBe(403);
+  });
+
+  it('Call PATCH /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403', async () => {
+    const { status_code } = await req(tokenB, 'PATCH', `/experiences/${expIdA_3}/reflections/${refIdA_3}`, {reflection_text: "userBText"});
+    expect(status_code).toBe(403);
+  });
+
+  
+  it('Call DELETE /experiences/:id/reflections/:reflectionId with an experience ID that belongs to User A, using User Bs JWT - confirm 403', async () => {
+    const { status_code } = await req(tokenB, 'DELETE', `/experiences/${expIdA_3}/reflections/${refIdA_3}`);
+    expect(status_code).toBe(403);
+  });
+});
+
+
+// Patterns API endpoint tests
+describe('Patterns testing', () => {
+  it('Call GET /patterns with no valid JWT -- expect 401', async () => {
+    const { status_code } = await req(null, 'GET', `/patterns`);
+    expect(status_code).toBe(401);
+  });
+
+  it('Call GET /patterns with valid JWT - confirm 200', async () => {
+    const { status_code } = await req(tokenA, 'GET', `/patterns`);
+    expect(status_code).toBe(200);
   });
 });
 

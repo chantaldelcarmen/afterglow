@@ -24,6 +24,8 @@ export default function ExperienceLibrary() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const loadExperiences = useCallback(async () => {
+    setLoading(true);
+    setError("");
     try {
       const data = await getUserExperiences();
       setExperiences(data);

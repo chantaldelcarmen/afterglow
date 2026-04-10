@@ -1,0 +1,554 @@
+# Demo fixes and UX issues surfaced during 2026-04-09 review session
+# Run with:
+#   python tools/gitlab-automation/create_issues.py tools/gitlab-automation/tasks.demo-fixes.yaml
+
+users:
+  chantal: "chantal.delcarmen"
+
+issues:
+
+  # -----------------------------------------------------------------------
+  # FRONTEND -- BUGS
+  # -----------------------------------------------------------------------
+
+  - title: "[Frontend] Video fragments not rendered in ReliveExperience"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      FragmentCard in ReliveExperience.tsx handles text and falls through to an
+      <img> tag for everything else. Video fragments have no <video> element so
+      they render as a blank placeholder with only the type name as text.
+
+      File: frontend/src/pages/ReliveExperience.tsx — FragmentCard component
+
+      Fix
+      - Add a <video> branch in FragmentCard for fragments where type === 'video'
+      - Use the existing signedUrl as the src
+      - Should match the full-bleed style of the image case (absolute inset, object-cover)
+
+      Tests to verify
+      - [ ] Seed or upload a video fragment to an experience
+      - [ ] Open the relive flow for that experience
+      - [ ] Confirm the video renders and plays during the context or peak phase
+      - [ ] Confirm pause/resume still works with a video fragment active
+      - [ ] Confirm non-video fragments are unaffected
+
+  - title: "[Frontend] Reflection save failure is silent in ReliveExperience"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      In ReliveExperience.tsx the handleSaveReflection catch block only calls
+      setSaving(false) with no user-facing error message. If saving fails the user
+      sees nothing and has no idea what happened.
+
+      File: frontend/src/pages/ReliveExperience.tsx — handleSaveReflection
+
+      Note: feat/128-graceful-error-recovery adds a saveError state that fixes this,
+      but saveError is declared at 0 indentation mid-function rather than at the top
+      with other state. Move it to the state block at the top when merging.
+
+      Fix
+      - Add a saveError state at the top of the component with other useState calls
+      - Set it in the catch block with a user-friendly message
+      - Render it near the Save Reflection button in the afterglow phase
+
+      Tests to verify
+      - [ ] Disconnect from the network (or use DevTools to block the API)
+      - [ ] Complete the relive flow and attempt to save a reflection
+      - [ ] Confirm an error message appears near the save button
+      - [ ] Confirm the textarea and buttons remain usable after the error
+      - [ ] Confirm a successful save on reconnect still shows the saved popup and navigates
+
+  - title: "[Frontend] Home featured card and Recently Relived include draft experiences"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      Home.tsx uses experiences[0] for the featured hero card and experiences.slice(1, 3)
+      for Recently Relived without filtering out drafts. A draft can appear as the
+      featured memory with a Relive Now button even though it has no anchor fragment.
+
+      File: frontend/src/pages/Home.tsx
+
+      Fix
+      - Filter out is_draft === true experiences before assigning featured and recent
+      - Handle the case where there are no published experiences (show empty hero state)
+
+      Tests to verify
+      - [ ] Create a draft experience and confirm it does not appear as the featured card
+      - [ ] Create a draft experience and confirm it does not appear in Recently Relived
+      - [ ] Publish an experience and confirm it appears correctly in both sections
+      - [ ] With only drafts in the account, confirm the empty hero state renders correctly
+
+  - title: "[Frontend] Relive button not blocked on draft experiences"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      ExperienceDetail.tsx renders the Relive button regardless of experience.is_draft.
+      Tapping Relive on a draft with no anchor fragment results in a broken relive flow
+      that skips straight to afterglow with no fragments shown.
+
+      File: frontend/src/pages/ExperienceDetail.tsx
+
+      Fix
+      - Disable or hide the Relive button when experience.is_draft is true
+      - Show a short explanation such as "Set an anchor fragment to relive this memory"
+
+      Tests to verify
+      - [ ] Open a draft experience and confirm the Relive button is absent or disabled
+      - [ ] Confirm the explanation message is visible
+      - [ ] Publish the experience (set anchor, is_draft false) and confirm Relive becomes active
+      - [ ] Confirm the relive flow loads correctly after publishing
+
+  - title: "[Frontend] Broken photo preview when switching fragment types on Upload page"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      PhotoUpload.tsx creates a blob URL via URL.createObjectURL and revokes it in a
+      useEffect cleanup. When the user switches from photo to video and back to photo,
+      PhotoUpload unmounts and remounts. On remount the file still exists in the draft
+      context but the blob URL has been revoked, so the preview renders a broken image.
+
+      File: frontend/src/components/PhotoUpload.tsx
+
+      Fix
+      - Remove the URL.revokeObjectURL call from the useEffect cleanup
+      - Only revoke the blob URL when the draft itself is cleared (setPhotoDraft(EMPTY_PHOTO_DRAFT))
+
+      Tests to verify
+      - [ ] Select a photo on the upload page
+      - [ ] Switch to the video type button
+      - [ ] Switch back to the photo type button
+      - [ ] Confirm the photo preview still shows the selected image without breaking
+      - [ ] Confirm the blob URL is eventually cleaned up after uploading or cancelling
+
+  - title: "[Frontend] Anchor fragment shows delete button in FragmentGallery"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      FragmentGallery renders the delete trash icon on every fragment including the
+      anchor. The backend rejects anchor deletion with 400 so no data is corrupted,
+      but the user sees the button, confirms deletion, and gets an error with the
+      confirmation modal still open and no error message visible inside it (the error
+      renders outside the modal overlay).
+
+      Files:
+      - frontend/src/components/FragmentGallery.tsx
+      - frontend/src/pages/ExperienceDetail.tsx
+
+      Fix
+      - Pass experience.anchor_fragment_id down to FragmentGallery as a new prop anchorFragmentId
+      - In FragmentGallery, hide the trash button when f.id === anchorFragmentId
+
+      Tests to verify
+      - [ ] Open an experience with an anchor fragment set
+      - [ ] Confirm the trash icon does not appear on the anchor fragment
+      - [ ] Confirm the trash icon does appear on non-anchor fragments
+      - [ ] Delete a non-anchor fragment and confirm it is removed from the gallery
+      - [ ] Confirm the anchor fragment is still visible after other fragments are deleted
+
+  - title: "[Frontend] Date fields allow future dates on Create and Edit Experience"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      The date input on CreateExperience.tsx and EditExperience.tsx has no max
+      attribute, so users can select future dates. Afterglow is a memory log so
+      only past and current dates should be selectable.
+
+      Files:
+      - frontend/src/pages/CreateExperience.tsx
+      - frontend/src/pages/EditExperience.tsx
+
+      Fix
+      - Add max={new Date().toISOString().split('T')[0]} to both date inputs
+
+      Tests to verify
+      - [ ] Open Create Experience and confirm dates after today are not selectable
+      - [ ] Open Edit Experience and confirm dates after today are not selectable
+      - [ ] Confirm today is selectable
+      - [ ] Confirm yesterday and earlier are selectable
+
+  - title: "[Frontend] ExperienceLibrary shows drafts with no visual distinction"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::bug"
+      - "area::frontend"
+    description: |
+      The library lists all experiences including drafts with no visual indicator
+      on the card. The Draft badge exists on ExperienceDetail but not on library
+      cards, so users cannot tell which experiences are unpublished from the library view.
+
+      File: frontend/src/components/ExperienceLibraryCard.tsx (or equivalent card component)
+
+      Fix
+      - Add a Draft badge to experience cards when is_draft is true
+      - Match the badge style used in ExperienceDetail (small rounded pill, muted color)
+
+      Tests to verify
+      - [ ] Create a draft experience and confirm a Draft badge appears on its library card
+      - [ ] Publish an experience and confirm the badge disappears
+      - [ ] Confirm published experiences show no badge
+
+  # -----------------------------------------------------------------------
+  # FRONTEND -- TASKS / UX
+  # -----------------------------------------------------------------------
+
+  - title: "[Frontend] Implement text fragment upload on Upload page"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      The Upload page currently shows a "Text fragments coming soon" placeholder.
+      The backend already supports text fragments (text_context field in AttachFragmentDto,
+      text in the fragment type enum).
+
+      Files:
+      - frontend/src/lib/storage.ts
+      - frontend/src/pages/Upload.tsx
+      - new: frontend/src/components/TextUpload.tsx
+
+      Implementation
+      - Add uploadTextFragment(experienceId, text, caption?) to storage.ts
+        sending a JSON POST (no FormData) with { type: 'text', text_context, caption }
+      - Build a TextUpload component with a textarea for the text content,
+        an optional caption input, and an Upload button matching the PhotoUpload style
+      - Replace the "coming soon" placeholder in Upload.tsx with TextUpload
+
+      Tests to verify
+      - [ ] Select the text fragment type on the upload page
+      - [ ] Enter text content and an optional caption
+      - [ ] Submit and confirm the fragment appears in the gallery below
+      - [ ] Open the experience detail page and confirm the text fragment is visible
+      - [ ] Relive the experience and confirm the text fragment renders in the cinematic view
+      - [ ] Confirm an empty text field cannot be submitted
+
+  - title: "[Frontend] Add leave confirmation on Upload page when fragments exist"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      Pressing back on the Upload page after uploading fragments navigates away with
+      no warning. The user has no way to recover the experience or know it still exists.
+
+      File: frontend/src/pages/Upload.tsx
+
+      Fix
+      - Use useBlocker from React Router v6 to intercept navigation when fragments.length > 0
+      - Show a confirmation modal with Leave and Stay actions
+      - Allow navigation freely when no fragments have been uploaded yet
+
+      Tests to verify
+      - [ ] Upload at least one fragment then press the back button
+      - [ ] Confirm a confirmation modal appears
+      - [ ] Confirm Stay keeps the user on the upload page with fragments intact
+      - [ ] Confirm Leave navigates away
+      - [ ] Confirm no modal appears when pressing back before uploading any fragments
+
+  - title: "[Frontend] Add inline validation feedback on Create and Edit Experience forms"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      The Create and Edit Experience forms disable the submit button when title or date
+      are empty but show no message explaining why. Users have no feedback about what
+      is required.
+
+      Files:
+      - frontend/src/pages/CreateExperience.tsx
+      - frontend/src/pages/EditExperience.tsx
+
+      Fix
+      - Track a touched state for the title and date fields (set on blur)
+      - Show a small error message under each required field when it has been
+        touched but left empty (e.g. "Title is required")
+
+      Tests to verify
+      - [ ] Tab through title and date fields without filling them in
+      - [ ] Confirm error messages appear under each empty required field after blur
+      - [ ] Confirm error messages disappear once the field has content
+      - [ ] Confirm the submit button remains disabled until both fields are filled
+      - [ ] Confirm no error messages appear on first load before fields are touched
+
+  - title: "[Frontend] Remove back button from Create Experience header"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::chore"
+      - "area::frontend"
+    description: |
+      SubpageHeader always renders a BackButton. CreateExperience uses SubpageHeader
+      and should not show a back button since there is already a Cancel button on
+      mobile and the header back is redundant and confusing.
+
+      Files:
+      - frontend/src/components/SubpageHeader.tsx
+      - frontend/src/pages/CreateExperience.tsx
+
+      Fix
+      - Add a hideBack boolean prop to SubpageHeader (default false)
+      - When hideBack is true, do not render the BackButton
+      - Set hideBack on the SubpageHeader in CreateExperience
+
+      Tests to verify
+      - [ ] Open Create Experience and confirm no back button appears in the header
+      - [ ] Confirm other pages using SubpageHeader still show the back button
+      - [ ] Confirm the mobile Cancel button still works as expected
+
+  - title: "[Frontend] Add orb fan-out overlay on Upload page"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      When the fragment type orbs fan out from the plus button on the Upload page,
+      they overlap the upload area and caption field underneath with no visual
+      separation, making the page look busy and the orbs hard to read.
+
+      Fix
+      - When the orb fan is open, show a dark semi-transparent overlay over the
+        scroll content below the orb cluster
+      - Add a subtle blur backdrop anchored behind the orb cluster itself
+      - Tapping the overlay should collapse the fan (same as tapping the plus button)
+      - Combine both effects for a layered depth look consistent with the glass aesthetic
+
+      Tests to verify
+      - [ ] Tap the plus button to expand the orbs
+      - [ ] Confirm a dark overlay appears over the scroll content behind the orbs
+      - [ ] Confirm a blur effect is visible behind the orb cluster
+      - [ ] Confirm tapping the overlay collapses the fan
+      - [ ] Confirm tapping an orb still selects that fragment type
+      - [ ] Confirm the overlay does not appear when the fan is closed
+
+  - title: "[Frontend] Upload Done button should navigate to ExperienceDetail not Home"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      The Done button on the Upload page navigates to / (Home). After adding fragments
+      the user never sees the experience they just built or gets a chance to review it
+      and set the anchor fragment before publishing.
+
+      File: frontend/src/pages/Upload.tsx
+
+      Fix
+      - Change the Done button to navigate to /experience/:experienceId instead of /
+
+      Tests to verify
+      - [ ] Upload one or more fragments then press Done
+      - [ ] Confirm navigation goes to the ExperienceDetail page for that experience
+      - [ ] Confirm all uploaded fragments are visible on the detail page
+      - [ ] Confirm pressing Done with no fragments also navigates to ExperienceDetail
+
+  - title: "[Frontend] Surprise Me button gives no feedback when no experiences exist"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::high"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      When experiences.length === 0 the Surprise Me handler returns silently.
+      The button remains visible and tappable but does nothing, which looks broken.
+
+      File: frontend/src/pages/Home.tsx — handleSurprise
+
+      Fix
+      - Hide the Surprise Me button when there are no published experiences, or
+      - Show a short inline message such as "Add some memories first"
+
+      Tests to verify
+      - [ ] Sign in to an account with no published experiences
+      - [ ] Confirm the Surprise Me button is either hidden or shows a message when tapped
+      - [ ] Add and publish an experience then confirm Surprise Me navigates to it
+
+  - title: "[Frontend] Add Forgot Password link to Sign In page"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::high"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      A ForgotPassword page exists but there is no link to it from the sign-in form.
+      A user who cannot log in has no obvious path to reset their password.
+
+      File: frontend/src/pages/SignIn.tsx
+
+      Fix
+      - Add a "Forgot password?" link below the password field linking to /forgot-password
+
+      Tests to verify
+      - [ ] Open the Sign In page and confirm a Forgot password link is visible
+      - [ ] Tap the link and confirm it navigates to the Forgot Password page
+      - [ ] Confirm the link does not interfere with normal sign-in flow
+
+  - title: "[Frontend] EditExperience missing unsaved changes warning on Cancel"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::high"
+      - "type::task"
+      - "area::frontend"
+    description: |
+      The Cancel button and back button in EditExperience call navigate(-1) with no
+      check for unsaved changes. If the user has edited fields and taps Cancel they
+      lose their changes with no warning.
+
+      File: frontend/src/pages/EditExperience.tsx
+
+      Fix
+      - Track whether any field has been changed from the loaded values (dirty state)
+      - When Cancel or back is pressed and dirty is true, show a confirmation modal
+        before navigating away
+      - If dirty is false, navigate immediately
+
+      Tests to verify
+      - [ ] Edit a field on the Edit Experience page then press Cancel
+      - [ ] Confirm a discard changes modal appears
+      - [ ] Confirm Stay keeps the user on the edit page with changes intact
+      - [ ] Confirm Discard navigates back to the detail page
+      - [ ] Confirm pressing Cancel without making any changes navigates away without a modal
+
+  # -----------------------------------------------------------------------
+  # TESTING -- BUGS
+  # -----------------------------------------------------------------------
+
+  - title: "[Testing] e2e reflections ownership test uses wrong token in description"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::high"
+      - "type::bug"
+      - "area::testing"
+    description: |
+      In e2e/security/api-bypass.spec.ts at line 185, the test description says
+      "with User Bs JWT" but the call uses tokenA. The test always passes because
+      it is testing that the owner can read their own data, not that user B is
+      blocked. The description is misleading and the test does not verify what it claims.
+
+      File: e2e/security/api-bypass.spec.ts:185
+
+      Fix
+      - Update the description to match what the test actually does, e.g.
+        "Call GET /experiences/:id/reflections with the owning user's JWT - confirm 200"
+
+      Tests to verify
+      - [ ] Run the e2e suite and confirm the corrected test passes
+      - [ ] Confirm the test description accurately reflects the token being used
+
+  # -----------------------------------------------------------------------
+  # DATABASE / SEED
+  # -----------------------------------------------------------------------
+
+  - title: "[Database] Add video fragments to seed and rerun"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::critical"
+      - "type::task"
+      - "area::database"
+    description: |
+      The seed only uploads photo and text fragments. Video fragments need to be
+      included so the relive flow, fragment gallery, and video rendering fix can
+      all be validated against real data. The backend already supports video
+      fragments (type: 'video', storage_path pointing to an mp4).
+
+      Use short free-license clips from Pexels Videos, Pixabay Videos, or Coverr.
+      Target clips under 10 seconds and under 5 MB to keep the seeder fast.
+
+      File: backend/supabase/seed.ts
+
+      Implementation
+      - Add an uploadVideo helper alongside uploadPhoto that:
+          - Fetches the mp4 from a direct download URL
+          - Uploads to Supabase storage with contentType: 'video/mp4' and a .mp4 path
+          - Inserts a fragment row with type: 'video'
+      - Add a videoFragments param to createExperience (same pattern as additionalImages)
+      - Attach 1-2 video clips to at least one experience per demo user so the
+        relive flow has mixed media to work with
+      - Reset and rerun the seed after changes are in:
+          docker cp backend/supabase/seed.ts <api-container>:/app/seed.ts
+          docker exec <api-container> npx tsx seed.ts
+
+      Note: fix the video rendering bug in ReliveExperience FragmentCard before
+      reseeding so videos can be verified end to end in the relive flow.
+
+      Tests to verify
+      - [ ] Run the seed without errors
+      - [ ] Open the experience detail page for a seeded experience and confirm
+            video fragments appear in the fragment gallery
+      - [ ] Confirm the video plays inline in the gallery (VideoUpload renders a <video> tag)
+      - [ ] Open the relive flow for an experience with a video fragment and confirm
+            it renders rather than showing a blank placeholder
+      - [ ] Confirm photo and text fragments in the same experience are unaffected
+
+  - title: "[Testing] e2e reflections PATCH and DELETE tests pass vacuously when refIdA is null"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "priority::high"
+      - "type::bug"
+      - "area::testing"
+    description: |
+      In e2e/security/api-bypass.spec.ts the refIdA variable is populated from the
+      first reflection belonging to user A. If user A has no seeded reflections,
+      refIdA is null. The PATCH and DELETE ownership tests at lines 203 and 209 then
+      hit .../reflections/null which returns 404, satisfying [403, 404] and passing
+      vacuously without testing ownership enforcement at all.
+
+      File: e2e/security/api-bypass.spec.ts:79-80, 203, 209
+
+      Fix option A: Seed a known reflection for user A in beforeAll so refIdA is
+      always populated
+      Fix option B: Add a guard that skips the test with a clear message when
+      refIdA is null so the failure is visible instead of silently passing
+
+      Tests to verify
+      - [ ] Run the suite with no pre-existing reflections for user A and confirm
+            the tests either skip with a message or use the seeded reflection
+      - [ ] Confirm the PATCH and DELETE tests correctly return 403 or 404 when
+            user B tries to access user A's reflection
