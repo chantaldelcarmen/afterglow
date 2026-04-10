@@ -125,7 +125,7 @@ export function Profile() {
   };
 
   return (
-    <div className="h-full flex flex-col px-6 pb-8 overflow-y-auto">
+    <div className="h-full flex flex-col px-6 pb-36 overflow-y-auto">
       {/* Header */}
       <div
         className="transition-all duration-700"
