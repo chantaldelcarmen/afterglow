@@ -659,7 +659,9 @@ export default function ExperienceDetail() {
             className="relative overflow-hidden rounded-3xl border backdrop-blur-xl sticky top-8 h-[calc(100vh-120px)]"
             style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
           >
-            {coverImage && anchorIsVideo ? (
+            {anchorTextContent ? (
+              <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
+            ) : coverImage && anchorIsVideo ? (
               <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
             ) : coverImage ? (
               <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
@@ -668,6 +670,25 @@ export default function ExperienceDetail() {
             )}
             <ImageOverlay />
             <GlowOverlay />
+            {anchorTextContent && (
+              <div className="absolute inset-x-10 top-16 bottom-16 flex items-center justify-center">
+                <div
+                  className="w-full rounded-[32px] border px-8 py-10 text-center backdrop-blur-xl"
+                  style={{
+                    background: colors.surface.glassCard,
+                    borderColor: colors.surface.glassCardBorder,
+                    boxShadow: effects.shadows.card,
+                  }}
+                >
+                  <Body
+                    className="line-clamp-[10]"
+                    style={{ color: colors.text.primary, lineHeight: "1.8", fontSize: "18px" }}
+                  >
+                    {anchorTextContent}
+                  </Body>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right: scrollable content */}
