@@ -110,7 +110,7 @@ export default function ExperienceDetail() {
       }
     }
     void loadCoverImage();
-  }, [experience?.id, experience?.anchor_fragment_id, coverRefreshKey]);
+  }, [experience?.id, experience?.anchor_fragment_id, fragments, coverRefreshKey]);
 
   async function handleDelete() {
     if (!id) return;
@@ -263,6 +263,10 @@ export default function ExperienceDetail() {
     (fragment) => fragment.id === experience.anchor_fragment_id,
   );
   const anchorIsVideo = anchorFragment?.type === 'video';
+  const anchorTextContent =
+    anchorFragment?.type === 'text'
+      ? anchorFragment.text_context ?? anchorFragment.caption ?? 'Text fragment'
+      : null;
 
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
@@ -549,7 +553,9 @@ export default function ExperienceDetail() {
 
         {/* Hero image */}
         <div className="relative h-[336px] overflow-hidden">
-          {coverImage && anchorIsVideo ? (
+          {anchorTextContent ? (
+            <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
+          ) : coverImage && anchorIsVideo ? (
             <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
           ) : coverImage ? (
             <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
@@ -558,6 +564,25 @@ export default function ExperienceDetail() {
           )}
           <ImageOverlay />
           <GlowOverlay />
+          {anchorTextContent && (
+            <div className="absolute inset-x-6 top-24 bottom-28 flex items-center justify-center">
+              <div
+                className="w-full rounded-[28px] border px-5 py-6 text-center backdrop-blur-xl"
+                style={{
+                  background: colors.surface.glassCard,
+                  borderColor: colors.surface.glassCardBorder,
+                  boxShadow: effects.shadows.card,
+                }}
+              >
+                <Body
+                  className="line-clamp-6"
+                  style={{ color: colors.text.primary, lineHeight: "1.7" }}
+                >
+                  {anchorTextContent}
+                </Body>
+              </div>
+            </div>
+          )}
           <div className="absolute bottom-8 left-6 right-6">
             <H1 className="mb-2">{experience.title}</H1>
             {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
