@@ -37,6 +37,7 @@ export default function CreateExperience() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
+  
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [emotionTags, setEmotionTags] = useState<string[]>([]);
@@ -86,6 +87,10 @@ export default function CreateExperience() {
   };
 
   const isFormValid = !!title.trim() && !!date.trim();
+  const today = new Date();
+  const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0];
 
   return (
     <div className="h-full flex flex-col">
@@ -131,6 +136,7 @@ export default function CreateExperience() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  max={localToday}
                   className="w-full px-5 py-4 rounded-[28px] border backdrop-blur-xl transition-all duration-300 focus:outline-none"
                   style={{ ...inputStyle, colorScheme: "dark" }}
                   onFocus={(e) => Object.assign(e.currentTarget.style, inputFocusStyle)}

@@ -34,6 +34,7 @@ export default function ExperienceLibraryCard({ experience }: Props) {
       imageAlt={experience.title}
       title={experience.title}
       date={formattedDate}
+      is_draft={experience.is_draft}
       onClick={() => navigate(`/experience/${experience.id}`)}
     />
   );

@@ -227,6 +227,8 @@ export default function ExperienceDetail() {
     })
     : null;
 
+  const isDraft = experience.is_draft;
+
   const reflectionActionButtonStyle = {
     background: colors.surface.glass,
     borderColor: colors.surface.glassCardBorder,
@@ -503,9 +505,30 @@ export default function ExperienceDetail() {
             <H1 className="mb-2">{experience.title}</H1>
             {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
             <div className="mt-4">
-              <button onClick={() => navigate(`/relive/${id}`)} className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300" style={reliveButtonStyle} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)}>
-                <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
-              </button>
+              {isDraft ? (
+                <div className="space-y-2">
+                  <button
+                    disabled
+                    className="w-full rounded-full border backdrop-blur-xl px-6 py-3 opacity-60 cursor-not-allowed"
+                    style={reliveButtonStyle}
+                  >
+                    <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+                  </button>
+                  <BodySmall style={{ color: colors.text.muted }}>
+                    Set an anchor fragment to relive this memory.
+                  </BodySmall>
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate(`/relive/${id}`)}
+                  className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
+                  style={reliveButtonStyle}
+                  onMouseEnter={() => setIsButtonHovered(true)}
+                  onMouseLeave={() => setIsButtonHovered(false)}
+                >
+                  <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -559,9 +582,30 @@ export default function ExperienceDetail() {
               <H1 className="mb-1">{experience.title}</H1>
               {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
             </div>
-            <button onClick={() => navigate(`/relive/${id}`)} className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300" style={reliveButtonStyle} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)}>
-              <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
-            </button>
+            {isDraft ? (
+              <div className="space-y-2">
+                <button
+                  disabled
+                  className="w-full rounded-full border backdrop-blur-xl px-6 py-3 opacity-60 cursor-not-allowed"
+                  style={reliveButtonStyle}
+                >
+                  <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+                </button>
+                <BodySmall style={{ color: colors.text.muted }}>
+                  Set an anchor fragment to relive this memory.
+                </BodySmall>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate(`/relive/${id}`)}
+                className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
+                style={reliveButtonStyle}
+                onMouseEnter={() => setIsButtonHovered(true)}
+                onMouseLeave={() => setIsButtonHovered(false)}
+              >
+                <Body style={{ color: colors.text.primary }}>Relive Experience</Body>
+              </button>
+            )}
             {contentSections}
           </div>
         </div>
