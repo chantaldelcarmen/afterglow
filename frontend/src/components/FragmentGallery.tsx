@@ -147,9 +147,9 @@ export default function FragmentGallery({
             {onSetAnchor && anchorFragmentId !== f.id && (
               <button
                 type="button"
-                onClick={() => onSetAnchor(f)}
+                onDoubleClick={() => onSetAnchor(f)}
                 disabled={settingAnchorId === f.id}
-                aria-label={`Set ${f.caption ?? `${f.type} fragment`} as anchor`}
+                aria-label={`Double-click to set ${f.caption ?? `${f.type} fragment`} as peak moment`}
                 className="absolute inset-0 rounded-2xl transition-all duration-200 disabled:cursor-not-allowed"
                 style={{ background: 'transparent' }}
               />
