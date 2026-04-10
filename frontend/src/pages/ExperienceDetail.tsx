@@ -220,6 +220,8 @@ export default function ExperienceDetail() {
     </div>
   );
 
+  const anchorIsVideo = fragments.find(f => f.id === experience.anchor_fragment_id)?.type === 'video';
+
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
     ? new Date(displayDate).toLocaleDateString("en-US", {
@@ -494,7 +496,9 @@ export default function ExperienceDetail() {
 
         {/* Hero image */}
         <div className="relative h-[336px] overflow-hidden">
-          {coverImage ? (
+          {coverImage && anchorIsVideo ? (
+            <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+          ) : coverImage ? (
             <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
             <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
@@ -567,7 +571,9 @@ export default function ExperienceDetail() {
             className="relative overflow-hidden rounded-3xl border backdrop-blur-xl sticky top-8 h-[calc(100vh-120px)]"
             style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
           >
-            {coverImage ? (
+            {coverImage && anchorIsVideo ? (
+              <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+            ) : coverImage ? (
               <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
             ) : (
               <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
