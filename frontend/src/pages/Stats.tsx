@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { BackButton } from "../components/BackButton";
 import { AppLogo } from "../components/AppLogo";
 import { GlowOverlay } from "../components/GlowOverlay";
-import { mockStats } from "../data/stats-data";
 import { Calendar, Image as ImageIcon, Film, FileText } from "lucide-react";
+import { useAuth } from "../utils/AuthContext";
+import { getUserExperiences } from "../lib/experience";
+import { getFragments } from "../lib/storage";
 
 type SmallStatCard = {
   id: string;
@@ -15,6 +17,16 @@ type SmallStatCard = {
 
 export function Stats() {
   const [mounted, setMounted] = useState(false);
+  const { user, loading } = useAuth();
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState("")
+  const [stats, setStats] = useState({
+    experiences: 0,
+    totalFragments: 0,
+    photos: 0,
+    videos: 0,
+    text: 0,
+  });
 
   useEffect(() => {
     setMounted(false);
@@ -22,35 +34,85 @@ export function Stats() {
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
 
+  const loadStats = useCallback(async () => {
+    if (!user) return;
+
+    setDataLoading(true);
+    setError("");
+
+    try {
+      const experiences = await getUserExperiences();
+
+      const fragmentLists = await Promise.all(
+        experiences.map((exp) => getFragments(exp.id).catch(() => []))
+      );
+
+      const allFragments = fragmentLists.flat();
+
+      setStats({
+        experiences: experiences.length,
+        totalFragments: allFragments.length,
+        photos: allFragments.filter((f) => f.type === "photo").length,
+        videos: allFragments.filter((f) => f.type === "video").length,
+        text: allFragments.filter((f) => f.type === "text").length,
+      });
+    } catch {
+      setStats({
+        experiences: 0,
+        totalFragments: 0,
+        photos: 0,
+        videos: 0,
+        text: 0,
+      });
+      setError("Couldn't load your stats. Check your connection.");
+    } finally {
+      setDataLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      void loadStats();
+    }
+  }, [user, loadStats]);
+
   const smallCards: SmallStatCard[] = [
     {
       id: "experiences-created",
       label: "Experiences\nCreated",
-      value: mockStats.experiences,
+      value: stats.experiences,
       icon: <Calendar size={24} strokeWidth={2.2} />,
     },
     {
       id: "photos",
       label: "Photos",
-      value: mockStats.photos,
+      value: stats.photos,
       icon: <ImageIcon size={24} strokeWidth={2.2} />,
     },
     {
       id: "videos",
       label: "Videos",
-      value: mockStats.videos,
+      value: stats.videos,
       icon: <Film size={24} strokeWidth={2.2} />,
     },
     {
       id: "text-fragments",
       label: "Text Fragments",
-      value: mockStats.text,
+      value: stats.text,
       icon: <FileText size={24} strokeWidth={2.2} />,
     },
   ];
 
   const baseShadow =
     "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
+
+  if (loading || !user) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col pb-32 overflow-y-auto">
@@ -69,6 +131,13 @@ export function Stats() {
         <section className="space-y-2 pt-1">
           <H2>Your Stats</H2>
         </section>
+        {error && (
+          <div className="text-center">
+            <BodySmall style={{ color: "var(--color-accent-coral)" }}>
+              {error}
+            </BodySmall>
+          </div>
+        )}
 
         {/* Main card */}
         <section>
@@ -92,7 +161,7 @@ export function Stats() {
                     "0 0 18px rgba(240, 193, 100, 0.18), 0 6px 18px rgba(0,0,0,0.28)",
                 }}
               >
-                {mockStats.totalFragments}
+                {dataLoading ? "—" : stats.totalFragments}
               </H2>
 
               <Body
@@ -152,7 +221,7 @@ export function Stats() {
                         "0 0 14px rgba(255,255,255,0.08), 0 6px 18px rgba(0,0,0,0.28)",
                     }}
                   >
-                    {card.value}
+                    {dataLoading ? "—" : card.value}
                   </H2>
 
                   <Body
