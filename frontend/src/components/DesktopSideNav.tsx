@@ -1,4 +1,4 @@
-import { Home, Library, Plus, UserCircle, Sparkles, Shield, LogOut } from "lucide-react";
+import { Home, Library, Plus, UserCircle, Sparkles, Shield, LayoutDashboard, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../utils/AuthContext";
@@ -25,7 +25,7 @@ const REVIEWER_NAV_ITEMS: NavItem[] = [
 
 // admin gets their dashboard + reviewer access + profile
 const ADMIN_NAV_ITEMS: NavItem[] = [
-  { to: "/admin", icon: Shield, label: "Admin Dashboard" },
+  { to: "/admin", icon: LayoutDashboard, label: "Admin Dashboard" },
   { to: "/reviewer", icon: Shield, label: "Review Queue" },
   { to: "/profile", icon: UserCircle, label: "Profile" },
 ];

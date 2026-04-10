@@ -1,4 +1,4 @@
-import { Home, Library, Sparkles, UserCircle, Shield } from "lucide-react";
+import { Home, Library, Sparkles, UserCircle, Shield, LayoutDashboard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { FloatingOrb } from "./FloatingOrb";
@@ -46,11 +46,11 @@ export function BottomNav() {
 
   if (loading || !role) return null;
 
-  // Reviewer and admin get a plain nav bar -- no orb or cutout
+  // Reviewer and admin get a plain nav bar - no orb or cutout
   if (role === "platform_reviewer" || role === "admin") {
     const items = role === "admin"
       ? [
-          { to: "/admin", icon: <Shield size={30} strokeWidth={1.5} />, label: "Admin" },
+          { to: "/admin", icon: <LayoutDashboard size={30} strokeWidth={1.5} />, label: "Admin" },
           { to: "/reviewer", icon: <Shield size={30} strokeWidth={1.5} />, label: "Review Queue" },
           { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Profile" },
         ]
