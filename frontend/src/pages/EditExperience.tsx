@@ -122,7 +122,6 @@ export function EditExperience() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  max={new Date().toISOString().split("T")[0]}
                   placeholder="A moment worth remembering..."
                   className="w-full px-5 py-4 rounded-[28px] border backdrop-blur-xl transition-all duration-300 focus:outline-none"
                   style={inputStyle}
