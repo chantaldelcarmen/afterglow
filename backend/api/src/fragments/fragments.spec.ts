@@ -219,6 +219,38 @@ describe('FragmentsService Testing', () => {
       expect(storage.getPublicUrl).toHaveBeenCalledTimes(1);
     });
 
+    it('successfully creates a text fragment without a file', async () => {
+      const storage = mockBucket();
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValue({ data: mockExperience(), error: null }),
+        insert: jest
+          .fn<() => Promise<{ error: any }>>()
+          .mockResolvedValue({ error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      const res = await service.attachFragment(
+        'userA',
+        'exp1',
+        undefined,
+        mockAttachFragmentDto({
+          type: 'text',
+          text_context: 'A quiet note from the upload page.',
+          caption: 'Journal',
+        }),
+      );
+
+      expect(res).toEqual({ storagePath: null, publicUrl: null });
+      expect(storage.upload).not.toHaveBeenCalled();
+      expect(storage.getPublicUrl).not.toHaveBeenCalled();
+    });
+
     it('throw BadRequestException with no file in req', async () => {
       const commands = mockDb({
         single: jest
@@ -238,6 +270,28 @@ describe('FragmentsService Testing', () => {
           'exp1',
           null as any,
           mockAttachFragmentDto(),
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throw BadRequestException when text fragment content is empty', async () => {
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValue({ data: mockExperience(), error: null }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnThis() },
+      });
+
+      await expect(
+        service.attachFragment(
+          'userA',
+          'exp1',
+          undefined,
+          mockAttachFragmentDto({ type: 'text', text_context: '   ' }),
         ),
       ).rejects.toThrow(BadRequestException);
     });
@@ -424,7 +478,7 @@ describe('FragmentsService Testing', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('throw BadRequestException if fragment has no storage path', async () => {
+    it('returns null when fragment has no storage path', async () => {
       // use default mock bucket
       const storage = mockBucket();
 
@@ -447,7 +501,8 @@ describe('FragmentsService Testing', () => {
 
       await expect(
         service.getFragmentSignedUrl('userA', 'exp1', 'frag1'),
-      ).rejects.toThrow(BadRequestException);
+      ).resolves.toEqual({ signedUrl: null });
+      expect(storage.createSignedUrl).not.toHaveBeenCalled();
     });
 
     it('throw InternalServerErrorException if error with retrieving the signed url', async () => {
@@ -504,6 +559,29 @@ describe('FragmentsService Testing', () => {
       const res = await service.removeFragment('userA', 'exp1', 'frag1');
       expect(res).toHaveProperty('message', 'Fragment deleted successfully');
       expect(storage.remove).toHaveBeenCalledTimes(1);
+    });
+
+    it('successfully removes a text fragment without touching storage', async () => {
+      const storage = mockBucket();
+
+      const commands = mockDb({
+        single: jest
+          .fn<() => Promise<{ data: any; error: any }>>()
+          .mockResolvedValueOnce({ data: mockExperience(), error: null })
+          .mockResolvedValueOnce({
+            data: mockFragment({ storage_path: null, type: 'text' }),
+            error: null,
+          }),
+      });
+
+      getClient.mockReturnValue({
+        from: commands.from,
+        storage: { from: jest.fn().mockReturnValue(storage) },
+      });
+
+      const res = await service.removeFragment('userA', 'exp1', 'frag1');
+      expect(res).toHaveProperty('message', 'Fragment deleted successfully');
+      expect(storage.remove).not.toHaveBeenCalled();
     });
 
     it('throw BadRequestException if trying to delete the anchor fragment', async () => {
