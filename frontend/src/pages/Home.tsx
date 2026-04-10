@@ -7,6 +7,8 @@ import { GlassButton } from "../components/GlassButton";
 import { useAuth } from "../utils/AuthContext";
 import { apiFetch } from "../lib/api";
 import type { Experience } from "../types/experience";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
@@ -88,11 +90,17 @@ export default function Home() {
         }}
       >
         <AppLogo />
-        <H2>Welcome Back</H2>
-        <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-          Your emotional memories, preserved and waiting
-        </BodySmall>
+        <div className="flex items-center justify-between max-w-[1000px]">
+          <div>
+            <H2>Welcome Back</H2>
+            <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
+              Your emotional memories, preserved and waiting
+            </BodySmall>
+          </div>
+          <HelpButton content={HELP_CONTENT["/"]} />
+        </div>
       </div>
+
 
       {/* Scrollable Content */}
       <div

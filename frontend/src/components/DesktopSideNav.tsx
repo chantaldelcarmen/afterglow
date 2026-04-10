@@ -2,6 +2,7 @@ import { Home, Library, Plus, UserCircle, Sparkles, Shield, LogOut } from "lucid
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../utils/AuthContext";
+import { useState } from "react";
 
 const ACTIVE_BG = "rgba(120,60,160,0.20)";
 const ACTIVE_SHADOW = "inset 0 0 30px rgba(150,80,200,0.4), 0 0 15px rgba(120,60,160,0.3)";
@@ -17,24 +18,33 @@ const NAV_ITEMS: { to: string; icon: LucideIcon; label: string }[] = [
 function SideNavLink({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
   const location = useLocation();
   const active = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <Link
       to={to}
       className="flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300"
       style={{
-        background: active ? ACTIVE_BG : "transparent",
-        boxShadow: active ? ACTIVE_SHADOW : "none",
+        background: active ? ACTIVE_BG : isHovered ? "rgba(120,60,160,0.10)" : "transparent",
+        boxShadow: active && isHovered
+          ? "inset 0 0 30px rgba(150,80,200,0.5), 0 0 20px rgba(120,60,160,0.4)" // brighter when active + hovered
+          : active
+            ? ACTIVE_SHADOW
+            : isHovered
+              ? "inset 0 0 20px rgba(150,80,200,0.15), 0 0 8px rgba(120,60,160,0.15)"
+              : "none",
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Icon
         size={20}
         strokeWidth={1.5}
-        style={{ color: active ? "var(--color-text-primary)" : "var(--color-text-muted)" }}
+        style={{ color: active || isHovered ? "var(--color-text-primary)" : "var(--color-text-muted)" }}
       />
       <span
         className="text-sm font-medium"
-        style={{ color: active ? "var(--color-text-primary)" : "var(--color-text-muted)" }}
+        style={{ color: active || isHovered ? "var(--color-text-primary)" : "var(--color-text-muted)" }}
       >
         {label}
       </span>

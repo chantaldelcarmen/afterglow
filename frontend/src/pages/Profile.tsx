@@ -5,6 +5,8 @@ import { AppLogo } from "../components/AppLogo";
 import { useAuth } from "../utils/AuthContext";
 import { getUserExperiences } from "../lib/experience";
 import { getFragments } from "../lib/storage";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 export function Profile() {
   const { user, loading } = useAuth();
@@ -83,7 +85,15 @@ export function Profile() {
       >
         {/* Profile section */}
         <section className="space-y-4">
-          <H2>Your Profile</H2>
+          <div className="flex items-start justify-between">
+            <div>
+              <H2>Your Profile</H2>
+              <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
+                Your account and memory stats
+              </BodySmall>
+            </div>
+            <HelpButton content={HELP_CONTENT["/profile"]} />
+          </div>
 
           <div className="flex flex-col items-center space-y-3 py-4">
             <div

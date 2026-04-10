@@ -271,7 +271,30 @@ export default function ExperienceDetail() {
         className="rounded-2xl border backdrop-blur-xl p-5"
         style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
       >
-        <H2 className="mb-3">Fragments</H2>
+        <div className="flex items-center justify-between mb-3">
+          <H2>Fragments</H2>
+          <button
+            onClick={() => navigate(`/upload?experienceId=${id}`)}
+            className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200"
+            style={{
+              background: colors.surface.glass,
+              borderColor: colors.surface.glassCardBorder,
+              color: colors.text.muted,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover;
+              e.currentTarget.style.color = colors.text.primary;
+              e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = colors.surface.glassCardBorder;
+              e.currentTarget.style.color = colors.text.muted;
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            + Add fragment
+          </button>
+        </div>
         {fragmentError && <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>{fragmentError}</BodySmall>}
         {fragments.length === 0 ? (
           <BodySmall style={{ color: colors.text.mutedDim }}>No fragments yet.</BodySmall>
@@ -305,8 +328,14 @@ export default function ExperienceDetail() {
                     {new Date(reflection.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                   </BodySmall>
                   <div className="flex shrink-0 gap-2">
-                    <button onClick={() => openEditReflection(reflection)} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={reflectionActionButtonStyle}>Edit</button>
-                    <button onClick={() => { setReflectionError(""); setReflectionToDelete(reflection); }} disabled={deletingReflectionId === reflection.id} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={{ ...reflectionActionButtonStyle, color: colors.accent.coral }}>
+                    <button onClick={() => openEditReflection(reflection)} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={reflectionActionButtonStyle}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+                    >Edit</button>
+                    <button onClick={() => { setReflectionError(""); setReflectionToDelete(reflection); }} disabled={deletingReflectionId === reflection.id} className="rounded-full border px-3 py-1.5 text-xs backdrop-blur-xl transition-all duration-200" style={{ ...reflectionActionButtonStyle, color: colors.accent.coral }}
+                      onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.75"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+                    >
                       {deletingReflectionId === reflection.id ? "Deleting..." : "Delete"}
                     </button>
                   </div>
@@ -336,8 +365,14 @@ export default function ExperienceDetail() {
             <H2>Delete experience?</H2>
             <BodySmall style={{ color: colors.text.muted }}>This will permanently delete this experience and all its fragments. This cannot be undone.</BodySmall>
             <div className="flex gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
-              <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+              >Cancel</button>
+              <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+              >
                 {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
@@ -358,8 +393,14 @@ export default function ExperienceDetail() {
               placeholder="Update your reflection"
             />
             <div className="flex gap-3">
-              <button onClick={closeEditReflection} disabled={savingReflection} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
-              <button onClick={() => void handleSaveReflection()} disabled={savingReflection} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}>
+              <button onClick={closeEditReflection} disabled={savingReflection} className="flex-1 rounded-full border py-3 text-sm transition-all duration-200" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+              >Cancel</button>
+              <button onClick={() => void handleSaveReflection()} disabled={savingReflection} className="flex-1 rounded-full py-3 text-sm transition-all duration-200" style={{ background: colors.button.plumGlassBg, color: colors.text.primary }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = colors.button.plumGlassBgHover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = colors.button.plumGlassBg; }}
+              >
                 {savingReflection ? "Saving..." : "Save"}
               </button>
             </div>
@@ -388,8 +429,14 @@ export default function ExperienceDetail() {
             <H2>Delete reflection?</H2>
             <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this saved reflection.</BodySmall>
             <div className="flex gap-3">
-              <button onClick={() => setReflectionToDelete(null)} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
-              <button onClick={() => void handleDeleteReflection()} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}>
+              <button onClick={() => setReflectionToDelete(null)} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full border py-3 text-sm transition-all duration-200" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
+              >Cancel</button>
+              <button onClick={() => void handleDeleteReflection()} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full py-3 text-sm transition-all duration-200" style={{ background: colors.accent.coral, color: "#fff" }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+              >
                 {deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
               </button>
             </div>
@@ -446,10 +493,16 @@ export default function ExperienceDetail() {
             <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
-            <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
+            <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}
+            >
               <Pencil size={16} style={{ color: colors.text.primary }} />
             </button>
-            <button onClick={() => setShowDeleteConfirm(true)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
+            <button onClick={() => setShowDeleteConfirm(true)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px rgba(229,118,120,0.4)`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}
+            >
               <Trash2 size={16} style={{ color: colors.accent.coral }} />
             </button>
           </div>
