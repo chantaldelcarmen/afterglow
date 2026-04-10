@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -40,6 +40,7 @@ export function EditExperience() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const userHasEdited = useRef(false);
 
   useEffect(() => {
     setMounted(false);
@@ -47,9 +48,10 @@ export function EditExperience() {
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
 
-  // Save draft on every change
+  // Save draft on every change, but only after the user has actually edited something
   useEffect(() => {
     if (!id || fetching) return;
+    if (!userHasEdited.current) { userHasEdited.current = true; return; }
     localStorage.setItem(EDIT_DRAFT_KEY(id), JSON.stringify({ title, date, location, description, emotionTags }));
   }, [title, date, location, description, emotionTags, id, fetching]);
 
