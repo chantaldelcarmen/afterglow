@@ -38,6 +38,7 @@ export default function ExperienceDetail() {
   const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
   const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [coverRefreshKey, setCoverRefreshKey] = useState(0);
 
   useEffect(() => {
     setMounted(false);
@@ -74,6 +75,17 @@ export default function ExperienceDetail() {
   }, [loadAll]);
 
   useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void loadAll();
+        setCoverRefreshKey((k) => k + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [loadAll]);
+
+  useEffect(() => {
     async function loadCoverImage() {
       if (!experience?.anchor_fragment_id) return;
       try {
@@ -85,7 +97,7 @@ export default function ExperienceDetail() {
       }
     }
     void loadCoverImage();
-  }, [experience?.id, experience?.anchor_fragment_id]);
+  }, [experience?.id, experience?.anchor_fragment_id, coverRefreshKey]);
 
   async function handleDelete() {
     if (!id) return;
@@ -343,6 +355,7 @@ export default function ExperienceDetail() {
               </BodySmall>
             </div>
             <FragmentGallery
+              key={coverRefreshKey}
               fragments={fragments}
               anchorFragmentId={experience.anchor_fragment_id}
               deletingFragmentId={deletingFragmentId}
