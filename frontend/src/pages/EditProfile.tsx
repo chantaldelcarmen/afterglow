@@ -1,26 +1,62 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../utils/AuthContext";
 import { Camera } from "lucide-react";
 import { H2, BodySmall } from "../components/Typography";
 import { BackButton } from "../components/BackButton";
 import { AppLogo } from "../components/AppLogo";
 import { GlowOverlay } from "../components/GlowOverlay";
 import { useNavigate } from "react-router-dom";
+import supabase from "../utils/supabase";
 
 export function EditProfile() {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
-  const [name, setName] = useState("Sarah Mitchell");
+  const { user, loading } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState(""); 
 
   useEffect(() => {
     setMounted(false);
     const timer = setTimeout(() => setMounted(true), 50);
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
-  const [email, setEmail] = useState("sarah.mitchell@example.com");
-  const [bio, setBio] = useState("Capturing life's fleeting moments");
 
-  const handleSave = () => {
-    navigate(-1);
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return;
+
+      setEmail(user.email ?? "");
+      setBio("");
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+
+      if (!error) {
+        setName(data?.display_name ?? user.email?.split("@")[0] ?? "");
+      } else {
+        setName(user.email?.split("@")[0] ?? "");
+      }
+    };
+
+    void loadProfile();
+  }, [user]);
+
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: name })
+      .eq("id", user.id);
+
+    if (!error) {
+      navigate(-1);
+    }
   };
 
   const cardStyle: React.CSSProperties = {
@@ -47,6 +83,18 @@ export function EditProfile() {
     boxShadow:
       "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
   };
+
+  if (loading || !user) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <BodySmall style={{ color: "var(--color-text-muted)" }}>
+          Loading...
+        </BodySmall>
+      </div>
+    );
+  }
+
+  const initial = name.trim().charAt(0).toUpperCase() || "U";
 
   return (
     <div className="h-full flex flex-col">
@@ -77,11 +125,15 @@ export function EditProfile() {
                   "0 0 24px var(--color-button-warm-glow), 0 0 40px var(--color-button-warm-glow), 0 4px 12px rgba(0,0,0,0.3)",
               }}
             >
-              <img
-                src="https://images.unsplash.com/photo-1545311630-51ea4a4c84de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMHdvbWFuJTIwaGFwcHklMjBzbWlsZXxlbnwxfHx8fDE3NzI0MzQ0NDd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Profile photo"
-                className="w-full h-full object-cover"
-              />
+              <div
+                className="w-full h-full flex items-center justify-center text-3xl font-bold"
+                style={{
+                  background: "var(--color-button-plum-bg)",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {initial}
+              </div>
             </div>
 
             <button
