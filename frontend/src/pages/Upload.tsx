@@ -14,6 +14,7 @@ import { AppLogo } from '../components/AppLogo';
 import PhotoUpload from '../components/PhotoUpload';
 import VideoUpload from '../components/VideoUpload';
 import FragmentGallery from '../components/FragmentGallery';
+import { revokePhotoPreviewUrl } from '../utils/photoPreviewUrl';
 import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
 
 interface ExperienceData {
@@ -133,6 +134,10 @@ export default function Upload() {
   }
 
   function handleCancel() {
+    if (hasActivePhotoDraft) {
+      revokePhotoPreviewUrl(photoDraft.file);
+    }
+
     setPhotoDraft(EMPTY_PHOTO_DRAFT);
     setSelectedType(null);
     navigate(-1);
