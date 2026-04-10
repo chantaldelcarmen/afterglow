@@ -13,6 +13,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { AppLogo } from '../components/AppLogo';
 import PhotoUpload from '../components/PhotoUpload';
 import VideoUpload from '../components/VideoUpload';
+import TextUpload from '../components/TextUpload';
 import FragmentGallery from '../components/FragmentGallery';
 import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
 
@@ -59,7 +60,7 @@ export default function Upload() {
       : hasActivePhotoDraft
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
-          ? 'Text fragments are coming soon'
+          ? 'Write a text fragment to capture this moment'
           : 'Tap the camera or video orb to choose a fragment';
 
   const desktopHelperText =
@@ -68,7 +69,7 @@ export default function Upload() {
       : hasActivePhotoDraft
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
-          ? 'Text fragments are coming soon'
+          ? 'Write a text fragment to capture this moment'
           : 'Choose a fragment type to continue';
 
   const loadFragments = useCallback(async (expId: string) => {
@@ -320,17 +321,15 @@ export default function Upload() {
           </div>
         )}
         {selectedType === 'text' && (
-          <div
-            className="max-w-sm mx-auto mb-6 rounded-[28px] border backdrop-blur-xl px-5 py-6 text-center"
-            style={{
-              background: 'var(--color-surface-glass-card)',
-              borderColor: 'var(--color-surface-glass-card-border)',
-              boxShadow: 'var(--shadow-card)',
-            }}
-          >
-            <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}>
-              Text fragments coming soon
-            </BodySmall>
+          <div className="max-w-sm mx-auto mb-5">
+            <TextUpload
+              experienceId={experienceId}
+              onUploaded={() => {
+                loadFragments(experienceId);
+                setSelectedType(null);
+              }}
+              onCancel={() => setSelectedType(null)}
+            />
           </div>
         )}
 
