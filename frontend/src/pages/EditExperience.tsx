@@ -90,6 +90,10 @@ export function EditExperience() {
   };
 
   const isFormValid = !!title.trim() && !!date.trim();
+  const today = new Date();
+  const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0];
 
   if (fetching) return <LoadingScreen />;
 
@@ -137,6 +141,7 @@ export function EditExperience() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  max={localToday}
                   className="w-full px-5 py-4 rounded-[28px] border backdrop-blur-xl transition-all duration-300 focus:outline-none"
                   style={{ ...inputStyle, colorScheme: "dark" }}
                   onFocus={(e) => Object.assign(e.currentTarget.style, inputFocusStyle)}
