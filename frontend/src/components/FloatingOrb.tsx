@@ -24,8 +24,8 @@ const MINI_ORB_OPTIONS: {
     icon: Camera,
     gradient: "radial-gradient(circle at center, rgba(150, 200, 255, 0.9) 0%, rgba(100, 150, 220, 0.8) 50%, rgba(80, 130, 200, 0.9) 100%)",
     glow: "0 0 20px rgba(150, 200, 255, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.4)",
-    x: -65,
-    y: -160,
+    x: -70,
+    y: -50,
   },
   {
     type: "video",
@@ -33,15 +33,15 @@ const MINI_ORB_OPTIONS: {
     gradient: "radial-gradient(circle at center, rgba(200, 150, 255, 0.9) 0%, rgba(150, 100, 220, 0.8) 50%, rgba(130, 80, 200, 0.9) 100%)",
     glow: "0 0 20px rgba(200, 150, 255, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.4)",
     x: 0,
-    y: -180,
+    y: -90,
   },
   {
     type: "text",
     icon: Type,
     gradient: "radial-gradient(circle at center, rgba(255, 180, 200, 0.9) 0%, rgba(230, 130, 160, 0.8) 50%, rgba(210, 100, 140, 0.9) 100%)",
     glow: "0 0 20px rgba(255, 180, 200, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.4)",
-    x: 65,
-    y: -160,
+    x: 70,
+    y: -50,
   },
 ];
 
