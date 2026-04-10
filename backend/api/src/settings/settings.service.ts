@@ -10,11 +10,8 @@ export class SettingsService {
     const { data, error } = await this.supabase
       .getClient()
       .from('user_settings')
-      .upsert(
-        { user_id: userId, ai_reflection_enabled: false },
-        { onConflict: 'user_id', ignoreDuplicates: true },
-      )
       .select()
+      .eq('user_id', userId)
       .single();
 
     if (error) {
