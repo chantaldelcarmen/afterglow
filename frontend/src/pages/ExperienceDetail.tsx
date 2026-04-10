@@ -37,6 +37,7 @@ export default function ExperienceDetail() {
   const [fragmentToDelete, setFragmentToDelete] = useState<Fragment | null>(null);
   const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
   const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     setMounted(false);
@@ -101,12 +102,14 @@ export default function ExperienceDetail() {
 
   async function handlePublish() {
     if (!id) return;
+    setPublishing(true);
     try {
       await updateExperience(id, {is_draft: false});
       navigate("/library");
     } catch (err) {
       console.error(err);
-      setError("Cannot publish experience without a valid anchor set");
+      setError("Could not publish. Make sure an anchor fragment is set and try again.");
+      setPublishing(false);
     }
   }
 
@@ -495,7 +498,7 @@ export default function ExperienceDetail() {
           </button>
           <div className="flex gap-2">
             {isDraft && (
-              <button onClick={() => handlePublish()} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300"
+              <button onClick={() => void handlePublish()} disabled={publishing} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={iconBtnStyle}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
@@ -567,7 +570,7 @@ export default function ExperienceDetail() {
           </button>
           <div className="flex gap-2">
             {isDraft && (
-              <button onClick={() => handlePublish()} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300"
+              <button onClick={() => void handlePublish()} disabled={publishing} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={iconBtnStyle}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
