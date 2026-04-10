@@ -31,6 +31,15 @@ export async function deleteFragment(
   });
 }
 
+export async function setAnchorFragment(
+  experienceId: string,
+  fragmentId: string,
+): Promise<void> {
+  await apiFetch(`/experiences/${experienceId}/fragments/${fragmentId}/anchor`, {
+    method: 'PATCH',
+  });
+}
+
 export async function getFragmentSignedUrl(
   experienceId: string,
   fragmentId: string,
