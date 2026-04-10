@@ -1,6 +1,6 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Anchor } from "lucide-react";
 import { getOneExperience, removeExperience } from "../lib/experience";
 import { deleteFragment, getFragments, getFragmentSignedUrl, setAnchorFragment } from "../lib/storage";
 import { deleteReflection, getReflections, updateReflection } from "../lib/reflections";
@@ -316,11 +316,14 @@ export default function ExperienceDetail() {
           <BodySmall style={{ color: colors.text.mutedDim }}>No fragments yet.</BodySmall>
         ) : (
           <>
-            <BodySmall className="mb-3" style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
-              {experience.anchor_fragment_id
-                ? "⚓ Tap any fragment to make it the peak moment of the relive experience."
-                : "⚓ Tap a fragment to set it as the peak moment before publishing."}
-            </BodySmall>
+            <div className="flex items-center gap-1.5 mb-3">
+              <Anchor size={11} style={{ color: colors.text.mutedDim, flexShrink: 0 }} />
+              <BodySmall style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
+                {experience.anchor_fragment_id
+                  ? "Tap any fragment to change the peak moment."
+                  : "Tap a fragment to set it as the peak moment before publishing."}
+              </BodySmall>
+            </div>
             <FragmentGallery
               fragments={fragments}
               anchorFragmentId={experience.anchor_fragment_id}
