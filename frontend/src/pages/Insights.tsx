@@ -196,7 +196,7 @@ export function Insights() {
                 <BodySmall style={{ color: colors.text.mutedDim }}>
                   AI Reflection is turned off. Enable it in{" "}
                   <Link
-                    to="/settings"
+                    to="/profile"
                     style={{ color: colors.text.muted, textDecoration: "underline" }}
                   >
                     Settings
