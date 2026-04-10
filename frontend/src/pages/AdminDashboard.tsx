@@ -49,32 +49,42 @@ export function AdminDashboard() {
   }, []);
 
   const handleToggleRole = (id: string) => {
+    const targetUser = users.find((u) => u.id === id);
+    if (!targetUser) return;
+
+    const newRole =
+      targetUser.role === "platform_reviewer"
+        ? "experience_creator"
+        : "platform_reviewer";
+
     setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id !== id) return u;
-        const newRole =
-          u.role === "platform_reviewer" ? "experience_creator" : "platform_reviewer";
-        setActivityLog((log) => [
-          `Changed @${u.username} role to ${newRole.replace("_", " ")}`,
-          ...log.slice(0, 4),
-        ]);
-        return { ...u, role: newRole };
-      })
+      prev.map((u) =>
+        u.id === id ? { ...u, role: newRole } : u
+      )
     );
+
+    setActivityLog((log) => [
+      `Changed @${targetUser.username} role to ${newRole.replace("_", " ")}`,
+      ...log.slice(0, 4),
+    ]);
   };
  
   const handleToggleSuspend = (id: string) => {
+    const targetUser = users.find((u) => u.id === id);
+    if (!targetUser) return;
+
+    const action = targetUser.suspended ? "Reinstated" : "Suspended";
+
     setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id !== id) return u;
-        const action = u.suspended ? "Reinstated" : "Suspended";
-        setActivityLog((log) => [
-          `${action} @${u.username}`,
-          ...log.slice(0, 4),
-        ]);
-        return { ...u, suspended: !u.suspended };
-      })
+      prev.map((u) =>
+        u.id === id ? { ...u, suspended: !u.suspended } : u
+      )
     );
+
+    setActivityLog((log) => [
+      `${action} @${targetUser.username}`,
+      ...log.slice(0, 4),
+    ]);
   };
  
   const handleResetUsers = () => {
@@ -589,7 +599,7 @@ export function AdminDashboard() {
               </div>
             </div>
 
-          {/* Recent activity */}
+          {/* Recent Admin Activity - updates live with actions */}
           <div className="space-y-3">
             <H2>Recent admin activity</H2>
             <div
@@ -600,21 +610,15 @@ export function AdminDashboard() {
                 boxShadow: effects.shadows.card,
               }}
             >
-              {[
-                "Assigned reviewer access to 2 team members",
-                "Updated sharing defaults for new experiences",
-                "Reviewed 7 safety reports from the last week",
-              ].map((item, index) => (
+              {activityLog.map((item, index) => (
                 <div key={index} className="flex gap-2">
                   <div
-                    className="mt-1 w-1.5 h-1.5 rounded-full"
-                    style={{
-                      background: colors.accent.lavender,
-                    }}
+                    className="mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: index === 0 ? colors.accent.gold : colors.accent.lavender }}
                   />
                   <BodySmall
                     style={{
-                      color: colors.text.muted,
+                      color: index === 0 ? colors.text.muted : colors.text.mutedDim,
                       fontSize: "12px",
                     }}
                   >
