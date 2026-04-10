@@ -68,10 +68,10 @@ function SideNavLink({ to, icon: Icon, label }: { to: string; icon: LucideIcon; 
 }
 
 export function DesktopSideNav() {
-  const { role, loading } = useAuth();
+  const { role } = useAuth();
   const navigate = useNavigate();
 
-  if (loading || !role) return null;
+  if (!role) return null;
 
   const navItems = role === "admin" ? ADMIN_NAV_ITEMS
         : role === "platform_reviewer" ? REVIEWER_NAV_ITEMS

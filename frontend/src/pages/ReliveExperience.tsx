@@ -102,6 +102,30 @@ export function ReliveExperience() {
     void load();
   }, [load]);
 
+  const refreshSignedUrls = useCallback(async () => {
+    if (!id) return;
+    const refreshFrag = async (f: ReliveFragment): Promise<ReliveFragment> => ({
+      ...f,
+      signedUrl: f.storage_path ? await getFragmentSignedUrl(id, f.id) : null,
+    });
+    const [newContext, newPeak] = await Promise.all([
+      Promise.all(contextFragments.map(refreshFrag)),
+      peakFragment ? refreshFrag(peakFragment) : Promise.resolve(null),
+    ]);
+    setContextFragments(newContext);
+    if (newPeak) setPeakFragment(newPeak);
+  }, [id, contextFragments, peakFragment]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshSignedUrls();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [refreshSignedUrls]);
+
   // Auto-advance through context fragments
   useEffect(() => {
     if (loading || isPaused || phase !== "context") return;

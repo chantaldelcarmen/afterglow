@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall, Subtitle } from "../components/Typography";
 import { AppLogo } from "../components/AppLogo";
 import supabase from "../utils/supabase";
+import { useAuth } from "../utils/AuthContext";
 
 const inputStyle = {
   background: "var(--color-surface-glass-card)",
@@ -15,11 +16,13 @@ const inputStyle = {
 
 export function SignIn() {
   const navigate = useNavigate();
+  const { role, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [awaitingRole, setAwaitingRole] = useState(false);
 
   useEffect(() => {
     setMounted(false);
@@ -27,13 +30,30 @@ export function SignIn() {
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
 
+  // Once sign-in succeeds, wait for AuthContext to resolve the role then redirect
+  useEffect(() => {
+    if (!awaitingRole || authLoading || !role) return;
+    if (role === "admin") navigate("/admin");
+    else if (role === "platform_reviewer") navigate("/reviewer");
+    else navigate("/");
+  }, [awaitingRole, authLoading, role, navigate]);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setError(error.message); } else { navigate("/"); }
-    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // AuthContext's onAuthStateChange will fire and fetch the role;
+    // the effect above will redirect once it's available
+    setAwaitingRole(true);
   };
 
   return (
