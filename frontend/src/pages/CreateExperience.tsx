@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Body, BodySmall } from "../components/Typography";
 import { SubpageHeader } from "../components/SubpageHeader";
@@ -47,6 +47,7 @@ export default function CreateExperience() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const userHasEdited = useRef(false);
 
   // Restore draft on mount
   useEffect(() => {
@@ -61,8 +62,9 @@ export default function CreateExperience() {
     }
   }, []);
 
-  // Save draft on every change
+  // Save draft on every change, but skip the initial render to avoid overwriting a restored draft
   useEffect(() => {
+    if (!userHasEdited.current) { userHasEdited.current = true; return; }
     localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, date, location, description, emotionTags }));
   }, [title, date, location, description, emotionTags]);
 
