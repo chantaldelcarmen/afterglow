@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
 
 import { getOneExperience } from "../lib/experience";
 import { getFragments, getFragmentSignedUrl } from "../lib/storage";
@@ -45,6 +45,8 @@ export function ReliveExperience() {
   const [showHint, setShowHint] = useState(true);
   const [showCaptionIntro, setShowCaptionIntro] = useState(true);
   const [showOpeningTitle, setShowOpeningTitle] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
     const t1 = setTimeout(() => setFadeToBlack(false), 300);
@@ -60,35 +62,69 @@ export function ReliveExperience() {
   }, []);
 
   useEffect(() => {
-    if (!id) return;
-    async function load() {
-      try {
-        const [exp, frags] = await Promise.all([
-          getOneExperience(id!),
-          getFragments(id!),
-        ]);
-        setExperience(exp);
+    const goOffline = () => { setIsOffline(true); setIsPaused(true); };
+    const goOnline = () => { setIsOffline(false); setIsPaused(false); };
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("online", goOnline);
+    return () => {
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", goOnline);
+    };
+  }, []);
 
-        const withUrls: ReliveFragment[] = await Promise.all(
-          frags.map(async (f: Fragment) => ({
-            ...f,
-            isAnchor: f.id === exp.anchor_fragment_id,
-            signedUrl: f.storage_path
-              ? await getFragmentSignedUrl(id!, f.id)
-              : null,
-          }))
-        );
-        setContextFragments(withUrls.filter((f) => !f.isAnchor));
-        setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
-      } catch (err) {
-        console.error("Failed to load relive experience", err);
-        navigate(`/experience/${id}`);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    if (!id) return;
+    try {
+      const [exp, frags] = await Promise.all([
+        getOneExperience(id!),
+        getFragments(id!),
+      ]);
+      setExperience(exp);
+
+      const withUrls: ReliveFragment[] = await Promise.all(
+        frags.map(async (f: Fragment) => ({
+          ...f,
+          isAnchor: f.id === exp.anchor_fragment_id,
+          signedUrl: f.storage_path
+            ? await getFragmentSignedUrl(id!, f.id)
+            : null,
+        }))
+      );
+      setContextFragments(withUrls.filter((f) => !f.isAnchor));
+      setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
+    } catch (err) {
+      console.error("Failed to load relive experience", err);
+    } finally {
+      setLoading(false);
     }
-    void load();
   }, [id]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const refreshSignedUrls = useCallback(async () => {
+    if (!id) return;
+    const refreshFrag = async (f: ReliveFragment): Promise<ReliveFragment> => ({
+      ...f,
+      signedUrl: f.storage_path ? await getFragmentSignedUrl(id, f.id) : null,
+    });
+    const [newContext, newPeak] = await Promise.all([
+      Promise.all(contextFragments.map(refreshFrag)),
+      peakFragment ? refreshFrag(peakFragment) : Promise.resolve(null),
+    ]);
+    setContextFragments(newContext);
+    if (newPeak) setPeakFragment(newPeak);
+  }, [id, contextFragments, peakFragment]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshSignedUrls();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [refreshSignedUrls]);
 
   // Auto-advance through context fragments
   useEffect(() => {
@@ -186,8 +222,60 @@ export function ReliveExperience() {
     ? contextFragments[contextIndex + 1]
     : null;
 
+
+
   return (
     <div className="absolute inset-0 z-50 overflow-hidden">
+      {/* Offline modal */}
+      {isOffline && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 z-50 flex items-center justify-center px-8"
+          style={{ backdropFilter: "blur(12px)", background: "rgba(0,0,0,0.6)" }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-3xl border px-8 py-8 flex flex-col items-center gap-4 max-w-sm w-full"
+            style={{ background: colors.surface.glass, borderColor: colors.button.warmBorder }}
+          >
+            <BodySmall style={{ color: colors.text.muted, textAlign: "center", fontSize: "15px" }}>
+              You lost connection.
+            </BodySmall>
+            <BodySmall style={{ color: colors.text.mutedDim, textAlign: "center", fontSize: "13px" }}>
+              Check your internet and try again, or go back to the experience.
+            </BodySmall>
+            <div className="flex gap-3 w-full mt-2">
+              <button
+                onClick={() => navigate(`/experience/${id}`)}
+                className="flex-1 rounded-full border py-3 transition-all duration-300"
+                style={{ background: "rgba(0,0,0,0.3)", borderColor: "rgba(255,255,255,0.2)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.button.warmBorder; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+              >
+                <BodySmall style={{ color: colors.text.muted }}>Go Back</BodySmall>
+              </button>
+              <button
+                onClick={() => {
+                  if (!navigator.onLine) return;
+                  setIsOffline(false);
+                  setIsPaused(false);
+                  void load();
+                }}
+                className="flex-1 rounded-full border py-3 transition-all duration-300"
+                style={{ background: colors.button.warmBgGradient, borderColor: colors.button.warmBorder }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 24px ${colors.button.warmGlow}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
+              >
+                <BodySmall style={{ color: colors.text.primary }}>Try Again</BodySmall>
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
       {/* Fade to black overlay */}
       <AnimatePresence>
         {fadeToBlack && (
@@ -406,7 +494,7 @@ export function ReliveExperience() {
                 transition={{ duration: 0.6 }}
                 className="relative z-20 md:absolute md:inset-0"
               >
-                <FragmentCard fragment={currentFragment} isActive />
+                <FragmentCard fragment={currentFragment} isActive isMuted={isMuted} onToggleMute={() => setIsMuted((m) => !m)} />
                 {/* Peak phase: glowing pulse behind the anchor fragment */}
                 {phase === "peak" && (
                   <motion.div
@@ -619,8 +707,8 @@ function PhaseSteps({ currentPhase }: { currentPhase: Phase }) {
                 color: isActive
                   ? colors.text.primary
                   : isPast
-                  ? "rgba(200,150,220,0.6)"
-                  : "rgba(255,255,255,0.25)",
+                    ? "rgba(200,150,220,0.6)"
+                    : "rgba(255,255,255,0.25)",
                 fontWeight: isActive ? "600" : "400",
                 transition: "all 0.3s",
               }}
@@ -637,10 +725,16 @@ function PhaseSteps({ currentPhase }: { currentPhase: Phase }) {
 function FragmentCard({
   fragment,
   isActive = false,
+  isMuted = true,
+  onToggleMute,
 }: {
   fragment: ReliveFragment;
   isActive?: boolean;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
 }) {
+  const [mediaError, setMediaError] = useState(false);
+
   return (
     <div
       className="relative overflow-hidden rounded-3xl border backdrop-blur-xl w-60 h-90 md:w-full md:h-full md:rounded-none md:border-0"
@@ -666,12 +760,32 @@ function FragmentCard({
             {fragment.text_context ?? fragment.caption}
           </Body>
         </div>
+      ) : fragment.signedUrl && fragment.type === "video" ? (
+
+        mediaError ? (
+          <MediaFallback />
+        ) : (
+          <video
+            src={fragment.signedUrl}
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setMediaError(true)}
+          />
+        )
       ) : fragment.signedUrl ? (
-        <img
-          src={fragment.signedUrl}
-          alt={fragment.caption ?? "Fragment"}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        mediaError ? (
+          <MediaFallback />
+        ) : (
+          <img
+            src={fragment.signedUrl}
+            alt={fragment.caption ?? "Fragment"}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setMediaError(true)}
+          />
+        )
       ) : (
         <div className="flex items-center justify-center h-full">
           <Body style={{ color: colors.text.mutedDim }}>{fragment.type}</Body>
@@ -692,6 +806,33 @@ function FragmentCard({
           background: "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 65%, rgba(0,0,0,0.65) 100%)",
         }}
       />
+      {/* Mute toggle — only on active video fragments */}
+      {isActive && fragment.type === "video" && onToggleMute && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleMute(); }}
+          className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            border: `1px solid ${colors.button.warmBorder}`,
+          }}
+        >
+          {isMuted
+            ? <VolumeX size={15} style={{ color: colors.text.primary }} />
+            : <Volume2 size={15} style={{ color: colors.text.primary }} />
+          }
+        </button>
+      )}
+    </div>
+  );
+}
+
+function MediaFallback() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-3 px-6">
+      <BodySmall style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", fontSize: "13px" }}>
+        Media unavailable offline
+      </BodySmall>
     </div>
   );
 }

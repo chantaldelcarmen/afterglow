@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -6,6 +6,7 @@ import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = ["Joy", "Nostalgic", "Calm", "Bittersweet", "Overwhelmed", "Grateful", "Anxious"];
+const EDIT_DRAFT_KEY = (id: string) => `afterglow_edit_draft_${id}`;
 
 const inputStyle = {
   background: "var(--color-surface-glass-card)",
@@ -39,6 +40,7 @@ export function EditExperience() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const userHasEdited = useRef(false);
 
   useEffect(() => {
     setMounted(false);
@@ -46,16 +48,33 @@ export function EditExperience() {
     return () => { clearTimeout(timer); setMounted(false); };
   }, []);
 
+  // Save draft on every change, but only after the user has actually edited something
+  useEffect(() => {
+    if (!id || fetching) return;
+    if (!userHasEdited.current) { userHasEdited.current = true; return; }
+    localStorage.setItem(EDIT_DRAFT_KEY(id), JSON.stringify({ title, date, location, description, emotionTags }));
+  }, [title, date, location, description, emotionTags, id, fetching]);
+
   useEffect(() => {
     if (!id) return;
     apiFetch(`/experiences/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        setTitle(data.title ?? "");
-        setDate(data.experience_date ?? "");
-        setLocation(data.location ?? "");
-        setDescription(data.description ?? "");
-        setEmotionTags(data.emotion_tags ?? []);
+        const draft = localStorage.getItem(EDIT_DRAFT_KEY(id!));
+        if (draft) {
+          const parsed = JSON.parse(draft);
+          setTitle(parsed.title ?? "");
+          setDate(parsed.date ?? "");
+          setLocation(parsed.location ?? "");
+          setDescription(parsed.description ?? "");
+          setEmotionTags(parsed.emotionTags ?? []);
+        } else {
+          setTitle(data.title ?? "");
+          setDate(data.experience_date ?? "");
+          setLocation(data.location ?? "");
+          setDescription(data.description ?? "");
+          setEmotionTags(data.emotion_tags ?? []);
+        }
       })
       .catch(() => setError("Failed to load experience"))
       .finally(() => setFetching(false));
@@ -81,6 +100,7 @@ export function EditExperience() {
           emotion_tags: emotionTags,
         }),
       });
+      localStorage.removeItem(EDIT_DRAFT_KEY(id!));
       navigate(`/experience/${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save experience");
@@ -234,7 +254,7 @@ export function EditExperience() {
           <div className="pt-6 space-y-3">
             {/* Cancel - mobile only */}
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => { localStorage.removeItem(EDIT_DRAFT_KEY(id!)); navigate(-1); }}
               className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
               style={{
                 background: "var(--color-surface-glass)",

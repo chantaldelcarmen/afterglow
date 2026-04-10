@@ -1,7 +1,7 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Pencil, Trash2, Anchor } from "lucide-react";
-import { getOneExperience, removeExperience } from "../lib/experience";
+import { getOneExperience, removeExperience, updateExperience } from "../lib/experience";
 import { deleteFragment, getFragments, getFragmentSignedUrl, setAnchorFragment } from "../lib/storage";
 import { deleteReflection, getReflections, updateReflection } from "../lib/reflections";
 import type { Experience } from "../types/experience";
@@ -37,6 +37,8 @@ export default function ExperienceDetail() {
   const [fragmentToDelete, setFragmentToDelete] = useState<Fragment | null>(null);
   const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
   const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [coverRefreshKey, setCoverRefreshKey] = useState(0);
 
   useEffect(() => {
     setMounted(false);
@@ -73,6 +75,17 @@ export default function ExperienceDetail() {
   }, [loadAll]);
 
   useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void loadAll();
+        setCoverRefreshKey((k) => k + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [loadAll]);
+
+  useEffect(() => {
     async function loadCoverImage() {
       if (!experience?.anchor_fragment_id) return;
       try {
@@ -84,7 +97,7 @@ export default function ExperienceDetail() {
       }
     }
     void loadCoverImage();
-  }, [experience?.id, experience?.anchor_fragment_id]);
+  }, [experience?.id, experience?.anchor_fragment_id, coverRefreshKey]);
 
   async function handleDelete() {
     if (!id) return;
@@ -96,6 +109,19 @@ export default function ExperienceDetail() {
       console.error(err);
       setError("Could not delete experience.");
       setDeleting(false);
+    }
+  }
+
+  async function handlePublish() {
+    if (!id) return;
+    setPublishing(true);
+    try {
+      await updateExperience(id, {is_draft: false});
+      navigate("/library");
+    } catch (err) {
+      console.error(err);
+      setError("Could not publish. Make sure an anchor fragment is set and try again.");
+      setPublishing(false);
     }
   }
 
@@ -220,6 +246,8 @@ export default function ExperienceDetail() {
     </div>
   );
 
+  const anchorIsVideo = fragments.find(f => f.id === experience.anchor_fragment_id)?.type === 'video';
+
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
     ? new Date(displayDate).toLocaleDateString("en-US", {
@@ -327,6 +355,7 @@ export default function ExperienceDetail() {
               </BodySmall>
             </div>
             <FragmentGallery
+              key={coverRefreshKey}
               fragments={fragments}
               anchorFragmentId={experience.anchor_fragment_id}
               deletingFragmentId={deletingFragmentId}
@@ -483,6 +512,16 @@ export default function ExperienceDetail() {
             <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
+            {isDraft && (
+              <button onClick={() => void handlePublish()} disabled={publishing} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={iconBtnStyle}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                  Publish
+                </BodySmall>
+              </button>
+            )}
             <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}>
               <Pencil size={16} style={{ color: colors.text.primary }} />
             </button>
@@ -494,7 +533,9 @@ export default function ExperienceDetail() {
 
         {/* Hero image */}
         <div className="relative h-[336px] overflow-hidden">
-          {coverImage ? (
+          {coverImage && anchorIsVideo ? (
+            <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+          ) : coverImage ? (
             <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
             <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
@@ -545,6 +586,16 @@ export default function ExperienceDetail() {
             <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
+            {isDraft && (
+              <button onClick={() => void handlePublish()} disabled={publishing} className="w-20 h-10 border rounded-full backdrop-blur-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={iconBtnStyle}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                  Publish
+                </BodySmall>
+              </button>
+            )}
             <button onClick={() => navigate(`/experience/${id}/edit`)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}
@@ -567,7 +618,9 @@ export default function ExperienceDetail() {
             className="relative overflow-hidden rounded-3xl border backdrop-blur-xl sticky top-8 h-[calc(100vh-120px)]"
             style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
           >
-            {coverImage ? (
+            {coverImage && anchorIsVideo ? (
+              <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+            ) : coverImage ? (
               <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
             ) : (
               <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />

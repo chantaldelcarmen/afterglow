@@ -1,4 +1,4 @@
-import { Home, Library, Sparkles, UserCircle } from "lucide-react";
+import { Home, Library, Sparkles, UserCircle, Shield, LayoutDashboard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { FloatingOrb } from "./FloatingOrb";
@@ -9,6 +9,7 @@ import {
   FLOATING_ORB_CUTOUT_RADIUS,
   FLOATING_ORB_SIZE,
 } from "./floatingOrbLayout";
+import { useAuth } from "../utils/AuthContext";
 
 const ACTIVE_GLOW = "drop-shadow(0 0 8px rgba(246, 237, 227, 0.6)) drop-shadow(0 0 16px rgba(246, 237, 227, 0.4))";
 
@@ -40,8 +41,44 @@ function NavLink({ to, children }: { to: string; children: ReactNode }) {
 
 export function BottomNav() {
   const location = useLocation();
+  const { role, loading } = useAuth();
   const isUploadPage = location.pathname === "/upload";
 
+  if (loading || !role) return null;
+
+  // Reviewer and admin get a plain nav bar - no orb or cutout
+  if (role === "platform_reviewer" || role === "admin") {
+    const items = role === "admin"
+      ? [
+          { to: "/admin", icon: <LayoutDashboard size={30} strokeWidth={1.5} />, label: "Admin" },
+          { to: "/reviewer", icon: <Shield size={30} strokeWidth={1.5} />, label: "Review Queue" },
+          { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Profile" },
+        ]
+      : [
+          { to: "/reviewer", icon: <Shield size={30} strokeWidth={1.5} />, label: "Review Queue" },
+          { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Profile" },
+        ];
+
+    return (
+      <div
+        className="fixed bottom-0 left-0 right-0 backdrop-blur-2xl border-t pointer-events-auto"
+        style={{
+          height: `${BOTTOM_NAV_HEIGHT}px`,
+          zIndex: 40,
+          background: "var(--color-surface-nav)",
+          borderColor: "var(--color-surface-nav-border)",
+        }}
+      >
+        <div className="flex items-center justify-around h-full" style={{ paddingBottom: "22px" }}>
+          {items.map((item) => (
+            <NavLink key={item.to} to={item.to}>{item.icon}</NavLink>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // User role — existing layout with orb cutout
   return (
     <>
       {/* Nav bar with CSS cutout for center orb */}

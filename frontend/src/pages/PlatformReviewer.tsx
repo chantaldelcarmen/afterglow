@@ -91,15 +91,6 @@ export function PlatformReviewer() {
         <AppLogo />
         <div className="flex items-center justify-between">
           <H2>Reviewer Dashboard</H2>
-          <button
-            onClick={handleReset}
-            className="text-xs px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer"
-            style={{ borderColor: "var(--color-button-warm-border)", color: "var(--color-text-muted)", boxShadow: "0 0 10px var(--color-button-warm-glow)" }}
-            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 18px var(--color-button-warm-glow)"; e.currentTarget.style.color = "var(--color-text-primary)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 10px var(--color-button-warm-glow)"; e.currentTarget.style.color = "var(--color-text-muted)"; }}
-          >
-            Reset demo
-          </button>
         </div>
         <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px"}}>
           Review submitted user experiences
@@ -269,6 +260,19 @@ export function PlatformReviewer() {
           </div>
         </div>
       )}
+
+      {/* Dev helper — resets mock flagged content to initial stub state */}
+      <div className="px-6 pb-6 pt-2 flex justify-end">
+        <button
+          onClick={handleReset}
+          className="text-xs px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer"
+          style={{ borderColor: "var(--color-surface-glass-card-border)", color: "var(--color-text-muted-dim)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-text-muted)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-muted-dim)"; }}
+        >
+          Reset mock data
+        </button>
+      </div>
     </div>
   );
 }
