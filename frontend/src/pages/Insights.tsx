@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { colors, effects } from "../design-tokens";
 import { H2, H3, Body, BodySmall } from "../components/Typography";
 import { InsightCard } from "../components/InsightCard";
 import type { MappedPatternStats, AIReflection } from "../lib/patterns";
 import { getPatternStats, getAIReflection } from "../lib/patterns";
+import { getSettings } from "../lib/api";
 import type { Insight } from "../data/insights-data";
 import { AppLogo } from "../components/AppLogo";
 import { HelpButton } from "../components/HelpButton";
@@ -45,6 +47,7 @@ function buildInsights(stats: MappedPatternStats): Insight[] {
 export function Insights() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [reflection, setReflection] = useState<AIReflection | null>(null);
+  const [aiReflectionEnabled, setAiReflectionEnabled] = useState<boolean | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingReflection, setLoadingReflection] = useState(true);
   const [error, setError] = useState("");
@@ -73,8 +76,12 @@ export function Insights() {
 
     async function loadReflection() {
       try {
-        const data = await getAIReflection();
-        setReflection(data);
+        const settings = await getSettings();
+        setAiReflectionEnabled(settings.ai_reflection_enabled);
+        if (settings.ai_reflection_enabled) {
+          const data = await getAIReflection();
+          setReflection(data);
+        }
       } catch {
         setReflection(null);
       } finally {
@@ -185,6 +192,17 @@ export function Insights() {
                   <div className="h-4 rounded w-4/5" style={{ background: colors.surface.glass }} />
                   <div className="h-4 rounded w-3/5" style={{ background: colors.surface.glass }} />
                 </div>
+              ) : !aiReflectionEnabled ? (
+                <BodySmall style={{ color: colors.text.mutedDim }}>
+                  AI Reflection is turned off. Enable it in{" "}
+                  <Link
+                    to="/settings"
+                    style={{ color: colors.text.muted, textDecoration: "underline" }}
+                  >
+                    Settings
+                  </Link>{" "}
+                  to receive a monthly summary of your memories.
+                </BodySmall>
               ) : reflection ? (
                 <Body className="leading-relaxed">
                   "{reflection.reflection}"
