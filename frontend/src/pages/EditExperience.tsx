@@ -40,6 +40,16 @@ export function EditExperience() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  const [initialValues, setInitialValues] = useState({
+    title: "",
+    date: "",
+    location: "",
+    description: "",
+    emotionTags: [] as string[],
+  });
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+
   const userHasEdited = useRef(false);
 
   useEffect(() => {
@@ -61,19 +71,38 @@ export function EditExperience() {
       .then((res) => res.json())
       .then((data) => {
         const draft = localStorage.getItem(EDIT_DRAFT_KEY(id!));
+        const loadedValues = {
+          title: data.title ?? "",
+          date: data.experience_date ?? "",
+          location: data.location ?? "",
+          description: data.description ?? "",
+          emotionTags: data.emotion_tags ?? [],
+        };
+
         if (draft) {
           const parsed = JSON.parse(draft);
-          setTitle(parsed.title ?? "");
-          setDate(parsed.date ?? "");
-          setLocation(parsed.location ?? "");
-          setDescription(parsed.description ?? "");
-          setEmotionTags(parsed.emotionTags ?? []);
+
+          const parsedValues = {
+            title: parsed.title ?? loadedValues.title,
+            date: parsed.date ?? loadedValues.date,
+            location: parsed.location ?? loadedValues.location,
+            description: parsed.description ?? loadedValues.description,
+            emotionTags: parsed.emotionTags ?? loadedValues.emotionTags,
+          };
+
+          setInitialValues(parsedValues); 
+          setTitle(parsedValues.title);
+          setDate(parsedValues.date);
+          setLocation(parsedValues.location);
+          setDescription(parsedValues.description);
+          setEmotionTags(parsedValues.emotionTags);
         } else {
-          setTitle(data.title ?? "");
-          setDate(data.experience_date ?? "");
-          setLocation(data.location ?? "");
-          setDescription(data.description ?? "");
-          setEmotionTags(data.emotion_tags ?? []);
+          setInitialValues(loadedValues);
+          setTitle(loadedValues.title);
+          setDate(loadedValues.date);
+          setLocation(loadedValues.location);
+          setDescription(loadedValues.description);
+          setEmotionTags(loadedValues.emotionTags);
         }
       })
       .catch(() => setError("Failed to load experience"))
@@ -101,6 +130,13 @@ export function EditExperience() {
         }),
       });
       localStorage.removeItem(EDIT_DRAFT_KEY(id!));
+      setInitialValues({
+        title: title.trim(),
+        date,
+        location,
+        description,
+        emotionTags,
+      });
       navigate(`/experience/${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save experience");
@@ -110,16 +146,38 @@ export function EditExperience() {
   };
 
   const isFormValid = !!title.trim() && !!date.trim();
+  const isDirty =
+    title !== initialValues.title ||
+    date !== initialValues.date ||
+    location !== initialValues.location ||
+    description !== initialValues.description ||
+    JSON.stringify(emotionTags) !== JSON.stringify(initialValues.emotionTags);
   const today = new Date();
   const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
     .toISOString()
     .split("T")[0];
 
+  const handleAttemptLeave = () => {
+    if (isDirty) {
+      setShowDiscardModal(true);
+      return;
+    }
+
+    localStorage.removeItem(EDIT_DRAFT_KEY(id!));
+    navigate(-1);
+  };
+
+  const handleDiscardChanges = () => {
+    localStorage.removeItem(EDIT_DRAFT_KEY(id!));
+    setShowDiscardModal(false);
+    navigate(-1);
+  };
+
   if (fetching) return <LoadingScreen />;
 
   return (
     <div className="h-full flex flex-col">
-      <SubpageHeader title="Edit Experience" subtitle="Update your memory" />
+      <SubpageHeader title="Edit Experience" subtitle="Update your memory" onBack={handleAttemptLeave} />
 
       {/* Scrollable Content */}
       <div
@@ -254,7 +312,7 @@ export function EditExperience() {
           <div className="pt-6 space-y-3">
             {/* Cancel - mobile only */}
             <button
-              onClick={() => { localStorage.removeItem(EDIT_DRAFT_KEY(id!)); navigate(-1); }}
+              onClick={handleAttemptLeave}
               className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
               style={{
                 background: "var(--color-surface-glass)",
@@ -287,6 +345,56 @@ export function EditExperience() {
           </div>
         </div>
       </div>
+      {showDiscardModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={() => setShowDiscardModal(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-[28px] border backdrop-blur-xl p-6 space-y-4"
+            style={{
+              background: "var(--color-surface-glass-card)",
+              borderColor: "var(--color-surface-glass-card-border)",
+              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.3)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-2 text-center">
+              <Body style={{ color: "var(--color-text-primary)", fontSize: "18px" }}>
+                Discard changes?
+              </Body>
+              <BodySmall style={{ color: "var(--color-text-muted-dim)", lineHeight: "1.6" }}>
+                You have unsaved edits. Leaving now will discard your changes.
+              </BodySmall>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowDiscardModal(false)}
+                className="flex-1 rounded-full border backdrop-blur-xl px-4 py-3 transition-all duration-300"
+                style={{
+                  background: "var(--color-surface-glass)",
+                  borderColor: "var(--color-button-warm-border)",
+                }}
+              >
+                <BodySmall style={{ color: "var(--color-text-muted)" }}>Stay</BodySmall>
+              </button>
+
+              <button
+                onClick={handleDiscardChanges}
+                className="flex-1 rounded-full border backdrop-blur-xl px-4 py-3 transition-all duration-300"
+                style={{
+                  background: "var(--color-button-plum-bg)",
+                  borderColor: "var(--color-button-plum-border)",
+                }}
+              >
+                <BodySmall style={{ color: "var(--color-text-primary)" }}>Discard</BodySmall>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
