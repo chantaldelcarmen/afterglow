@@ -56,15 +56,15 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, [user]);
 
-  const handleSurprise = () => {
-    if (publishedExperiences.length === 0) return;
-    const random = publishedExperiences[Math.floor(Math.random() * experiences.length)];
-    navigate(`/experience/${random.id}`);
-  };
-
   if (authLoading) return <LoadingScreen />;
 
   const publishedExperiences = experiences.filter((exp) => !exp.is_draft);
+
+  const handleSurprise = () => {
+    if (publishedExperiences.length === 0) return;
+    const random = publishedExperiences[Math.floor(Math.random() * publishedExperiences.length)];
+    navigate(`/experience/${random.id}`);
+  };
   const featured = publishedExperiences[0] ?? null;
   const recent = publishedExperiences.slice(1, 3);
 
