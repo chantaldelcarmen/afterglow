@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -27,34 +27,42 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
+  const loadExperiences = useCallback(async () => {
     if (!user) return;
-    apiFetch("/experiences")
-      .then((res) => res.json())
-      .then(async (data: Experience[]) => {
-        setExperiences(data);
-        const urlEntries = await Promise.all(
-          data
-            .filter((exp) => exp.anchor_fragment_id)
-            .map(async (exp) => {
-              try {
-                const res = await apiFetch(
-                  `/experiences/${exp.id}/fragments/${exp.anchor_fragment_id}/signed-url`
-                );
-                const { signedUrl } = await res.json();
-                return [exp.id, signedUrl] as const;
-              } catch {
-                return null;
-              }
-            })
-        );
-        setSignedUrls(
-          Object.fromEntries(urlEntries.filter((e): e is readonly [string, string] => e !== null))
-        );
-      })
-      .catch(() => setError("Failed to load experiences"))
-      .finally(() => setLoading(false));
+    setLoading(true);
+    setError("");
+    try {
+      const data: Experience[] = await apiFetch("/experiences").then((res) => res.json());
+      setExperiences(data);
+      const urlEntries = await Promise.all(
+        data
+          .filter((exp) => exp.anchor_fragment_id)
+          .map(async (exp) => {
+            try {
+              const res = await apiFetch(
+                `/experiences/${exp.id}/fragments/${exp.anchor_fragment_id}/signed-url`
+              );
+              const { signedUrl } = await res.json();
+              return [exp.id, signedUrl] as const;
+            } catch {
+              return null;
+            }
+          })
+      );
+      setSignedUrls(
+        Object.fromEntries(urlEntries.filter((e): e is readonly [string, string] => e !== null))
+      );
+    } catch {
+      setError("Couldn't connect to Afterglow. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => {
+    loadExperiences();
+  }, [loadExperiences]);
+
 
   if (authLoading) return <LoadingScreen />;
 
@@ -96,11 +104,21 @@ export default function Home() {
         }}
       >
         {error && (
-          <p className="text-sm text-center" style={{ color: "var(--color-accent-coral)" }}>{error}</p>
+          <div className="text-center space-y-3 py-8">
+            <p className="text-sm" style={{ color: "var(--color-accent-coral)" }}>
+              Couldn't connect to Afterglow. Check your connection and try again.
+            </p>
+            <button
+              onClick={() => void loadExperiences()}
+              style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+            >
+              Try again
+            </button>
+          </div>
         )}
 
         {/* Hero Card */}
-        {featured ? (
+        {featured && !error && !loading ? (
           <div
             className="relative overflow-hidden h-52 md:h-80 rounded-[28px] border backdrop-blur-xl transition-all duration-300 cursor-pointer"
             style={{
@@ -164,7 +182,7 @@ export default function Home() {
               </GlassButton>
             </div>
           </div>
-        ) : (
+        ) : !error && !loading ? (
           <div
             className="relative overflow-hidden h-52 rounded-[28px] border backdrop-blur-xl flex flex-col items-center justify-center text-center px-6 gap-4"
             style={{
@@ -178,7 +196,7 @@ export default function Home() {
               Create your first
             </GlassButton>
           </div>
-        )}
+        ) : null}
 
         {/* Recently Relived */}
         {recent.length > 0 && (

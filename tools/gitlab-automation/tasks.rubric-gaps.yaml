@@ -1,0 +1,200 @@
+# Remaining technical gaps identified during final-week rubric review (2026-04-09)
+# These are items not covered by tasks.demo-fixes.yaml.
+# Run with: python tools/gitlab-automation/create_issues.py tools/gitlab-automation/tasks.rubric-gaps.yaml
+
+users:
+  chantal: "chantal.delcarmen"
+
+milestones:
+  - title: "Week 11–12 – Final Submission"
+    due_date: "2026-04-11"
+    description: "Final submission and demo milestone. Deadline: April 11 midnight."
+
+issues:
+  - title: "[Frontend] Add publish button to set experience is_draft = false"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::critical"
+      - "type::feature"
+    description: |
+      There is currently no UI for a user to publish a draft experience. The backend
+      supports `PATCH /experiences/:id` with `is_draft: false`, and the anchor endpoint
+      exists at `PATCH /experiences/:id/fragments/:fragmentId/anchor`, but the frontend
+      has no button or flow to trigger either.
+
+      Without this, the core user journey is broken: users cannot complete the experience
+      lifecycle (create → upload → set anchor → publish).
+
+      Acceptance criteria
+      - [ ] ExperienceDetail shows a "Publish" button when `is_draft === true`
+      - [ ] Clicking Publish calls `PATCH /experiences/:id` with `{ is_draft: false }`
+      - [ ] Button is hidden once `is_draft === false`
+      - [ ] Published experiences appear normally in the library and home page
+      - [ ] Draft experiences do not appear on Home or ExperienceLibrary for other users (RLS)
+      - [ ] Error state shown if publish fails
+
+  - title: "[Frontend] Add anchor fragment selection UI in ExperienceDetail / Upload"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::critical"
+      - "type::feature"
+    description: |
+      The backend has `PATCH /experiences/:id/fragments/:fragmentId/anchor` but there
+      is no UI to call it. Users cannot designate which fragment is the anchor, which
+      is required before publishing (and for the relive flow and cover image to work).
+
+      Acceptance criteria
+      - [ ] Each fragment card in ExperienceDetail shows a "Set as anchor" option (button or context menu)
+      - [ ] The current anchor fragment is visually marked (anchor icon or badge)
+      - [ ] Calling the endpoint updates `anchor_fragment_id` on the experience
+      - [ ] After setting anchor, the published cover image reflects the new anchor
+      - [ ] Anchor fragment cannot be deleted (hide trash icon when `f.id === anchorFragmentId`)
+
+  - title: "[Frontend] Persist Create/Edit Experience form state across disconnects"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      The Create Experience and Edit Experience forms use in-memory React state only.
+      If the user loses network connectivity, switches tabs, or the app unmounts, all
+      unsaved form data is lost with no warning.
+
+      This was flagged in the professor's rubric feedback regarding disconnect/reconnect
+      handling and form persistence.
+
+      Acceptance criteria
+      - [ ] CreateExperience form fields (title, date, location, description, emotion tags) are saved to `localStorage` on every change
+      - [ ] On mount, CreateExperience restores from `localStorage` if a draft key exists
+      - [ ] localStorage draft is cleared on successful submit or explicit cancel
+      - [ ] EditExperience similarly persists unsaved changes locally
+      - [ ] User sees a visual indicator that a local draft exists (e.g. "Draft saved" note)
+      - [ ] Simulating disconnect + reconnect: form data survives a full page reload
+
+  - title: "[Frontend] Filter draft experiences from Home and ExperienceLibrary"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::high"
+      - "type::bug"
+    description: |
+      `GET /experiences` returns all experiences including drafts (`is_draft: true`).
+      Home.tsx and ExperienceLibrary.tsx display all of them without filtering.
+      Draft experiences should not appear in the main library or on the home featured/recent
+      cards until they are published.
+
+      Acceptance criteria
+      - [ ] Home.tsx featured card and recently relived strip exclude `is_draft === true` experiences
+      - [ ] ExperienceLibrary excludes `is_draft === true` experiences
+      - [ ] A "Drafts" section or separate view exists so the user can still access and publish their drafts
+      - [ ] Surprise Me button only picks from published experiences
+
+  - title: "[DevOps] Configure NGrok tunnel for mobile device demo"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::devops"
+      - "priority::high"
+      - "type::task"
+    description: |
+      The rubric requires demonstrating mobile support on a real device. The app currently
+      runs on localhost which is not accessible from a phone on the same network unless
+      NGrok (or similar) is set up.
+
+      Acceptance criteria
+      - [ ] NGrok tunnel running and forwarding to the frontend dev server port
+      - [ ] Backend CORS config allows the NGrok origin
+      - [ ] Supabase redirect URLs updated to include the NGrok URL (or wildcard)
+      - [ ] App loads and is fully functional on a real mobile device via NGrok URL
+      - [ ] Steps documented in the repo (README or demo notes) so any team member can reproduce
+
+  - title: "[Demo] Script and rehearse three-concurrent-user demo for multi-user rubric"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::demo"
+      - "priority::high"
+      - "type::task"
+    description: |
+      The rubric awards up to 10 points for multi-user functionality demonstrated live.
+      We need to show at least three simultaneous users with different roles (regular user,
+      platform reviewer, admin) to maximize this score.
+
+      Acceptance criteria
+      - [ ] Demo script written: which actions each role performs and in what order
+      - [ ] Three browser sessions open simultaneously (incognito windows or separate browsers)
+      - [ ] Each session logged in as a different seed account (user, reviewer, admin)
+      - [ ] Demo shows: user creates/relives, reviewer sees review queue, admin sees admin dashboard
+      - [ ] RLS demonstrated: user A cannot see user B's private experiences
+      - [ ] Rehearsed at least once end-to-end before presentation
+
+  - title: "[Demo] Script disconnect/reconnect scenario for resilience rubric"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::demo"
+      - "priority::high"
+      - "type::task"
+    description: |
+      The professor's rubric and Jericho's feedback highlight that the app should handle
+      network disconnects gracefully. We need a scripted demo sequence that shows this works.
+
+      Acceptance criteria
+      - [ ] Demo sequence documented: start filling a form, go offline (DevTools Network → Offline), show data persists, come back online
+      - [ ] Form data survives a reconnect (depends on localStorage persistence issue)
+      - [ ] Any in-flight API error surfaces a user-visible error message rather than a silent failure
+      - [ ] Auth session survives a reconnect (Supabase JWT handles this -- verify and note in demo script)
+      - [ ] Rehearsed before presentation
+
+  - title: "[DevOps] Create and push Release-1.0 git tag for submission"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::devops"
+      - "priority::critical"
+      - "type::chore"
+    description: |
+      The course submission guidelines require a tagged release on the main branch to
+      identify the submitted version. This must be done before the April 11 deadline.
+
+      Acceptance criteria
+      - [ ] All final MRs merged to `main` before tagging
+      - [ ] Tag `Release-1.0` created on the final commit of `main`
+      - [ ] Tag pushed to the remote repository
+      - [ ] GitLab Releases page (or Tags page) shows the tag
+      - [ ] Tag commit confirmed to be the version demoed
+
+  - title: "[Frontend] Add meaningful differentiation to Reviewer and Admin dashboards"
+    milestone: "Week 11–12 – Final Submission"
+    assignee: "chantal"
+    labels:
+      - "status::ready"
+      - "area::frontend"
+      - "priority::high"
+      - "type::feature"
+    description: |
+      The multi-user rubric requires demonstrably different functionality per role.
+      Reviewer and Admin dashboards need to show role-specific capabilities beyond
+      just different navigation labels.
+
+      Acceptance criteria
+      - [ ] PlatformReviewer dashboard shows a list of experiences/content pending review with approve/reject actions
+      - [ ] Admin dashboard shows user management or platform-wide stats not available to reviewers
+      - [ ] The distinction between reviewer and admin is clear and demo-able side by side
+      - [ ] Both dashboards are accessible only to their respective roles (route guards enforced)
+      - [ ] Empty states handled gracefully when no items to review/manage
