@@ -44,11 +44,14 @@ export function BottomNav() {
   const { role, loading } = useAuth();
   const isUploadPage = location.pathname === "/upload";
 
-  if (loading || !role) return null;
+  // Default to user role if role fetch fails (better UX than no nav)
+  const userRole = role || "user";
+
+  if (loading) return null;
 
   // Reviewer and admin get a plain nav bar - no orb or cutout
-  if (role === "platform_reviewer" || role === "admin") {
-    const items = role === "admin"
+  if (userRole === "platform_reviewer" || userRole === "admin") {
+    const items = userRole === "admin"
       ? [
           { to: "/admin", icon: <LayoutDashboard size={30} strokeWidth={1.5} />, label: "Admin" },
           { to: "/reviewer", icon: <Shield size={30} strokeWidth={1.5} />, label: "Review Queue" },
