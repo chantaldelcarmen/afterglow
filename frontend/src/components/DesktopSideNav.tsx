@@ -71,7 +71,7 @@ export function DesktopSideNav() {
   const { role, loading } = useAuth();
   const navigate = useNavigate();
 
-  if (loading) return null;
+  if (loading || !role) return null;
 
   const navItems = role === "admin" ? ADMIN_NAV_ITEMS
         : role === "platform_reviewer" ? REVIEWER_NAV_ITEMS
