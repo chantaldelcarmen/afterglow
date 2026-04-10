@@ -63,7 +63,7 @@ export function ReliveExperience() {
 
   useEffect(() => {
     const goOffline = () => { setIsOffline(true); setIsPaused(true); };
-    const goOnline = () => { };
+    const goOnline = () => { setIsOffline(false); setIsPaused(false); };
     window.addEventListener("offline", goOffline);
     window.addEventListener("online", goOnline);
     return () => {
