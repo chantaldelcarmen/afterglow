@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft } from "lucide-react";
 
@@ -40,12 +40,11 @@ export function ReliveExperience() {
   const [isPaused, setIsPaused] = useState(false);
   const [reflectionText, setReflectionText] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [showSavedPopup, setShowSavedPopup] = useState(false);
   const [showHint, setShowHint] = useState(true);
   const [showCaptionIntro, setShowCaptionIntro] = useState(true);
   const [showOpeningTitle, setShowOpeningTitle] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const t1 = setTimeout(() => setFadeToBlack(false), 300);
@@ -60,37 +59,36 @@ export function ReliveExperience() {
     };
   }, []);
 
-  const loadExperience = useCallback(async () => {
-    if (!id) return;
-    setLoading(true);
-    setError("");
-    try {
-      const [exp, frags] = await Promise.all([
-        getOneExperience(id),
-        getFragments(id),
-      ]);
-      setExperience(exp);
-      const withUrls: ReliveFragment[] = await Promise.all(
-        frags.map(async (f: Fragment) => ({
-          ...f,
-          isAnchor: f.id === exp.anchor_fragment_id,
-          signedUrl: f.storage_path
-            ? await getFragmentSignedUrl(id, f.id)
-            : null,
-        }))
-      );
-      setContextFragments(withUrls.filter((f) => !f.isAnchor));
-      setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
-    } catch {
-      setError("Couldn't load this experience. Check your connection and try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
   useEffect(() => {
-    void loadExperience();
-  }, [loadExperience]);
+    if (!id) return;
+    async function load() {
+      try {
+        const [exp, frags] = await Promise.all([
+          getOneExperience(id!),
+          getFragments(id!),
+        ]);
+        setExperience(exp);
+
+        const withUrls: ReliveFragment[] = await Promise.all(
+          frags.map(async (f: Fragment) => ({
+            ...f,
+            isAnchor: f.id === exp.anchor_fragment_id,
+            signedUrl: f.storage_path
+              ? await getFragmentSignedUrl(id!, f.id)
+              : null,
+          }))
+        );
+        setContextFragments(withUrls.filter((f) => !f.isAnchor));
+        setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
+      } catch (err) {
+        console.error("Failed to load relive experience", err);
+        navigate(`/experience/${id}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+    void load();
+  }, [id]);
 
   // Auto-advance through context fragments
   useEffect(() => {
@@ -116,17 +114,19 @@ export function ReliveExperience() {
     return () => clearTimeout(timer);
   }, [phase, isPaused]);
 
-const handleSaveReflection = async () => {
+  const handleSaveReflection = async () => {
     if (!id || !reflectionText.trim() || saving) return;
+
     setSaving(true);
-    setSaveError("");
+    setSaveError(null); // clear previous errors
+
     try {
       await createReflection(id, reflectionText.trim());
       setShowSavedPopup(true);
       setTimeout(() => navigate(`/experience/${id}`), 1200);
     } catch {
+      setSaveError("Failed to save reflection. Please try again.");
       setSaving(false);
-      setSaveError("Couldn't save your reflection. Check your connection and try again.");
     }
   };
 
@@ -172,27 +172,6 @@ const handleSaveReflection = async () => {
   };
 
   if (loading) return null;
-
-  if (error) return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center" style={{ background: "linear-gradient(180deg, #0A0010 0%, #16001F 100%)" }}>
-      <Body style={{ color: colors.accent.coral }}>{error}</Body>
-      <BodySmall style={{ color: colors.text.muted }}>
-        <button
-          onClick={() => void loadExperience()}
-          style={{ textDecoration: "underline" }}
-        >
-          Try again
-        </button>
-        {" or "}
-        <button
-          onClick={() => navigate(`/experience/${id}`)}
-          style={{ textDecoration: "underline" }}
-        >
-          go back to experience
-        </button>
-      </BodySmall>
-    </div>
-  );
 
   if (!experience) {
     navigate(`/experience/${id}`);
@@ -286,7 +265,10 @@ const handleSaveReflection = async () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
             value={reflectionText}
-            onChange={(e) => setReflectionText(e.target.value)}
+            onChange={(e) => {
+              setReflectionText(e.target.value);
+              if (saveError) setSaveError(null);
+            }}
             placeholder="Your reflection..."
             className="w-full max-w-md h-32 px-6 py-4 rounded-2xl border backdrop-blur-xl resize-none focus:outline-none transition-all duration-300"
             style={{
@@ -337,11 +319,18 @@ const handleSaveReflection = async () => {
               </BodySmall>
             </motion.button>
           </div>
-
           {saveError && (
-            <BodySmall className="mt-3 text-center" style={{ color: colors.accent.coral }}>
-              {saveError}
-            </BodySmall>
+            <div
+              className="mt-3 w-full max-w-md rounded-xl border px-4 py-3 text-center"
+              style={{
+                background: "rgba(239, 68, 68, 0.10)",
+                borderColor: colors.accent.coral,
+              }}
+            >
+              <BodySmall style={{ color: colors.accent.coral }}>
+                {saveError}
+              </BodySmall>
+            </div>
           )}
 
           <AnimatePresence>
@@ -630,8 +619,8 @@ function PhaseSteps({ currentPhase }: { currentPhase: Phase }) {
                 color: isActive
                   ? colors.text.primary
                   : isPast
-                    ? "rgba(200,150,220,0.6)"
-                    : "rgba(255,255,255,0.25)",
+                  ? "rgba(200,150,220,0.6)"
+                  : "rgba(255,255,255,0.25)",
                 fontWeight: isActive ? "600" : "400",
                 transition: "all 0.3s",
               }}
