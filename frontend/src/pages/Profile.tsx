@@ -197,29 +197,31 @@ export function Profile() {
           )}
         </section>
 
-        {/* Settings button */}
-        <section className="space-y-3">
-          <H2>Settings</H2>
-          <button
-            onClick={() => navigate("/settings")}
-            className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
-            style={{
-              background: "var(--color-button-plum-bg)",
-              borderColor: "var(--color-button-plum-border)",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
-              e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-button-plum-bg)";
-              e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
-            }}
-          >
-            <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
-          </button>
-        </section>
+        {/* Settings button — users only */}
+        {!isPrivilegedRole && (
+          <section className="space-y-3">
+            <H2>Settings</H2>
+            <button
+              onClick={() => navigate("/settings")}
+              className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"
+              style={{
+                background: "var(--color-button-plum-bg)",
+                borderColor: "var(--color-button-plum-border)",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--color-button-plum-bg-hover)";
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.35), 0 0 25px var(--color-button-plum-glow-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--color-button-plum-bg)";
+                e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)";
+              }}
+            >
+              <Body style={{ color: "var(--color-text-primary)" }}>Settings</Body>
+            </button>
+          </section>
+        )}
 
         <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
           Your memories are precious. We're committed to keeping your data private and secure.
