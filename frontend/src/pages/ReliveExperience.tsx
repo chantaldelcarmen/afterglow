@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
 
 import { getOneExperience } from "../lib/experience";
 import { getFragments, getFragmentSignedUrl } from "../lib/storage";
@@ -46,6 +46,7 @@ export function ReliveExperience() {
   const [showCaptionIntro, setShowCaptionIntro] = useState(true);
   const [showOpeningTitle, setShowOpeningTitle] = useState(true);
   const [error, setError] = useState("");
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const t1 = setTimeout(() => setFadeToBlack(false), 300);
@@ -417,7 +418,7 @@ const handleSaveReflection = async () => {
                 transition={{ duration: 0.6 }}
                 className="relative z-20 md:absolute md:inset-0"
               >
-                <FragmentCard fragment={currentFragment} isActive />
+                <FragmentCard fragment={currentFragment} isActive isMuted={isMuted} onToggleMute={() => setIsMuted((m) => !m)} />
                 {/* Peak phase: glowing pulse behind the anchor fragment */}
                 {phase === "peak" && (
                   <motion.div
@@ -648,9 +649,13 @@ function PhaseSteps({ currentPhase }: { currentPhase: Phase }) {
 function FragmentCard({
   fragment,
   isActive = false,
+  isMuted = true,
+  onToggleMute,
 }: {
   fragment: ReliveFragment;
   isActive?: boolean;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
 }) {
   return (
     <div
@@ -681,7 +686,7 @@ function FragmentCard({
         <video
           src={fragment.signedUrl}
           autoPlay
-          muted
+          muted={isMuted}
           loop
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
@@ -712,6 +717,23 @@ function FragmentCard({
           background: "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 65%, rgba(0,0,0,0.65) 100%)",
         }}
       />
+      {/* Mute toggle — only on active video fragments */}
+      {isActive && fragment.type === "video" && onToggleMute && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleMute(); }}
+          className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            border: `1px solid ${colors.button.warmBorder}`,
+          }}
+        >
+          {isMuted
+            ? <VolumeX size={15} style={{ color: colors.text.primary }} />
+            : <Volume2 size={15} style={{ color: colors.text.primary }} />
+          }
+        </button>
+      )}
     </div>
   );
 }
