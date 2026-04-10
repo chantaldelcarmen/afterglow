@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, Navigate } from "react-router-dom";
 import { AboutApp } from "./pages/AboutApp";
 //import AppLayout from "./components/AppLayout";
 import Home from "./pages/Home";
@@ -28,6 +28,7 @@ import { DesktopSideNav } from "./components/DesktopSideNav";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingOrbProvider } from "./utils/FloatingOrbProvider";
 import { UploadDraftProvider } from "./utils/UploadDraftProvider";
+import { useAuth } from "./utils/AuthContext";
 
 const PUBLIC_PATHS = ["/signin", "/signup", "/forgot-password", "/logout", "/unauthorized"];
 const FULLSCREEN_PATHS = ["/relive/"];
@@ -41,6 +42,14 @@ function AppNav() {
       <BottomNav />
     </div>
   );
+}
+
+function RootRedirect() {
+  const { role, loading } = useAuth();
+  if (loading) return null;
+  if (role === "admin") return <Navigate to="/admin" replace />;
+  if (role === "platform_reviewer") return <Navigate to="/reviewer" replace />;
+  return <Home />;
 }
 
 export default function App() {
@@ -67,7 +76,7 @@ export default function App() {
                   <div className="flex-1 min-w-0 md:ml-60">
                     <div className="md:max-w-4xl md:mx-auto h-full">
                       <Routes>
-                        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                        <Route path="/" element={<ProtectedRoute><RootRedirect /></ProtectedRoute>} />
                         <Route path="/library" element={<ProtectedRoute><ExperienceLibrary /></ProtectedRoute>} />
                         <Route path="/experience/:id" element={<ProtectedRoute><ExperienceDetail /></ProtectedRoute>} />
                         <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
