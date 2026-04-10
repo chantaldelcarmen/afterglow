@@ -7,21 +7,13 @@ export class SettingsService {
   constructor(private readonly supabase: SupabaseService) {}
 
   async getSettings(userId: string) {
-    const { data: existing } = await this.supabase
-      .getClient()
-      .from('user_settings')
-      .select()
-      .eq('user_id', userId)
-      .single();
-
-    if (existing) {
-      return { ai_reflection_enabled: existing.ai_reflection_enabled };
-    }
-
     const { data, error } = await this.supabase
       .getClient()
       .from('user_settings')
-      .insert({ user_id: userId, ai_reflection_enabled: false })
+      .upsert(
+        { user_id: userId, ai_reflection_enabled: false },
+        { onConflict: 'user_id', ignoreDuplicates: true },
+      )
       .select()
       .single();
 

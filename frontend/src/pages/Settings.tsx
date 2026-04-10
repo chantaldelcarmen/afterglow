@@ -10,10 +10,10 @@ import {
   Info,
   LogOut,
   Trash2,
+  Sparkles,
 } from "lucide-react";
 import { getSettings, patchSettings } from "../lib/api";
 import { AIReflectionConsentModal } from "../components/AIReflectionConsentModal";
-import { Sparkles } from "lucide-react";
 
 export function Settings() {
   const navigate = useNavigate();
@@ -45,15 +45,23 @@ export function Settings() {
     if (!aiReflectionEnabled) {
       setShowConsentModal(true);
     } else {
-      await patchSettings({ ai_reflection_enabled: false });
-      setAiReflectionEnabled(false);
+      try {
+        await patchSettings({ ai_reflection_enabled: false });
+        setAiReflectionEnabled(false);
+      } catch {
+        // TODO: surface error to user
+      }
     }
   };
 
   const handleConsentConfirm = async () => {
-    await patchSettings({ ai_reflection_enabled: true });
-    setAiReflectionEnabled(true);
-    setShowConsentModal(false);
+    try {
+      await patchSettings({ ai_reflection_enabled: true });
+      setAiReflectionEnabled(true);
+      setShowConsentModal(false);
+    } catch {
+      // TODO: surface error to user
+    }
   };
 
   const rowStyle: React.CSSProperties = {
@@ -145,33 +153,34 @@ export function Settings() {
               style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
             />
           </button>
-            <button
-              onClick={handleAiReflectionToggle}
-              className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
-              style={rowStyle}
+
+          <button
+            onClick={handleAiReflectionToggle}
+            className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
+            style={rowStyle}
+          >
+            <div className="flex items-center gap-3">
+              <Sparkles size={22} style={{ color: "var(--color-text-primary)" }} />
+              <Body>AI Reflection</Body>
+            </div>
+            <div
+              className="w-11 h-6 rounded-full border transition-all duration-300 flex items-center px-1"
+              style={{
+                background: aiReflectionEnabled
+                  ? "var(--color-button-plum-bg)"
+                  : "transparent",
+                borderColor: "var(--color-surface-glass-card-border)",
+              }}
             >
-              <div className="flex items-center gap-3">
-                <Sparkles size={22} style={{ color: "var(--color-text-primary)" }} />
-                <Body>AI Reflection</Body>
-              </div>
               <div
-                className="w-11 h-6 rounded-full border transition-all duration-300 flex items-center px-1"
+                className="w-4 h-4 rounded-full transition-all duration-300"
                 style={{
-                  background: aiReflectionEnabled
-                    ? "var(--color-button-plum-bg)"
-                    : "transparent",
-                  borderColor: "var(--color-surface-glass-card-border)",
+                  background: "var(--color-text-primary)",
+                  transform: aiReflectionEnabled ? "translateX(20px)" : "translateX(0)",
                 }}
-              >
-                <div
-                  className="w-4 h-4 rounded-full transition-all duration-300"
-                  style={{
-                    background: "var(--color-text-primary)",
-                    transform: aiReflectionEnabled ? "translateX(20px)" : "translateX(0)",
-                  }}
-                />
-              </div>
-            </button>
+              />
+            </div>
+          </button>
         </section>
 
         <section className="space-y-4 pt-2">
