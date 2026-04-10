@@ -18,6 +18,7 @@ import FragmentGallery from '../components/FragmentGallery';
 import { revokePhotoPreviewUrl } from '../utils/photoPreviewUrl';
 import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
 import { typography } from '../design-tokens';
+import { GlassButton } from '../components/GlassButton';
 
 interface ExperienceData {
   id: string;
@@ -44,6 +45,7 @@ export default function Upload() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [confirmationModal, setConfirmationModal] = useState(false);
 
   useEffect(() => {
     setMounted(false);
@@ -135,7 +137,22 @@ export default function Upload() {
     }
   }
 
+  function confirmLeave() {
+    if (hasActivePhotoDraft) {
+      revokePhotoPreviewUrl(photoDraft.file);
+    }
+
+    setPhotoDraft(EMPTY_PHOTO_DRAFT);
+    setSelectedType(null);
+    navigate(-1);
+  }
+
   function handleCancel() {
+    if (fragments.length > 0) {
+      setConfirmationModal(true);
+      return;
+    }
+
     if (hasActivePhotoDraft) {
       revokePhotoPreviewUrl(photoDraft.file);
     }
@@ -377,6 +394,33 @@ export default function Upload() {
           )}
         </div>
       </div>
+      {confirmationModal && (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.5)" }}
+            onClick={() => setConfirmationModal(false)}
+        >
+          <div
+              className="relativ w-full max-w-sm overflow-hidden rounded-[28px] border backdrop-blur-xl p-9 flex flex-col gap-2 items-center"
+              style={{
+                background: "var(--color-surface-glass-card)",
+                borderColor: "var(--color-surface-glass-card-border)",
+                maxHeight: "80vh",
+                overflowY: "auto",
+              }}
+              onClick={((e) => e.stopPropagation())}
+          >
+            <div className="flex flex-col items-center justify-center text-center gap-3">
+                <Body>Leave this page?</Body>
+                <BodySmall>The changes you made will be lost if you navigate away from this page.</BodySmall>
+            </div>
+            <div className="flex gap-7 mt-7 w-full">
+                <GlassButton className="flex-1" onClick={() => confirmLeave()}>Leave</GlassButton>
+                <GlassButton className="flex-1" onClick={() => setConfirmationModal(false)}>Stay</GlassButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
