@@ -65,16 +65,18 @@ export default function Home() {
     loadExperiences();
   }, [loadExperiences]);
 
-  const handleSurprise = () => {
-    if (experiences.length === 0) return;
-    const random = experiences[Math.floor(Math.random() * experiences.length)];
-    navigate(`/experience/${random.id}`);
-  };
 
   if (authLoading) return <LoadingScreen />;
 
-  const featured = experiences[0] ?? null;
-  const recent = experiences.slice(1, 3);
+  const publishedExperiences = experiences.filter((exp) => !exp.is_draft);
+
+  const handleSurprise = () => {
+    if (publishedExperiences.length === 0) return;
+    const random = publishedExperiences[Math.floor(Math.random() * publishedExperiences.length)];
+    navigate(`/experience/${random.id}`);
+  };
+  const featured = publishedExperiences[0] ?? null;
+  const recent = publishedExperiences.slice(1, 3);
 
   return (
     <div className="h-full flex flex-col">
@@ -256,7 +258,7 @@ export default function Home() {
           </div>
         )}
 
-        {experiences.length > 0 && (
+        {publishedExperiences.length > 0 && (
           <GlassButton
             size="md"
             className="w-full"
