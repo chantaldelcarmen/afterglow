@@ -14,20 +14,20 @@ const USER_NAV_ITEMS: NavItem[] = [
   { to: "/library", icon: Library, label: "Library" },
   { to: "/create-experience", icon: Plus, label: "Create" },
   { to: "/insights", icon: Sparkles, label: "Insights" },
-  { to: "/profile", icon: UserCircle, label: "Profile" },
+  { to: "/profile", icon: UserCircle, label: "Account" },
 ];
 
 // platform_reviewer sees only their relevant routes
 const REVIEWER_NAV_ITEMS: NavItem[] = [
   { to: "/reviewer", icon: Shield, label: "Review Queue" },
-  { to: "/profile", icon: UserCircle, label: "Profile" },
+  { to: "/profile", icon: UserCircle, label: "Account" },
 ];
 
 // admin gets their dashboard + reviewer access + profile
 const ADMIN_NAV_ITEMS: NavItem[] = [
   { to: "/admin", icon: LayoutDashboard, label: "Admin Dashboard" },
   { to: "/reviewer", icon: Shield, label: "Review Queue" },
-  { to: "/profile", icon: UserCircle, label: "Profile" },
+  { to: "/profile", icon: UserCircle, label: "Account" },
 ];
 
 function SideNavLink({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {

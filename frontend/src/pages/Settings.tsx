@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import { getSettings, patchSettings } from "../lib/api";
 import { AIReflectionConsentModal } from "../components/AIReflectionConsentModal";
+import { useAuth } from "../utils/AuthContext";
 
 export function Settings() {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [aiReflectionEnabled, setAiReflectionEnabled] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
@@ -89,7 +91,16 @@ export function Settings() {
         }}
       >
         <AppLogo />
-        <BackButton />
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <BackButton className="shrink-0 mt-0.5" />
+          <div className="min-w-0 flex-1 text-center">
+            <H2>Settings</H2>
+            <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
+              Manage your account and preferences
+            </BodySmall>
+          </div>
+          <div className="shrink-0 w-8" />
+        </div>
       </div>
 
       <div
@@ -101,89 +112,89 @@ export function Settings() {
         }}
       >
         <section className="space-y-4">
-          <H2>Settings</H2>
+          {role === "user" && (
+            <>
+              <button
+                onClick={() => navigate("/profile/edit")}
+                className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
+                style={rowStyle}
+              >
+                <div className="flex items-center gap-3">
+                  <UserCircle2
+                    size={22}
+                    style={{ color: "var(--color-text-primary)" }}
+                  />
+                  <Body>Edit Profile</Body>
+                </div>
+                <ChevronRight
+                  size={20}
+                  style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
+                />
+              </button>
 
-          <button
-            onClick={() => navigate("/profile/edit")}
-            className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
-            style={rowStyle}
-          >
-            <div className="flex items-center gap-3">
-              <UserCircle2
-                size={22}
-                style={{ color: "var(--color-text-primary)" }}
-              />
-              <Body>Edit Profile</Body>
-            </div>
-            <ChevronRight
-              size={20}
-              style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
-            />
-          </button>
+              <button
+                onClick={() => navigate("/stats")}
+                className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
+                style={rowStyle}
+              >
+                <div className="flex items-center gap-3">
+                  <BarChart3
+                    size={22}
+                    style={{ color: "var(--color-text-primary)" }}
+                  />
+                  <Body>Stats</Body>
+                </div>
+                <ChevronRight
+                  size={20}
+                  style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
+                />
+              </button>
 
-          <button
-            onClick={() => navigate("/stats")}
-            className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
-            style={rowStyle}
-          >
-            <div className="flex items-center gap-3">
-              <BarChart3
-                size={22}
-                style={{ color: "var(--color-text-primary)" }}
-              />
-              <Body>Stats</Body>
-            </div>
-            <ChevronRight
-              size={20}
-              style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
-            />
-          </button>
+              <button
+                onClick={() => navigate("/about")}
+                className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
+                style={rowStyle}
+              >
+                <div className="flex items-center gap-3">
+                  <Info size={22} style={{ color: "var(--color-text-primary)" }} />
+                  <Body>About App</Body>
+                </div>
+                <ChevronRight
+                  size={20}
+                  style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
+                />
+              </button>
 
-          <button
-            onClick={() => navigate("/about")}
-            className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
-            style={rowStyle}
-          >
-            <div className="flex items-center gap-3">
-              <Info size={22} style={{ color: "var(--color-text-primary)" }} />
-              <Body>About App</Body>
-            </div>
-            <ChevronRight
-              size={20}
-              style={{ color: "var(--color-text-muted-dim)", opacity: 0.8 }}
-            />
-          </button>
+              <button
+                onClick={handleAiReflectionToggle}
+                className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
+                style={rowStyle}
+              >
+                <div className="flex items-center gap-3">
+                  <Sparkles size={22} style={{ color: "var(--color-text-primary)" }} />
+                  <Body>AI Reflection</Body>
+                </div>
+                <div
+                  className="w-11 h-6 rounded-full border transition-all duration-300 flex items-center px-1"
+                  style={{
+                    background: aiReflectionEnabled
+                      ? "var(--color-button-plum-bg)"
+                      : "transparent",
+                    borderColor: "var(--color-surface-glass-card-border)",
+                  }}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full transition-all duration-300"
+                    style={{
+                      background: "var(--color-text-primary)",
+                      transform: aiReflectionEnabled ? "translateX(20px)" : "translateX(0)",
+                    }}
+                  />
+                </div>
+              </button>
+            </>
+          )}
 
-          <button
-            onClick={handleAiReflectionToggle}
-            className="w-full rounded-full border backdrop-blur-xl px-5 py-4 flex items-center justify-between transition-all duration-300"
-            style={rowStyle}
-          >
-            <div className="flex items-center gap-3">
-              <Sparkles size={22} style={{ color: "var(--color-text-primary)" }} />
-              <Body>AI Reflection</Body>
-            </div>
-            <div
-              className="w-11 h-6 rounded-full border transition-all duration-300 flex items-center px-1"
-              style={{
-                background: aiReflectionEnabled
-                  ? "var(--color-button-plum-bg)"
-                  : "transparent",
-                borderColor: "var(--color-surface-glass-card-border)",
-              }}
-            >
-              <div
-                className="w-4 h-4 rounded-full transition-all duration-300"
-                style={{
-                  background: "var(--color-text-primary)",
-                  transform: aiReflectionEnabled ? "translateX(20px)" : "translateX(0)",
-                }}
-              />
-            </div>
-          </button>
-        </section>
-
-        <section className="space-y-4 pt-2">
           <button
             onClick={handleLogOut}
             className="w-full rounded-full border backdrop-blur-md px-5 py-3.5 flex items-center justify-center gap-2 transition-all duration-300"

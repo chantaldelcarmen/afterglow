@@ -52,11 +52,11 @@ export function BottomNav() {
       ? [
           { to: "/admin", icon: <LayoutDashboard size={30} strokeWidth={1.5} />, label: "Admin" },
           { to: "/reviewer", icon: <Shield size={30} strokeWidth={1.5} />, label: "Review Queue" },
-          { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Profile" },
+          { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Account" },
         ]
       : [
           { to: "/reviewer", icon: <Shield size={30} strokeWidth={1.5} />, label: "Review Queue" },
-          { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Profile" },
+          { to: "/profile", icon: <UserCircle size={30} strokeWidth={1.5} />, label: "Account" },
         ];
 
     return (
