@@ -2,7 +2,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { getOneExperience, removeExperience } from "../lib/experience";
-import { deleteFragment, getFragments, getFragmentSignedUrl } from "../lib/storage";
+import { deleteFragment, getFragments, getFragmentSignedUrl, setAnchorFragment } from "../lib/storage";
 import { deleteReflection, getReflections, updateReflection } from "../lib/reflections";
 import type { Experience } from "../types/experience";
 import type { Fragment } from "../types/fragment";
@@ -36,6 +36,7 @@ export default function ExperienceDetail() {
   const [deletingReflectionId, setDeletingReflectionId] = useState<string | null>(null);
   const [fragmentToDelete, setFragmentToDelete] = useState<Fragment | null>(null);
   const [deletingFragmentId, setDeletingFragmentId] = useState<string | null>(null);
+  const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(false);
@@ -172,6 +173,21 @@ export default function ExperienceDetail() {
     }
   }
 
+  async function handleSetAnchor(fragment: Fragment) {
+    if (!id) return;
+    setSettingAnchorId(fragment.id);
+    setFragmentError("");
+    try {
+      await setAnchorFragment(id, fragment.id);
+      setExperience((prev) => prev ? { ...prev, anchor_fragment_id: fragment.id } : prev);
+    } catch (err) {
+      console.error(err);
+      setFragmentError("Could not set anchor fragment.");
+    } finally {
+      setSettingAnchorId(null);
+    }
+  }
+
   if (loading) return <LoadingScreen />;
 
   if (error) return (
@@ -301,11 +317,14 @@ export default function ExperienceDetail() {
         ) : (
           <FragmentGallery
             fragments={fragments}
+            anchorFragmentId={experience.anchor_fragment_id}
             deletingFragmentId={deletingFragmentId}
+            settingAnchorId={settingAnchorId}
             onRequestDelete={(fragment) => {
               setFragmentError("");
               setFragmentToDelete(fragment);
             }}
+            onSetAnchor={handleSetAnchor}
           />
         )}
       </div>
