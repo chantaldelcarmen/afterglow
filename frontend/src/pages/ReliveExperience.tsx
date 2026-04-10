@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
 
 import { getOneExperience } from "../lib/experience";
 import { getFragments, getFragmentSignedUrl } from "../lib/storage";
@@ -40,12 +40,13 @@ export function ReliveExperience() {
   const [isPaused, setIsPaused] = useState(false);
   const [reflectionText, setReflectionText] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [showSavedPopup, setShowSavedPopup] = useState(false);
   const [showHint, setShowHint] = useState(true);
   const [showCaptionIntro, setShowCaptionIntro] = useState(true);
   const [showOpeningTitle, setShowOpeningTitle] = useState(true);
-  const [error, setError] = useState("");
+  const [isMuted, setIsMuted] = useState(true);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
     const t1 = setTimeout(() => setFadeToBlack(false), 300);
@@ -60,37 +61,46 @@ export function ReliveExperience() {
     };
   }, []);
 
-  const loadExperience = useCallback(async () => {
+  useEffect(() => {
+    const goOffline = () => { setIsOffline(true); setIsPaused(true); };
+    const goOnline = () => { setIsOffline(false); setIsPaused(false); };
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("online", goOnline);
+    return () => {
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", goOnline);
+    };
+  }, []);
+
+  const load = useCallback(async () => {
     if (!id) return;
-    setLoading(true);
-    setError("");
     try {
       const [exp, frags] = await Promise.all([
-        getOneExperience(id),
-        getFragments(id),
+        getOneExperience(id!),
+        getFragments(id!),
       ]);
       setExperience(exp);
+
       const withUrls: ReliveFragment[] = await Promise.all(
         frags.map(async (f: Fragment) => ({
           ...f,
           isAnchor: f.id === exp.anchor_fragment_id,
           signedUrl: f.storage_path
-            ? await getFragmentSignedUrl(id, f.id)
+            ? await getFragmentSignedUrl(id!, f.id)
             : null,
         }))
       );
       setContextFragments(withUrls.filter((f) => !f.isAnchor));
       setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
-    } catch {
-      setError("Couldn't load this experience. Check your connection and try again.");
+    } catch (err) {
+      console.error("Failed to load relive experience", err);
     } finally {
       setLoading(false);
     }
   }, [id]);
-
   useEffect(() => {
-    void loadExperience();
-  }, [loadExperience]);
+    void load();
+  }, [load]);
 
   // Auto-advance through context fragments
   useEffect(() => {
@@ -116,17 +126,19 @@ export function ReliveExperience() {
     return () => clearTimeout(timer);
   }, [phase, isPaused]);
 
-const handleSaveReflection = async () => {
+  const handleSaveReflection = async () => {
     if (!id || !reflectionText.trim() || saving) return;
+
     setSaving(true);
-    setSaveError("");
+    setSaveError(null); // clear previous errors
+
     try {
       await createReflection(id, reflectionText.trim());
       setShowSavedPopup(true);
       setTimeout(() => navigate(`/experience/${id}`), 1200);
     } catch {
+      setSaveError("Failed to save reflection. Please try again.");
       setSaving(false);
-      setSaveError("Couldn't save your reflection. Check your connection and try again.");
     }
   };
 
@@ -173,27 +185,6 @@ const handleSaveReflection = async () => {
 
   if (loading) return null;
 
-  if (error) return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center" style={{ background: "linear-gradient(180deg, #0A0010 0%, #16001F 100%)" }}>
-      <Body style={{ color: colors.accent.coral }}>{error}</Body>
-      <BodySmall style={{ color: colors.text.muted }}>
-        <button
-          onClick={() => void loadExperience()}
-          style={{ textDecoration: "underline" }}
-        >
-          Try again
-        </button>
-        {" or "}
-        <button
-          onClick={() => navigate(`/experience/${id}`)}
-          style={{ textDecoration: "underline" }}
-        >
-          go back to experience
-        </button>
-      </BodySmall>
-    </div>
-  );
-
   if (!experience) {
     navigate(`/experience/${id}`);
     return null;
@@ -207,8 +198,60 @@ const handleSaveReflection = async () => {
     ? contextFragments[contextIndex + 1]
     : null;
 
+
+
   return (
     <div className="absolute inset-0 z-50 overflow-hidden">
+      {/* Offline modal */}
+      {isOffline && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 z-50 flex items-center justify-center px-8"
+          style={{ backdropFilter: "blur(12px)", background: "rgba(0,0,0,0.6)" }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-3xl border px-8 py-8 flex flex-col items-center gap-4 max-w-sm w-full"
+            style={{ background: colors.surface.glass, borderColor: colors.button.warmBorder }}
+          >
+            <BodySmall style={{ color: colors.text.muted, textAlign: "center", fontSize: "15px" }}>
+              You lost connection.
+            </BodySmall>
+            <BodySmall style={{ color: colors.text.mutedDim, textAlign: "center", fontSize: "13px" }}>
+              Check your internet and try again, or go back to the experience.
+            </BodySmall>
+            <div className="flex gap-3 w-full mt-2">
+              <button
+                onClick={() => navigate(`/experience/${id}`)}
+                className="flex-1 rounded-full border py-3 transition-all duration-300"
+                style={{ background: "rgba(0,0,0,0.3)", borderColor: "rgba(255,255,255,0.2)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.button.warmBorder; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+              >
+                <BodySmall style={{ color: colors.text.muted }}>Go Back</BodySmall>
+              </button>
+              <button
+                onClick={() => {
+                  if (!navigator.onLine) return;
+                  setIsOffline(false);
+                  setIsPaused(false);
+                  void load();
+                }}
+                className="flex-1 rounded-full border py-3 transition-all duration-300"
+                style={{ background: colors.button.warmBgGradient, borderColor: colors.button.warmBorder }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 24px ${colors.button.warmGlow}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
+              >
+                <BodySmall style={{ color: colors.text.primary }}>Try Again</BodySmall>
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
       {/* Fade to black overlay */}
       <AnimatePresence>
         {fadeToBlack && (
@@ -286,7 +329,10 @@ const handleSaveReflection = async () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
             value={reflectionText}
-            onChange={(e) => setReflectionText(e.target.value)}
+            onChange={(e) => {
+              setReflectionText(e.target.value);
+              if (saveError) setSaveError(null);
+            }}
             placeholder="Your reflection..."
             className="w-full max-w-md h-32 px-6 py-4 rounded-2xl border backdrop-blur-xl resize-none focus:outline-none transition-all duration-300"
             style={{
@@ -337,11 +383,18 @@ const handleSaveReflection = async () => {
               </BodySmall>
             </motion.button>
           </div>
-
           {saveError && (
-            <BodySmall className="mt-3 text-center" style={{ color: colors.accent.coral }}>
-              {saveError}
-            </BodySmall>
+            <div
+              className="mt-3 w-full max-w-md rounded-xl border px-4 py-3 text-center"
+              style={{
+                background: "rgba(239, 68, 68, 0.10)",
+                borderColor: colors.accent.coral,
+              }}
+            >
+              <BodySmall style={{ color: colors.accent.coral }}>
+                {saveError}
+              </BodySmall>
+            </div>
           )}
 
           <AnimatePresence>
@@ -417,7 +470,7 @@ const handleSaveReflection = async () => {
                 transition={{ duration: 0.6 }}
                 className="relative z-20 md:absolute md:inset-0"
               >
-                <FragmentCard fragment={currentFragment} isActive />
+                <FragmentCard fragment={currentFragment} isActive isMuted={isMuted} onToggleMute={() => setIsMuted((m) => !m)} />
                 {/* Peak phase: glowing pulse behind the anchor fragment */}
                 {phase === "peak" && (
                   <motion.div
@@ -648,10 +701,16 @@ function PhaseSteps({ currentPhase }: { currentPhase: Phase }) {
 function FragmentCard({
   fragment,
   isActive = false,
+  isMuted = true,
+  onToggleMute,
 }: {
   fragment: ReliveFragment;
   isActive?: boolean;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
 }) {
+  const [mediaError, setMediaError] = useState(false);
+
   return (
     <div
       className="relative overflow-hidden rounded-3xl border backdrop-blur-xl w-60 h-90 md:w-full md:h-full md:rounded-none md:border-0"
@@ -677,12 +736,32 @@ function FragmentCard({
             {fragment.text_context ?? fragment.caption}
           </Body>
         </div>
+      ) : fragment.signedUrl && fragment.type === "video" ? (
+
+        mediaError ? (
+          <MediaFallback />
+        ) : (
+          <video
+            src={fragment.signedUrl}
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setMediaError(true)}
+          />
+        )
       ) : fragment.signedUrl ? (
-        <img
-          src={fragment.signedUrl}
-          alt={fragment.caption ?? "Fragment"}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        mediaError ? (
+          <MediaFallback />
+        ) : (
+          <img
+            src={fragment.signedUrl}
+            alt={fragment.caption ?? "Fragment"}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setMediaError(true)}
+          />
+        )
       ) : (
         <div className="flex items-center justify-center h-full">
           <Body style={{ color: colors.text.mutedDim }}>{fragment.type}</Body>
@@ -703,6 +782,33 @@ function FragmentCard({
           background: "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 65%, rgba(0,0,0,0.65) 100%)",
         }}
       />
+      {/* Mute toggle — only on active video fragments */}
+      {isActive && fragment.type === "video" && onToggleMute && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleMute(); }}
+          className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            border: `1px solid ${colors.button.warmBorder}`,
+          }}
+        >
+          {isMuted
+            ? <VolumeX size={15} style={{ color: colors.text.primary }} />
+            : <Volume2 size={15} style={{ color: colors.text.primary }} />
+          }
+        </button>
+      )}
+    </div>
+  );
+}
+
+function MediaFallback() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-3 px-6">
+      <BodySmall style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", fontSize: "13px" }}>
+        Media unavailable offline
+      </BodySmall>
     </div>
   );
 }

@@ -5,9 +5,11 @@ import { AppLogo } from "../components/AppLogo";
 import { useAuth } from "../utils/AuthContext";
 import { getUserExperiences } from "../lib/experience";
 import { getFragments } from "../lib/storage";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 export function Profile() {
-  const { user, loading } = useAuth();
+  const { user, role, loading } = useAuth();
   const navigate = useNavigate();
   const [experienceCount, setExperienceCount] = useState<number>(0);
   const [fragmentCount, setFragmentCount] = useState<number>(0);
@@ -83,7 +85,15 @@ export function Profile() {
       >
         {/* Profile section */}
         <section className="space-y-4">
-          <H2>Your Profile</H2>
+          <div className="flex items-start justify-between">
+            <div>
+              <H2>Your Profile</H2>
+              <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
+                Your account and memory stats
+              </BodySmall>
+            </div>
+            <HelpButton content={HELP_CONTENT["/profile"]} />
+          </div>
 
           <div className="flex flex-col items-center space-y-3 py-4">
             <div
@@ -103,39 +113,43 @@ export function Profile() {
             </div>
           </div>
 
-          <div
-            className="flex rounded-2xl overflow-hidden"
-            style={{
-              background: "var(--color-surface-glass-card)",
-              border: "1px solid var(--color-surface-glass-card-border)",
-            }}
-          >
-            <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-              <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
-                {experienceCount}
-              </span>
-              <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
-            </div>
-            <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
-            <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-              <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
-                {fragmentCount}
-              </span>
-              <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
-            </div>
-          </div>
-          {error && (
-            <div className="text-center space-y-2">
-              <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
-                {error}
-              </p>
-              <button
-                onClick={() => void loadStats()}
-                style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+          {role === 'user' && (
+            <>
+              <div
+                className="flex rounded-2xl overflow-hidden"
+                style={{
+                  background: "var(--color-surface-glass-card)",
+                  border: "1px solid var(--color-surface-glass-card-border)",
+                }}
               >
-                Try again
-              </button>
-            </div>
+                <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+                  <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
+                    {experienceCount}
+                  </span>
+                  <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
+                </div>
+                <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
+                <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+                  <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
+                    {fragmentCount}
+                  </span>
+                  <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
+                </div>
+              </div>
+              {error && (
+                <div className="text-center space-y-2">
+                  <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
+                    {error}
+                  </p>
+                  <button
+                    onClick={() => void loadStats()}
+                    style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </section>
 

@@ -7,6 +7,8 @@ import { GlassButton } from "../components/GlassButton";
 import { useAuth } from "../utils/AuthContext";
 import { apiFetch } from "../lib/api";
 import type { Experience } from "../types/experience";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
@@ -63,16 +65,18 @@ export default function Home() {
     loadExperiences();
   }, [loadExperiences]);
 
-  const handleSurprise = () => {
-    if (experiences.length === 0) return;
-    const random = experiences[Math.floor(Math.random() * experiences.length)];
-    navigate(`/experience/${random.id}`);
-  };
 
   if (authLoading) return <LoadingScreen />;
 
-  const featured = experiences[0] ?? null;
-  const recent = experiences.slice(1, 3);
+  const publishedExperiences = experiences.filter((exp) => !exp.is_draft);
+
+  const handleSurprise = () => {
+    if (publishedExperiences.length === 0) return;
+    const random = publishedExperiences[Math.floor(Math.random() * publishedExperiences.length)];
+    navigate(`/experience/${random.id}`);
+  };
+  const featured = publishedExperiences[0] ?? null;
+  const recent = publishedExperiences.slice(1, 3);
 
   return (
     <div className="h-full flex flex-col">
@@ -86,11 +90,17 @@ export default function Home() {
         }}
       >
         <AppLogo />
-        <H2>Welcome Back</H2>
-        <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
-          Your emotional memories, preserved and waiting
-        </BodySmall>
+        <div className="flex items-center justify-between max-w-[1000px]">
+          <div>
+            <H2>Welcome Back</H2>
+            <BodySmall className="mt-1" style={{ color: "var(--color-text-muted-dim)", fontSize: "13px" }}>
+              Your emotional memories, preserved and waiting
+            </BodySmall>
+          </div>
+          <HelpButton content={HELP_CONTENT["/"]} />
+        </div>
       </div>
+
 
       {/* Scrollable Content */}
       <div
@@ -248,7 +258,7 @@ export default function Home() {
           </div>
         )}
 
-        {experiences.length > 0 && (
+        {publishedExperiences.length > 0 && (
           <GlassButton
             size="md"
             className="w-full"

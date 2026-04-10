@@ -6,8 +6,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Activity,
-  UserCircle,
-  LogOut,
 } from "lucide-react";
 import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
@@ -47,37 +45,6 @@ export function AdminDashboard() {
               </BodySmall>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex gap-2 mt-[42px] md:mt-[50px]">
-              <button
-                className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all duration-300"
-                style={{
-                  background: colors.surface.glass,
-                  borderColor: colors.button.warmBorder,
-                  boxShadow: effects.shadows.button,
-                }}
-                onClick={() => navigate("/profile")}
-                title="Profile"
-              >
-                <UserCircle size={18} style={{ color: colors.text.primary }} />
-              </button>
-
-              <button
-                className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all duration-300"
-                style={{
-                  background: colors.surface.glass,
-                  borderColor: colors.button.warmBorder,
-                  boxShadow: effects.shadows.button,
-                }}
-                onClick={() => navigate("/logout")}
-                title="Logout"
-              >
-                <LogOut
-                  size={18}
-                  style={{ color: "#F5F5F0", strokeWidth: 2.5 }}
-                />
-              </button>
-            </div>
           </div>
 
           {/* System Overview */}

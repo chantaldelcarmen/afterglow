@@ -7,6 +7,8 @@ import type { MappedPatternStats, AIReflection } from "../lib/patterns";
 import { getPatternStats, getAIReflection } from "../lib/patterns";
 import type { Insight } from "../data/insights-data";
 import { AppLogo } from "../components/AppLogo";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 function buildInsights(stats: MappedPatternStats): Insight[] {
   return [
@@ -95,14 +97,16 @@ export function Insights() {
           transitionDelay: "50ms",
         }}
       >
-          <AppLogo />
-          <H2 className="px-1">Your Patterns</H2>
-          <BodySmall
-            className="px-1 mt-1"
-            style={{ color: colors.text.mutedDim, fontSize: "13px" }}
-          >
-            Discover emotional patterns through AI-powered analysis of your memories
-          </BodySmall>
+        <AppLogo />
+        <div className="flex items-start justify-between px-1">
+          <div>
+            <H2>Your Patterns</H2>
+            <BodySmall className="mt-1" style={{ color: colors.text.mutedDim, fontSize: "13px" }}>
+              Discover emotional patterns through AI-powered analysis of your memories
+            </BodySmall>
+          </div>
+          <HelpButton content={HELP_CONTENT["/insights"]} />
+        </div>
       </div>
 
       {/* Scrollable Content */}
