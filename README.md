@@ -176,4 +176,27 @@ Initial issues were generated from the project timeline using a small automation
 
 ---
 
-> This project uses AI assistance (Claude, Anthropic, claude-sonnet-4-6) for development support including debugging, code review, and documentation. All AI-generated or AI-assisted content has been reviewed by the team.
+## Development Notes
+
+This project leverages Claude Code (Anthropic's Claude) for development assistance, including:
+- **Debugging and troubleshooting** — identifying root causes, testing fixes, and validating solutions
+- **Code review and feedback** — reviewing PRs, identifying patterns, and suggesting improvements
+- **Documentation writing and refinement** — creating and refining technical docs, comments, and guides
+
+### Example Use Cases
+
+**Code Review Prompts:**
+```
+"review this branch and only call out things that are major red flags or blockers"
+"check if there are any merge conflicts and help resolve them"
+```
+
+**Debugging Prompts:**
+```
+"how to reproduce the issue to double check the fixes"
+"why is the nav disappearing randomly after a period of time"
+```
+
+All code and documentation changes are reviewed and verified by the development team. Claude Code is used as a development tool to accelerate feedback cycles and improve code quality, not as a replacement for human judgment and review.
+
+---
