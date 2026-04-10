@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Navigate, useSearchParams, useNavigate } from 'react-router-dom';
-import { Camera, Video, Type } from 'lucide-react';
+import { Camera, Video, Type, Anchor } from 'lucide-react';
 import { BackButton } from '../components/BackButton';
 import { useAuth } from '../utils/AuthContext';
 import { useFloatingOrb } from '../utils/floatingOrbContext';
 import type { FragmentType } from '../utils/floatingOrbContext';
 import { apiFetch } from '../lib/api';
-import { getFragments } from '../lib/storage';
+import { getFragments, setAnchorFragment } from '../lib/storage';
 import type { Fragment } from '../types/fragment';
 import { H2, BodySmall, Body } from '../components/Typography';
 import { LoadingScreen } from '../components/LoadingScreen';
@@ -22,6 +22,7 @@ interface ExperienceData {
   experience_date: string | null;
   location: string | null;
   description: string | null;
+  anchor_fragment_id: string | null;
 }
 
 export default function Upload() {
@@ -34,6 +35,8 @@ export default function Upload() {
 
   const [experience, setExperience] = useState<ExperienceData | null>(null);
   const [fragments, setFragments] = useState<Fragment[]>([]);
+  const [anchorFragmentId, setAnchorFragmentId] = useState<string | null>(null);
+  const [settingAnchorId, setSettingAnchorId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<FragmentType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,6 +89,7 @@ export default function Upload() {
         const res = await apiFetch(`/experiences/${experienceId}`);
         const data = await res.json();
         setExperience(data);
+        setAnchorFragmentId(data.anchor_fragment_id ?? null);
         await loadFragments(experienceId!);
       } catch {
         setError('Failed to load experience');
@@ -113,6 +117,20 @@ export default function Upload() {
       setSelectedType('photo');
     }
   }, [hasActivePhotoDraft]);
+
+  async function handleSetAnchor(fragment: Fragment) {
+    if (!experienceId) return;
+    setSettingAnchorId(fragment.id);
+    setError(null);
+    try {
+      await setAnchorFragment(experienceId, fragment.id);
+      setAnchorFragmentId(fragment.id);
+    } catch {
+      setError('Could not set anchor fragment.');
+    } finally {
+      setSettingAnchorId(null);
+    }
+  }
 
   function handleCancel() {
     setPhotoDraft(EMPTY_PHOTO_DRAFT);
@@ -152,8 +170,9 @@ export default function Upload() {
 
           <button
             type="button"
+            disabled={fragments.length > 0 && !anchorFragmentId}
             onClick={() => navigate(`/experience/${experienceId}`)}
-            className="shrink-0 rounded-full border px-5 py-2 text-sm backdrop-blur-xl transition-all duration-300"
+            className="shrink-0 rounded-full border px-5 py-2 text-sm backdrop-blur-xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               background: 'var(--color-button-plum-bg)',
               borderColor: 'var(--color-button-plum-border)',
@@ -161,6 +180,7 @@ export default function Upload() {
               boxShadow: '0 2px 10px rgba(0,0,0,0.35), 0 0 18px var(--color-button-plum-glow)',
             }}
             onMouseEnter={(e) => {
+              if (fragments.length > 0 && !anchorFragmentId) return;
               e.currentTarget.style.background = 'var(--color-button-plum-bg-hover)';
               e.currentTarget.style.borderColor = 'var(--color-button-plum-border-hover)';
               e.currentTarget.style.boxShadow =
@@ -329,7 +349,22 @@ export default function Upload() {
               </BodySmall>
             </div>
           ) : (
-            <FragmentGallery fragments={fragments} />
+            <>
+              <div className="flex items-center justify-center gap-1.5 mb-3">
+                <Anchor size={11} style={{ color: 'var(--color-text-muted-dim)', flexShrink: 0 }} />
+                <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontSize: '12px' }}>
+                  {anchorFragmentId
+                    ? 'Peak moment set — tap another fragment to change it'
+                    : 'Tap a fragment to set it as the peak moment'}
+                </BodySmall>
+              </div>
+              <FragmentGallery
+                fragments={fragments}
+                anchorFragmentId={anchorFragmentId}
+                onSetAnchor={handleSetAnchor}
+                settingAnchorId={settingAnchorId}
+              />
+            </>
           )}
         </div>
       </div>
