@@ -1,18 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Anchor } from 'lucide-react';
 import type { Fragment } from '../types/fragment';
 import { getFragmentSignedUrl } from '../lib/storage';
 
 interface FragmentGalleryProps {
   fragments: Fragment[];
+  anchorFragmentId?: string | null;
   onRequestDelete?: (fragment: Fragment) => void;
+  onSetAnchor?: (fragment: Fragment) => void;
   deletingFragmentId?: string | null;
+  settingAnchorId?: string | null;
 }
 
 export default function FragmentGallery({
   fragments,
+  anchorFragmentId = null,
   onRequestDelete,
+  onSetAnchor,
   deletingFragmentId = null,
+  settingAnchorId = null,
 }: FragmentGalleryProps) {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const signedUrlTargets = useMemo(
@@ -122,7 +128,38 @@ export default function FragmentGallery({
                 {f.type === 'video' ? 'No video' : 'No image'}
               </div>
             )}
-            {onRequestDelete && (
+            {/* Anchor badge (current anchor) or set-anchor button (non-anchor) */}
+            {anchorFragmentId === f.id ? (
+              <div
+                aria-label="Anchor fragment"
+                className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full"
+                style={{
+                  background: 'rgba(13, 0, 15, 0.9)',
+                  color: 'var(--color-accent-gold)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.24)',
+                }}
+              >
+                <Anchor size={11} strokeWidth={2.2} />
+              </div>
+            ) : onSetAnchor ? (
+              <button
+                type="button"
+                onClick={() => onSetAnchor(f)}
+                disabled={settingAnchorId === f.id}
+                aria-label={`Set ${f.caption ?? `${f.type} fragment`} as anchor`}
+                className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background: 'rgba(13, 0, 15, 0.9)',
+                  color: 'var(--color-text-muted-dim)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.24)',
+                }}
+              >
+                <Anchor size={11} strokeWidth={2.2} />
+              </button>
+            ) : null}
+
+            {/* Delete button -- hidden on anchor fragment */}
+            {onRequestDelete && anchorFragmentId !== f.id && (
               <button
                 type="button"
                 onClick={() => onRequestDelete(f)}
