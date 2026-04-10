@@ -136,7 +136,6 @@ async function uploadVideo(
       caption,
       storage_path: storagePath,
     });
-    console.log(`  + video fragment: "${caption}"`);
   } catch (err) {
     console.error(`Video upload failed: ${err instanceof Error ? err.message : err}`);
   }
@@ -199,12 +198,14 @@ async function createExperience(params: {
     });
   }
 
+  const videoCount = (params.videoFragments ?? []).length;
+
   if (photoFragId) {
     await supabase
       .from('experiences')
       .update({ anchor_fragment_id: photoFragId, is_draft: false })
       .eq('id', exp.id);
-    console.log(`Created: ${params.title} (published)`);
+    console.log(`Created: ${params.title} (published)${videoCount ? ` [+${videoCount} video]` : ''}`);
   } else {
     console.log(`Created: ${params.title} (draft -- photo upload failed)`);
   }
