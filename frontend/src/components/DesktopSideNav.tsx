@@ -1,4 +1,4 @@
-import { Home, Library, Plus, UserCircle, Sparkles, Shield, LogOut } from "lucide-react";
+import { Home, Library, Plus, UserCircle, Sparkles, Shield, LayoutDashboard, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../utils/AuthContext";
@@ -7,11 +7,26 @@ import { useState } from "react";
 const ACTIVE_BG = "rgba(120,60,160,0.20)";
 const ACTIVE_SHADOW = "inset 0 0 30px rgba(150,80,200,0.4), 0 0 15px rgba(120,60,160,0.3)";
 
-const NAV_ITEMS: { to: string; icon: LucideIcon; label: string }[] = [
+type NavItem = { to: string; icon: LucideIcon; label: string };
+
+const USER_NAV_ITEMS: NavItem[] = [
   { to: "/", icon: Home, label: "Home" },
   { to: "/library", icon: Library, label: "Library" },
   { to: "/create-experience", icon: Plus, label: "Create" },
   { to: "/insights", icon: Sparkles, label: "Insights" },
+  { to: "/profile", icon: UserCircle, label: "Profile" },
+];
+
+// platform_reviewer sees only their relevant routes
+const REVIEWER_NAV_ITEMS: NavItem[] = [
+  { to: "/reviewer", icon: Shield, label: "Review Queue" },
+  { to: "/profile", icon: UserCircle, label: "Profile" },
+];
+
+// admin gets their dashboard + reviewer access + profile
+const ADMIN_NAV_ITEMS: NavItem[] = [
+  { to: "/admin", icon: LayoutDashboard, label: "Admin Dashboard" },
+  { to: "/reviewer", icon: Shield, label: "Review Queue" },
   { to: "/profile", icon: UserCircle, label: "Profile" },
 ];
 
@@ -53,11 +68,14 @@ function SideNavLink({ to, icon: Icon, label }: { to: string; icon: LucideIcon; 
 }
 
 export function DesktopSideNav() {
-  const { role } = useAuth();
+  const { role, loading } = useAuth();
   const navigate = useNavigate();
 
-  const isReviewer = role === "platform_reviewer" || role === "admin";
-  const isAdmin = role === "admin";
+  if (loading || !role) return null;
+
+  const navItems = role === "admin" ? ADMIN_NAV_ITEMS
+        : role === "platform_reviewer" ? REVIEWER_NAV_ITEMS
+        : USER_NAV_ITEMS;
 
   return (
     <aside
@@ -85,22 +103,10 @@ export function DesktopSideNav() {
 
         {/* Nav items */}
         <nav className="flex-1 px-4 space-y-1">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <SideNavLink key={item.to} {...item} />
           ))}
 
-          {/* Role-based items */}
-          {isReviewer && (
-            <div
-              className="pt-4 mt-4 border-t space-y-1"
-              style={{ borderColor: "var(--color-surface-nav-border)" }}
-            >
-              {isAdmin && (
-                <SideNavLink to="/admin" icon={Shield} label="Admin Dashboard" />
-              )}
-              <SideNavLink to="/reviewer" icon={Shield} label="Review Queue" />
-            </div>
-          )}
         </nav>
 
         {/* Footer */}
