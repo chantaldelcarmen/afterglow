@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
 
@@ -63,7 +63,7 @@ export function ReliveExperience() {
 
   useEffect(() => {
     const goOffline = () => { setIsOffline(true); setIsPaused(true); };
-    const goOnline = () => {};
+    const goOnline = () => { };
     window.addEventListener("offline", goOffline);
     window.addEventListener("online", goOnline);
     return () => {
@@ -72,7 +72,7 @@ export function ReliveExperience() {
     };
   }, []);
 
-  async function load() {
+  const load = useCallback(async () => {
     if (!id) return;
     try {
       const [exp, frags] = await Promise.all([
@@ -97,10 +97,10 @@ export function ReliveExperience() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [id]);
   useEffect(() => {
     void load();
-  }, [id]);
+  }, [load]);
 
   // Auto-advance through context fragments
   useEffect(() => {
@@ -234,7 +234,7 @@ export function ReliveExperience() {
                 <BodySmall style={{ color: colors.text.muted }}>Go Back</BodySmall>
               </button>
               <button
-                 onClick={() => {
+                onClick={() => {
                   if (!navigator.onLine) return;
                   setIsOffline(false);
                   setIsPaused(false);
