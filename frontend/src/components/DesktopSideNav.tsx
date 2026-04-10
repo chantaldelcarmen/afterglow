@@ -71,10 +71,13 @@ export function DesktopSideNav() {
   const { role } = useAuth();
   const navigate = useNavigate();
 
-  if (!role) return null;
+  // Default to user role if role fetch fails (better UX than no nav)
+  const userRole = role || "user";
 
-  const navItems = role === "admin" ? ADMIN_NAV_ITEMS
-        : role === "platform_reviewer" ? REVIEWER_NAV_ITEMS
+  if (!userRole) return null;
+
+  const navItems = userRole === "admin" ? ADMIN_NAV_ITEMS
+        : userRole === "platform_reviewer" ? REVIEWER_NAV_ITEMS
         : USER_NAV_ITEMS;
 
   return (

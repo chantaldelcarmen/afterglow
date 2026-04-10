@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Camera } from 'lucide-react';
 import type { UploadProgress } from '../types/fragment';
 import { validatePhotoFile } from '../lib/validation';
 import { uploadFragment } from '../lib/storage';
+import {
+  getPhotoPreviewUrl,
+  revokePhotoPreviewUrl,
+} from '../utils/photoPreviewUrl';
 import {
   EMPTY_PHOTO_DRAFT,
   useUploadDraft,
@@ -24,19 +28,15 @@ export default function PhotoUpload({
   const caption = photoDraft.experienceId === experienceId ? photoDraft.caption : '';
   const [progress, setProgress] = useState<UploadProgress>({ status: 'idle', error: null });
   const inputRef = useRef<HTMLInputElement>(null);
-  const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
-
-  useEffect(() => {
-    if (!preview) return;
-
-    return () => {
-      URL.revokeObjectURL(preview);
-    };
-  }, [preview]);
+  const preview = file ? getPhotoPreviewUrl(file) : null;
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null;
     setProgress({ status: 'idle', error: null });
+
+    if (file && file !== selected) {
+      revokePhotoPreviewUrl(file);
+    }
 
     setPhotoDraft({
       experienceId,
@@ -60,6 +60,7 @@ export default function PhotoUpload({
       await uploadFragment(experienceId, file, caption.trim() || undefined);
 
       setProgress({ status: 'done', error: null });
+      revokePhotoPreviewUrl(file);
       setPhotoDraft(EMPTY_PHOTO_DRAFT);
       if (inputRef.current) inputRef.current.value = '';
       onUploaded?.();
@@ -136,6 +137,7 @@ export default function PhotoUpload({
             <button
               type="button"
               onClick={() => {
+                revokePhotoPreviewUrl(file);
                 setPhotoDraft(EMPTY_PHOTO_DRAFT);
                 setProgress({ status: 'idle', error: null });
                 if (inputRef.current) inputRef.current.value = '';

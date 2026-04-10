@@ -87,7 +87,20 @@ export default function ExperienceDetail() {
 
   useEffect(() => {
     async function loadCoverImage() {
-      if (!experience?.anchor_fragment_id) return;
+      if (!experience?.anchor_fragment_id) {
+        setCoverImage(null);
+        return;
+      }
+
+      const anchorFragment = fragments.find(
+        (fragment) => fragment.id === experience.anchor_fragment_id,
+      );
+
+      if (!anchorFragment?.storage_path) {
+        setCoverImage(null);
+        return;
+      }
+
       try {
         const url = await getFragmentSignedUrl(experience.id, experience.anchor_fragment_id);
         setCoverImage(url);
@@ -246,7 +259,10 @@ export default function ExperienceDetail() {
     </div>
   );
 
-  const anchorIsVideo = fragments.find(f => f.id === experience.anchor_fragment_id)?.type === 'video';
+  const anchorFragment = fragments.find(
+    (fragment) => fragment.id === experience.anchor_fragment_id,
+  );
+  const anchorIsVideo = anchorFragment?.type === 'video';
 
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate

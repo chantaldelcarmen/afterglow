@@ -36,7 +36,7 @@ test.describe('Testing auth flows', {}, () => {
         // settings
         await page.waitForURL('/settings');
 
-        await page.getByRole('button', {name: /log out/i}).click();
+        await page.getByRole('button', {name: /log out/i}).nth(1).click();
         // confirm logout 
         await page.getByRole('button', { name: /yes, sign out/i }).waitFor({ state: 'visible' });
         await expect(page.getByRole('button', { name: /yes, sign out/i })).toBeEnabled();
@@ -51,11 +51,17 @@ test.describe('Testing auth flows', {}, () => {
 
     test('user is able to go to sign up page', async({ page }) => {
         await page.goto('/signin');
-        await page.click('button[type=button]');
+        await page.getByRole('button', {name: /sign up/i}).click();
 
         await expect(page).toHaveURL('/signup');
     });
 
+    test('user is able to go to forgot password page', async({ page }) => {
+        await page.goto('/signin');
+        await page.getByRole('button', {name: /forgot password/i}).click();
+
+        await expect(page).toHaveURL('/forgot-password');
+    });
 
     test('user enters the wrong password', async({ page }) => {
         await page.goto('/signin');

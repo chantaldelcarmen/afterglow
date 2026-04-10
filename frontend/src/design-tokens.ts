@@ -218,6 +218,12 @@ export const typography = {
       color: "rgba(200,180,210,0.75)",
       textShadow: "0 2px 8px rgba(0,0,0,0.8)",
     },
+    bodySmallMobile: {
+      fontFamily: "'Inter', sans-serif",
+      fontSize: "14px",
+      color: "rgba(200,180,210,0.75)",
+      textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+    },
 
     // Subtitles & labels
     subtitle: {
@@ -226,9 +232,21 @@ export const typography = {
       color: "rgba(200,180,210,0.75)",
       textShadow: "0 2px 8px rgba(0,0,0,0.8)",
     },
+    subtitleMobile: {
+      fontFamily: "'Inter', sans-serif",
+      fontSize: "15px",
+      color: "rgba(200,180,210,0.75)",
+      textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+    },
     label: {
       fontFamily: "'Inter', sans-serif",
       fontSize: "12px",
+      color: "rgba(200,180,210,0.65)",
+      textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+    },
+    labelMobile: {
+      fontFamily: "'Inter', sans-serif",
+      fontSize: "13px",
       color: "rgba(200,180,210,0.65)",
       textShadow: "0 2px 8px rgba(0,0,0,0.8)",
     },

@@ -39,7 +39,6 @@ export function Profile() {
     };
   }, []);
 
-
   const loadStats = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
@@ -60,9 +59,15 @@ export function Profile() {
     }
   }, [user]);
 
+  const isPrivilegedRole = role === "admin" || role === "platform_reviewer";
+
   useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+    if (!isPrivilegedRole) {
+      loadStats();
+    } else {
+      setDataLoading(false);
+    }
+  }, [loadStats, isPrivilegedRole]);
 
   useEffect(() => {
     getSettings()
@@ -70,14 +75,36 @@ export function Profile() {
       .catch(() => {});
   }, []);
 
-  if (loading) return null;
-  if (!user) {
-    navigate("/signin");
-    return null;
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/signin");
+    }
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Body style={{ color: "var(--color-text-muted)" }}>Loading...</Body>
+      </div>
+    );
   }
 
-  const displayName = user.user_metadata?.full_name ?? user.email ?? "User";
+  const rawName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  const displayName = rawName.trim();
   const email = user.email ?? "";
+  const initial = displayName.charAt(0).toUpperCase() || "U";
+
+  const roleLabel =
+    role === "admin"
+      ? "Admin"
+      : role === "platform_reviewer"
+      ? "Platform Reviewer"
+      : null;
 
   const handleLogOut = () => {
     navigate("/logout");
@@ -168,52 +195,65 @@ export function Profile() {
               }}
             >
               <span style={{ color: "var(--color-text-primary)" }}>
-                {displayName[0].toUpperCase()}
+                {initial}
               </span>
             </div>
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <Body style={{ color: "var(--color-text-primary)" }}>{displayName}</Body>
               <BodySmall style={{ color: "var(--color-text-muted)" }}>{email}</BodySmall>
+
+              {roleLabel && (
+                <div className="pt-1">
+                  <span
+                    className="inline-flex px-3 py-1 rounded-full border text-xs"
+                    style={{
+                      background: "var(--color-surface-glass-card)",
+                      borderColor: "var(--color-surface-glass-card-border)",
+                      color: "var(--color-text-muted-dim)",
+                    }}
+                  >
+                    {roleLabel}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          {role === 'user' && (
-            <>
-              <div
-                className="flex rounded-2xl overflow-hidden"
-                style={{
-                  background: "var(--color-surface-glass-card)",
-                  border: "1px solid var(--color-surface-glass-card-border)",
-                }}
-              >
-                <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-                  <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
-                    {experienceCount}
-                  </span>
-                  <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
-                </div>
-                <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
-                <div className="flex-1 flex flex-col items-center py-4 space-y-1">
-                  <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
-                    {fragmentCount}
-                  </span>
-                  <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
-                </div>
+          {!isPrivilegedRole && (
+            <div
+              className="flex rounded-2xl overflow-hidden"
+              style={{
+                background: "var(--color-surface-glass-card)",
+                border: "1px solid var(--color-surface-glass-card-border)",
+              }}
+            >
+              <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+                <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-gold)" }}>
+                  {experienceCount}
+                </span>
+                <BodySmall style={{ color: "var(--color-text-muted)" }}>Experiences</BodySmall>
               </div>
-              {error && (
-                <div className="text-center space-y-2">
-                  <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
-                    {error}
-                  </p>
-                  <button
-                    onClick={() => void loadStats()}
-                    style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
-                  >
-                    Try again
-                  </button>
-                </div>
-              )}
-            </>
+              <div className="w-px self-stretch" style={{ background: "var(--color-surface-glass-card-border)" }} />
+              <div className="flex-1 flex flex-col items-center py-4 space-y-1">
+                <span className="text-2xl font-semibold" style={{ color: "var(--color-accent-coral)" }}>
+                  {fragmentCount}
+                </span>
+                <BodySmall style={{ color: "var(--color-text-muted)" }}>Fragments</BodySmall>
+              </div>
+            </div>
+          )}
+          {!isPrivilegedRole && error && (
+            <div className="text-center space-y-2">
+              <p className="text-xs" style={{ color: "var(--color-accent-coral)" }}>
+                {error}
+              </p>
+              <button
+                onClick={() => void loadStats()}
+                style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+              >
+                Try again
+              </button>
+            </div>
           )}
         </section>
 

@@ -46,7 +46,7 @@ test.describe('Experience feature testing', {}, () => {
         await expect(page.getByText('Afterglow')).toBeVisible();
 
         // finish reliving without saving reflection
-        await expect(page.getByRole('button', { name: /maybe later/i })).toBeVisible();
+        await (page.getByRole('button', { name: /maybe later/i })).waitFor({state: 'visible'});
         await page.getByRole('button', { name: /maybe later/i }).click();
 
         await expect(page.getByRole('button', { name: /relive experience/i })).toBeVisible();
@@ -88,6 +88,7 @@ test.describe('Experience feature testing', {}, () => {
         const cards = page.locator('h3'); 
         await expect(cards.nth(2)).toBeVisible();
         await cards.nth(2).click();
+    
         // 3rd experience from the library
         await expect(page.getByRole('heading', { name: /about this moment/i })).toBeVisible();
         await expect(page.getByRole('heading', { name: /Fragments/i })).toBeVisible();
