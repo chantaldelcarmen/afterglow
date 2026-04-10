@@ -80,6 +80,9 @@ export function ReliveExperience() {
         );
         setContextFragments(withUrls.filter((f) => !f.isAnchor));
         setPeakFragment(withUrls.find((f) => f.isAnchor) ?? null);
+      } catch (err) {
+        console.error("Failed to load relive experience", err);
+        navigate(`/experience/${id}`);
       } finally {
         setLoading(false);
       }
