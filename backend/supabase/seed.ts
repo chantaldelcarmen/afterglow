@@ -63,9 +63,9 @@ async function getOrCreateUser(email: string, password: string): Promise<string>
   return data.user.id;
 }
 
-async function fetchImageBuffer(url: string): Promise<Uint8Array> {
+async function fetchMediaBuffer(url: string): Promise<Uint8Array> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch image from ${url}`);
+  if (!res.ok) throw new Error(`Failed to fetch media from ${url}`);
   const arrayBuffer = await res.arrayBuffer();
   return new Uint8Array(arrayBuffer);
 }
@@ -77,7 +77,7 @@ async function uploadPhoto(
   caption: string,
 ): Promise<string | null> {
   try {
-    const buffer = await fetchImageBuffer(imageUrl);
+    const buffer = await fetchMediaBuffer(imageUrl);
     const fragmentId = crypto.randomUUID();
     const storagePath = `${userId}/${experienceId}/${fragmentId}.jpg`;
 
@@ -109,6 +109,39 @@ async function uploadPhoto(
   }
 }
 
+async function uploadVideo(
+  userId: string,
+  experienceId: string,
+  videoUrl: string,
+  caption: string,
+): Promise<void> {
+  try {
+    const buffer = await fetchMediaBuffer(videoUrl);
+    const fragmentId = crypto.randomUUID();
+    const storagePath = `${userId}/${experienceId}/${fragmentId}.mp4`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('fragments')
+      .upload(storagePath, buffer, { contentType: 'video/mp4' });
+
+    if (uploadError) {
+      console.error(`Failed to upload video: ${uploadError.message}`);
+      return;
+    }
+
+    await supabase.from('fragments').insert({
+      id: fragmentId,
+      experience_id: experienceId,
+      type: 'video',
+      caption,
+      storage_path: storagePath,
+    });
+    console.log(`  + video fragment: "${caption}"`);
+  } catch (err) {
+    console.error(`Video upload failed: ${err instanceof Error ? err.message : err}`);
+  }
+}
+
 async function createExperience(params: {
   userId: string;
   title: string;
@@ -121,6 +154,7 @@ async function createExperience(params: {
   imageUrl: string;
   imageCaption: string;
   additionalImages?: { url: string; caption: string }[];
+  videoFragments?: { url: string; caption: string }[];
   textFragments: { text: string; caption?: string }[];
   reflectionText?: string;
 }): Promise<void> {
@@ -150,6 +184,10 @@ async function createExperience(params: {
 
   for (const extra of params.additionalImages ?? []) {
     await uploadPhoto(params.userId, exp.id, extra.url, extra.caption);
+  }
+
+  for (const vid of params.videoFragments ?? []) {
+    await uploadVideo(params.userId, exp.id, vid.url, vid.caption);
   }
 
   for (const tf of params.textFragments) {
@@ -324,6 +362,9 @@ async function seed() {
     emotionTags: ['Nostalgic', 'Peaceful', 'Grateful'],
     imageUrl: 'https://picsum.photos/seed/roadtrip/800/600',
     imageCaption: 'Golden hour on the highway',
+    videoFragments: [
+      { url: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Driving through the valley' },
+    ],
     textFragments: [
       { text: 'We drove through Kananaskis just as the sun was setting. The sky turned deep orange over the peaks.' },
       { text: 'Woke up to rain on the tent. Made instant coffee on a camp stove. It was perfect.' },
@@ -391,6 +432,9 @@ async function seed() {
     emotionTags: ['Joy', 'Excited'],
     imageUrl: 'https://picsum.photos/seed/concert/800/600',
     imageCaption: 'Stage lights',
+    videoFragments: [
+      { url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', caption: 'Crowd during the opening act' },
+    ],
     textFragments: [{ text: 'The bass hit so hard I felt it in my chest. Three hours standing and I did not notice once.' }],
   });
 
@@ -666,6 +710,9 @@ async function seed() {
       emotionTags: ['Joy', 'Excited', 'Grateful'],
       imageUrl: 'https://picsum.photos/seed/festival/800/600',
       imageCaption: 'Main stage sunset set',
+      videoFragments: [
+        { url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', caption: 'Headliner closing set' },
+      ],
       textFragments: [{ text: 'The headliner played for two and a half hours. No one wanted them to stop.' }],
     });
 
@@ -728,6 +775,9 @@ async function seed() {
       emotionTags: ['Brave', 'Joy', 'Excited'],
       imageUrl: 'https://picsum.photos/seed/surfing/800/600',
       imageCaption: 'First wave attempt',
+      videoFragments: [
+        { url: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'First time standing on the board' },
+      ],
       textFragments: [{ text: 'Stood up on the board exactly once. For approximately two seconds. It counted.' }],
       reflectionText: 'I want to go back and actually get good at this.',
     });
