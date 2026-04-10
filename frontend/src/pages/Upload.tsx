@@ -17,6 +17,7 @@ import TextUpload from '../components/TextUpload';
 import FragmentGallery from '../components/FragmentGallery';
 import { revokePhotoPreviewUrl } from '../utils/photoPreviewUrl';
 import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
+import { typography } from '../design-tokens';
 
 interface ExperienceData {
   id: string;
@@ -61,8 +62,8 @@ export default function Upload() {
       : hasActivePhotoDraft
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
-          ? 'Write a text fragment to capture this moment'
-          : 'Tap the camera or video orb to choose a fragment';
+          ? 'Write a note, quote, or memory to preserve'
+          : 'Click the main orb to see the sub-orbs and add fragments';
 
   const desktopHelperText =
     selectedType === 'video'
@@ -70,8 +71,8 @@ export default function Upload() {
       : hasActivePhotoDraft
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
-          ? 'Write a text fragment to capture this moment'
-          : 'Choose a fragment type to continue';
+          ? 'Write a note, quote, or memory to preserve'
+          : 'Click a button above to add fragments';
 
   const loadFragments = useCallback(async (expId: string) => {
     try {
@@ -168,7 +169,11 @@ export default function Upload() {
             <H2 className="px-1 text-center">Add Fragments</H2>
             <BodySmall
               className="px-1 mt-1 text-center"
-              style={{ color: 'var(--color-text-muted-dim)', fontStyle: 'italic', fontSize: '13px' }}
+              style={{
+                color: 'var(--color-text-muted-dim)',
+                fontStyle: 'italic',
+                fontSize: `clamp(${typography.styles.bodySmall.fontSize}, 3vw, ${typography.styles.subtitleMobile.fontSize})`
+              }}
             >
               Building your memory
             </BodySmall>
@@ -215,11 +220,11 @@ export default function Upload() {
       >
         {/* Instructional text */}
         <div className="text-center mb-5 mt-2">
-          <BodySmall style={{ color: 'var(--color-text-muted-dim)', fontSize: '12px' }}>
-            <span className="md:hidden">
+          <BodySmall style={{ color: 'var(--color-text-muted-dim)' }}>
+            <span className="md:hidden" style={{ fontSize: typography.styles.bodySmallMobile.fontSize }}>
               {mobileHelperText}
             </span>
-            <span className="hidden md:inline">
+            <span className="hidden md:inline" style={{ fontSize: typography.styles.bodySmall.fontSize }}>
               {desktopHelperText}
             </span>
           </BodySmall>
