@@ -40,6 +40,7 @@ export function ReliveExperience() {
   const [isPaused, setIsPaused] = useState(false);
   const [reflectionText, setReflectionText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [showSavedPopup, setShowSavedPopup] = useState(false);
   const [showHint, setShowHint] = useState(true);
   const [showCaptionIntro, setShowCaptionIntro] = useState(true);
@@ -114,8 +115,6 @@ export function ReliveExperience() {
     const timer = setTimeout(() => setPhase("afterglow"), 5500);
     return () => clearTimeout(timer);
   }, [phase, isPaused]);
-
-const [saveError, setSaveError] = useState("");
 
 const handleSaveReflection = async () => {
     if (!id || !reflectionText.trim() || saving) return;
