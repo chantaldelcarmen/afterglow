@@ -25,6 +25,7 @@ export class SettingsService {
       .from('user_settings')
       .insert({ user_id: userId, ai_reflection_enabled: false })
       .select()
+      .eq('user_id', userId)
       .single();
 
     if (error) {

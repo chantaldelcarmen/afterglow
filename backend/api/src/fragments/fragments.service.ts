@@ -23,12 +23,37 @@ export class FragmentsService {
   async attachFragment(
     userId: string,
     experienceId: string,
-    file: Express.Multer.File,
+    file: Express.Multer.File | undefined,
     dto: AttachFragmentDto,
-  ): Promise<{ storagePath: string; publicUrl: string }> {
+  ): Promise<{ storagePath: string | null; publicUrl: string | null }> {
     const supabase = this.supabaseService.getClient();
     // check ownership
     await this.findOne(userId, experienceId);
+
+    const trimmedCaption = dto.caption?.trim() || undefined;
+    const trimmedTextContext = dto.text_context?.trim();
+
+    if (dto.type === 'text') {
+      if (!trimmedTextContext) {
+        throw new BadRequestException('Text content is required');
+      }
+
+      const fragmentId = uuidv4();
+      const { error: dbError } = await supabase.from('fragments').insert({
+        id: fragmentId,
+        experience_id: experienceId,
+        type: 'text',
+        caption: trimmedCaption,
+        text_context: trimmedTextContext,
+        storage_path: null,
+      });
+
+      if (dbError) {
+        throw new InternalServerErrorException(dbError.message);
+      }
+
+      return { storagePath: null, publicUrl: null };
+    }
 
     // guard for file existance
     if (!file) throw new BadRequestException('File is required');
@@ -48,10 +73,11 @@ export class FragmentsService {
 
     // inserting fragment data into 'fragments' table
     const { error: dbError } = await supabase.from('fragments').insert({
-      ...dto,
       id: fragmentId,
       experience_id: experienceId,
       type: type,
+      caption: trimmedCaption,
+      text_context: trimmedTextContext,
       storage_path: storagePath,
     });
 
@@ -99,7 +125,7 @@ export class FragmentsService {
     userId: string,
     experienceId: string,
     fragmentId: string,
-  ): Promise<{ signedUrl: string }> {
+  ): Promise<{ signedUrl: string | null }> {
     const supabase = this.supabaseService.getClient();
 
     await this.findOne(userId, experienceId);
@@ -116,7 +142,7 @@ export class FragmentsService {
     }
 
     if (!fragment.storage_path) {
-      throw new BadRequestException('Fragment has no storage path');
+      return { signedUrl: null };
     }
 
     const { data, error: signedUrlError } = await supabase.storage
@@ -173,6 +199,10 @@ export class FragmentsService {
     if (tableError) throw new InternalServerErrorException(tableError.message);
 
     // 3. delete fragment from 'fragments' storage bucket
+    if (!fragmentPath.storage_path) {
+      return { message: 'Fragment deleted successfully' };
+    }
+
     const { error: bucketError } = await supabase.storage
       .from('fragments')
       .remove([fragmentPath.storage_path]);

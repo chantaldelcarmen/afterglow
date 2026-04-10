@@ -15,6 +15,22 @@ export async function uploadFragment(
   });
 }
 
+export async function uploadTextFragment(
+  experienceId: string,
+  text: string,
+  caption?: string,
+): Promise<void> {
+  await apiFetch(`/experiences/${experienceId}/fragments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'text',
+      text_context: text,
+      caption,
+    }),
+  });
+}
+
 export async function getFragments(
   experienceId: string,
 ): Promise<Fragment[]> {

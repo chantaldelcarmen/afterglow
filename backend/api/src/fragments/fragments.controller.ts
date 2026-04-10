@@ -33,7 +33,7 @@ export class FragmentsController {
   attachFragment(
     @Req() req,
     @Param('id') experienceId: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | undefined,
     @Body() dto: AttachFragmentDto,
   ) {
     return this.fragmentsService.attachFragment(
