@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Body, BodySmall } from "../components/Typography";
 import { SubpageHeader } from "../components/SubpageHeader";
 import { apiFetch } from "../lib/api";
+
+const DRAFT_KEY = "afterglow_create_draft";
 
 const EMOTION_OPTIONS = [
   "Joy",
@@ -37,7 +39,7 @@ export default function CreateExperience() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
-  
+
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [emotionTags, setEmotionTags] = useState<string[]>([]);
@@ -45,6 +47,26 @@ export default function CreateExperience() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const userHasEdited = useRef(false);
+
+  // Restore draft on mount
+  useEffect(() => {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) {
+      const parsed = JSON.parse(draft);
+      setTitle(parsed.title ?? "");
+      setDate(parsed.date ?? "");
+      setLocation(parsed.location ?? "");
+      setDescription(parsed.description ?? "");
+      setEmotionTags(parsed.emotionTags ?? []);
+    }
+  }, []);
+
+  // Save draft on every change, but skip the initial render to avoid overwriting a restored draft
+  useEffect(() => {
+    if (!userHasEdited.current) { userHasEdited.current = true; return; }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, date, location, description, emotionTags }));
+  }, [title, date, location, description, emotionTags]);
 
   useEffect(() => {
     setMounted(false);
@@ -60,6 +82,8 @@ export default function CreateExperience() {
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
+
+  const hasDraft = !!(title || date || location || description || emotionTags.length);
 
   const handleCreate = async () => {
     if (!title.trim() || !date.trim()) return;
@@ -78,9 +102,15 @@ export default function CreateExperience() {
         }),
       });
       const created = await res.json();
+      localStorage.removeItem(DRAFT_KEY);
       navigate(`/upload?experienceId=${created.id}`);
     } catch (err) {
-      setError("Couldn't save your experience. Check your connection and try again.");
+      // apiFetch throws Error("SESSION_EXPIRED") when the JWT is expired/invalid
+      if (err instanceof Error && err.message === "SESSION_EXPIRED") {
+        setError("SESSION_EXPIRED");
+      } else {
+        setError("Couldn't save your experience. Check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -223,20 +253,31 @@ export default function CreateExperience() {
           {error && (
             <div className="text-center space-y-2">
               <p className="text-sm" style={{ color: "var(--color-accent-coral)" }}>
-                Couldn't save your experience. Check your connection and try again.
+                {error === "SESSION_EXPIRED"
+                  ? "Your session has expired."
+                  : "Couldn't save your experience. Check your connection and try again."}
               </p>
-              <button
-                onClick={() => void handleCreate()}
-                style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
-              >
-                Try again
-              </button>
+              {error === "SESSION_EXPIRED" ? (
+                <button
+                  onClick={() => navigate("/sign-in")}
+                  style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+                >
+                  Sign in again
+                </button>
+              ) : (
+                <button
+                  onClick={() => void handleCreate()}
+                  style={{ color: "var(--color-text-muted)", textDecoration: "underline", fontSize: "13px" }}
+                >
+                  Try again
+                </button>
+              )}
             </div>
           )}
 
           <div className="pt-6 space-y-3">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => { localStorage.removeItem(DRAFT_KEY); navigate(-1); }}
               className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
               style={{
                 background: "var(--color-surface-glass)",
@@ -272,6 +313,11 @@ export default function CreateExperience() {
             </button>
           </div>
 
+          {hasDraft && (
+            <BodySmall className="text-center" style={{ color: "var(--color-text-muted-dim)", fontSize: "12px" }}>
+              Draft saved locally
+            </BodySmall>
+          )}
           <BodySmall
             className="text-center pt-2"
             style={{ color: "var(--color-text-muted-dim)", fontStyle: "italic", fontSize: "13px" }}
