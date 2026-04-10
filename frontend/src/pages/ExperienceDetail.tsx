@@ -13,6 +13,8 @@ import { LoadingScreen } from "../components/LoadingScreen";
 import { ImageOverlay } from "../components/ImageOverlay";
 import { GlowOverlay } from "../components/GlowOverlay";
 import FragmentGallery from "../components/FragmentGallery";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 export default function ExperienceDetail() {
   const { id } = useParams();
@@ -129,7 +131,7 @@ export default function ExperienceDetail() {
     if (!id) return;
     setPublishing(true);
     try {
-      await updateExperience(id, {is_draft: false});
+      await updateExperience(id, { is_draft: false });
       navigate("/library");
     } catch (err) {
       console.error(err);
@@ -354,7 +356,7 @@ export default function ExperienceDetail() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            + Add fragment
+            Edit
           </button>
         </div>
         {fragmentError && <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>{fragmentError}</BodySmall>}
@@ -366,7 +368,7 @@ export default function ExperienceDetail() {
               <Anchor size={11} style={{ color: colors.text.mutedDim, flexShrink: 0 }} />
               <BodySmall style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
                 {experience.anchor_fragment_id
-                  ? "Tap any fragment to change the peak moment."
+                  ? "Double Tap any fragment to change the peak moment."
                   : "Tap a fragment to set it as the peak moment before publishing."}
               </BodySmall>
             </div>
@@ -533,7 +535,7 @@ export default function ExperienceDetail() {
                 style={iconBtnStyle}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
-                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px" }}>
                   Publish
                 </BodySmall>
               </button>
@@ -559,7 +561,10 @@ export default function ExperienceDetail() {
           <ImageOverlay />
           <GlowOverlay />
           <div className="absolute bottom-8 left-6 right-6">
-            <H1 className="mb-2">{experience.title}</H1>
+            <div className="flex items-start justify-between">
+              <H1 className="mb-2">{experience.title}</H1>
+              <HelpButton content={HELP_CONTENT["/experience-detail"]} />
+            </div>
             {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
             <div className="mt-4">
               {isDraft ? (
@@ -607,7 +612,7 @@ export default function ExperienceDetail() {
                 style={iconBtnStyle}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
-                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px" }}>
                   Publish
                 </BodySmall>
               </button>
@@ -647,9 +652,12 @@ export default function ExperienceDetail() {
 
           {/* Right: scrollable content */}
           <div className="space-y-6">
-            <div>
-              <H1 className="mb-1">{experience.title}</H1>
-              {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+            <div className="flex items-start justify-between">
+              <div>
+                <H1 className="mb-1">{experience.title}</H1>
+                {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+              </div>
+              <HelpButton content={HELP_CONTENT["/experience-detail"]} />
             </div>
             {isDraft ? (
               <div className="space-y-2">

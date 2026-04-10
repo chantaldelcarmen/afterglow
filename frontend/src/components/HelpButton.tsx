@@ -18,8 +18,8 @@ export function HelpButton({ content }: HelpButtonProps) {
         className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
         style={{
           background: colors.surface.glass,
-          border: `1px solid ${colors.surface.glassCardBorder}`,
-          color: colors.text.mutedDim,
+          border: `1px solid ${colors.surface.glassCardBorderHover}`,
+          color: colors.text.muted,
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.color = colors.text.primary;
