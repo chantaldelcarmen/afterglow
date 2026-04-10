@@ -279,7 +279,7 @@ export default function ExperienceDetail() {
         {reflections.length === 0 ? (
           <BodySmall style={{ color: colors.text.mutedDim }}>No reflections yet.</BodySmall>
         ) : (
-          <div className="space-y-3">1
+          <div className="space-y-3">
             {reflections.map((reflection) => (
               <div key={reflection.id} className="rounded-xl border p-4" style={{ background: colors.surface.glass, borderColor: colors.surface.glassCardBorder }}>
                 <div className="mb-3 flex items-start justify-between gap-3">
