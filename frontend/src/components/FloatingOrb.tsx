@@ -72,7 +72,7 @@ export function FloatingOrb({
     bottom: `${orbBottomOffset}px`,
     left: "50%",
     transform: "translate(-50%, 0)",
-    zIndex: 43,
+    zIndex: 45,
   } as const;
 
   const orbVisual = (
@@ -158,12 +158,47 @@ export function FloatingOrb({
         {isOrbExpanded && mode === "upload" && (
           <motion.div
             className="fixed inset-0"
-            style={{ zIndex: 42 }}
+            style={{
+              zIndex: 42,
+              background: "rgba(8, 6, 12, 0.5)",
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={() => setOrbExpanded(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Ambient glow behind the fan-out cluster */}
+      <AnimatePresence>
+        {isOrbExpanded && mode === "upload" && (
+          <motion.div
+            className="fixed pointer-events-none"
+            style={{
+              left: "50%",
+              transform: "translate(-50%, 0)",
+              bottom: `${orbBottomOffset + 102}px`,
+              zIndex: 44,
+              width: "260px",
+              height: "176px",
+              borderRadius: "50%",
+              background:
+                [
+                  "radial-gradient(circle at 22% 68%, rgba(120, 176, 255, 0.18) 0%, rgba(120, 176, 255, 0.08) 22%, rgba(120, 176, 255, 0) 48%)",
+                  "radial-gradient(circle at 50% 24%, rgba(179, 132, 255, 0.22) 0%, rgba(179, 132, 255, 0.1) 24%, rgba(179, 132, 255, 0) 52%)",
+                  "radial-gradient(circle at 78% 68%, rgba(255, 168, 205, 0.18) 0%, rgba(255, 168, 205, 0.08) 22%, rgba(255, 168, 205, 0) 48%)",
+                  "radial-gradient(ellipse at center, rgba(44, 30, 68, 0.22) 0%, rgba(23, 14, 36, 0.12) 42%, rgba(12, 8, 20, 0) 72%)",
+                ].join(", "),
+              filter: "blur(22px)",
+              boxShadow:
+                "0 16px 34px rgba(0, 0, 0, 0.14)",
+            }}
+            initial={{ opacity: 0, scale: 0.92, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
           />
         )}
       </AnimatePresence>
@@ -177,7 +212,7 @@ export function FloatingOrb({
               left: "50%",
               transform: "translate(-50%, 0)",
               bottom: `${orbBottomOffset + orbSize / 2}px`,
-              zIndex: 44,
+              zIndex: 46,
             }}
           >
             {MINI_ORB_OPTIONS.map((opt, i) => {
