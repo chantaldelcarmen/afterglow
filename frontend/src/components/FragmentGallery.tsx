@@ -128,8 +128,8 @@ export default function FragmentGallery({
                 {f.type === 'video' ? 'No video' : 'No image'}
               </div>
             )}
-            {/* Anchor badge (current anchor) or set-anchor button (non-anchor) */}
-            {anchorFragmentId === f.id ? (
+            {/* Anchor badge -- only shown on the current anchor fragment */}
+            {anchorFragmentId === f.id && (
               <div
                 aria-label="Anchor fragment"
                 className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full"
@@ -141,22 +141,19 @@ export default function FragmentGallery({
               >
                 <Anchor size={11} strokeWidth={2.2} />
               </div>
-            ) : onSetAnchor ? (
+            )}
+
+            {/* Set-anchor tap target -- covers the whole tile, only on non-anchor fragments */}
+            {onSetAnchor && anchorFragmentId !== f.id && (
               <button
                 type="button"
                 onClick={() => onSetAnchor(f)}
                 disabled={settingAnchorId === f.id}
                 aria-label={`Set ${f.caption ?? `${f.type} fragment`} as anchor`}
-                className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{
-                  background: 'rgba(13, 0, 15, 0.9)',
-                  color: 'var(--color-text-muted-dim)',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.24)',
-                }}
-              >
-                <Anchor size={11} strokeWidth={2.2} />
-              </button>
-            ) : null}
+                className="absolute inset-0 rounded-2xl transition-all duration-200 disabled:cursor-not-allowed"
+                style={{ background: 'transparent' }}
+              />
+            )}
 
             {/* Delete button -- hidden on anchor fragment */}
             {onRequestDelete && anchorFragmentId !== f.id && (

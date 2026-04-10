@@ -315,17 +315,24 @@ export default function ExperienceDetail() {
         {fragments.length === 0 ? (
           <BodySmall style={{ color: colors.text.mutedDim }}>No fragments yet.</BodySmall>
         ) : (
-          <FragmentGallery
-            fragments={fragments}
-            anchorFragmentId={experience.anchor_fragment_id}
-            deletingFragmentId={deletingFragmentId}
-            settingAnchorId={settingAnchorId}
-            onRequestDelete={(fragment) => {
-              setFragmentError("");
-              setFragmentToDelete(fragment);
-            }}
-            onSetAnchor={handleSetAnchor}
-          />
+          <>
+            <BodySmall className="mb-3" style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
+              {experience.anchor_fragment_id
+                ? "⚓ Tap any fragment to make it the peak moment of the relive experience."
+                : "⚓ Tap a fragment to set it as the peak moment before publishing."}
+            </BodySmall>
+            <FragmentGallery
+              fragments={fragments}
+              anchorFragmentId={experience.anchor_fragment_id}
+              deletingFragmentId={deletingFragmentId}
+              settingAnchorId={settingAnchorId}
+              onRequestDelete={(fragment) => {
+                setFragmentError("");
+                setFragmentToDelete(fragment);
+              }}
+              onSetAnchor={handleSetAnchor}
+            />
+          </>
         )}
       </div>
 
