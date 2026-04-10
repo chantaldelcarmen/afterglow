@@ -18,6 +18,7 @@ export async function apiFetch(
 ): Promise<Response> {
   const authHeaders = await getAuthHeaders();
   const res = await fetch(`${API_BASE}${path}`, {
+    cache: 'no-store',
     ...options,
     headers: {
       ...authHeaders,

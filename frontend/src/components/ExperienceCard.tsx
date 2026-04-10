@@ -7,6 +7,7 @@ interface ExperienceCardProps {
   imageAlt: string;
   title: string;
   date: string;
+  is_draft: boolean,
   buttonLabel?: string;
   onButtonClick?: () => void;
   onClick?: () => void;
@@ -17,6 +18,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
   imageAlt,
   title,
   date,
+  is_draft,
   onClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -55,6 +57,16 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
         className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
         style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15), transparent 70%)" }}
       />
+
+      {is_draft && (
+        <div className="absolute right-0 top-0 p-4">
+          <span 
+          className="px-2 py-0.5 rounded-full text-xs"
+          style={{ background: colors.surface.glass, color: colors.text.muted}}>
+            Draft
+          </span>
+        </div>
+      )}
 
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <H3
