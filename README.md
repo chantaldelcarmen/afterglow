@@ -145,7 +145,7 @@ This only needs to be done once per environment. Do not re-run on an existing da
 
 ### Seeding
 
-`backend/supabase/seed.ts` creates the three test accounts and seeds sample experiences, fragments, reflections, and a system flag for demo purposes.
+`backend/supabase/seed.ts` creates the four test accounts and seeds sample experiences, fragments, reflections, and a system flag for demo purposes.
 
 **Prerequisites:** Node.js and a `.env` file in the project root with at minimum `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` set (see Environment setup above).
 
@@ -163,6 +163,7 @@ The script is safe to run multiple times - it upserts accounts and clears sample
 | Email | Password | Role |
 |---|---|---|
 | user@afterglow.dev | Afterglow1234! | user |
+| user2@afterglow.dev | Afterglow1234! | user |
 | reviewer@afterglow.dev | Afterglow1234! | platform_reviewer |
 | admin@afterglow.dev | Afterglow1234! | admin |
 
