@@ -25,6 +25,7 @@ import { AmbientBackground } from "./components/AmbientBackground";
 import { BottomNav } from "./components/BottomNav";
 import { DesktopSideNav } from "./components/DesktopSideNav";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { InactivityManager } from "./components/InactivityManager";
 import { FloatingOrbProvider } from "./utils/FloatingOrbProvider";
 import { UploadDraftProvider } from "./utils/UploadDraftProvider";
 import { useAuth } from "./utils/AuthContext";
@@ -94,6 +95,7 @@ export default function App() {
                 </div>
               } />
             </Routes>
+            <InactivityManager />
             <AppNav />
           </AmbientBackground>
         </UploadDraftProvider>

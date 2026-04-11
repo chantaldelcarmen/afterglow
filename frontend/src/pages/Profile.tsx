@@ -260,7 +260,7 @@ export function Profile() {
         {/* Settings section */}
         <section className="space-y-4">
           <H2>Settings</H2>
-          {role === "user" && (
+          {!isPrivilegedRole && (
             <>
               <button
                 onClick={() => navigate("/profile/edit")}
