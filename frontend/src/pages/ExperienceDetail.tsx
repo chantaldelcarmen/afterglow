@@ -368,7 +368,7 @@ export default function ExperienceDetail() {
               <Anchor size={11} style={{ color: colors.text.mutedDim, flexShrink: 0 }} />
               <BodySmall style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
                 {experience.anchor_fragment_id
-                  ? "Double Tap any fragment to change the peak moment."
+                  ? "Double tap any fragment to change the peak moment."
                   : "Tap a fragment to set it as the peak moment before publishing."}
               </BodySmall>
             </div>
@@ -527,6 +527,7 @@ export default function ExperienceDetail() {
         {/* Buttons overlaid on hero */}
         <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6">
           <button onClick={() => navigate("/library")} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
+            <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
             {isDraft && (
