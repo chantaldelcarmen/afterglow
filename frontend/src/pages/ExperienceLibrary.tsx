@@ -12,6 +12,24 @@ import { HelpButton } from "../components/HelpButton";
 import { HELP_CONTENT } from "../data/help-content";
 
 
+const RECENT_SEARCHES_KEY = "afterglow_recent_searches";
+const MAX_RECENT = 5;
+
+function loadRecentSearches(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(query: string) {
+  const q = query.trim();
+  if (!q) return;
+  const existing = loadRecentSearches().filter((s) => s !== q);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([q, ...existing].slice(0, MAX_RECENT)));
+}
+
 export default function ExperienceLibrary() {
   const [search, setSearch] = useState("");
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -21,6 +39,8 @@ export default function ExperienceLibrary() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [mounted, setMounted] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
+  const [showDrafts, setShowDrafts] = useState<"published" | "drafts" | "all">("published");
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const loadExperiences = useCallback(async () => {
@@ -63,10 +83,9 @@ export default function ExperienceLibrary() {
     setDateRange({ start: "", end: "" });
   };
 
-  const showDrafts = activeFilters.includes("Drafts");
-
   const filteredExperiences = experiences.filter((exp: Experience) => {
-    if (exp.is_draft && !showDrafts) return false;
+    if (showDrafts === "published" && exp.is_draft) return false;
+    if (showDrafts === "drafts" && !exp.is_draft) return false;
 
     const q = search.toLowerCase().trim();
     const matchesSearch =
@@ -75,7 +94,7 @@ export default function ExperienceLibrary() {
       (exp.location && exp.location.toLowerCase().includes(q)) ||
       (exp.emotion_tags && exp.emotion_tags.some((tag) => tag.toLowerCase().includes(q)));
 
-    const yearFilters = activeFilters.filter((f) => ["2024", "2023", "2022"].includes(f));
+    const yearFilters = activeFilters.filter((f) => /^\d{4}$/.test(f));
     const displayDate = exp.experience_date ?? exp.start_date ?? null;
     const expYear = displayDate ? new Date(displayDate).getFullYear().toString() : null;
     const matchesFilters =
@@ -109,6 +128,21 @@ export default function ExperienceLibrary() {
   }, []);
 
   const years = Object.keys(experiencesByYear).sort((a, b) => Number(b) - Number(a));
+
+  const yearOptions = [...new Set(
+    experiences
+      .map((exp) => exp.experience_date ?? exp.start_date ?? null)
+      .filter((d): d is string => Boolean(d))
+      .map((d) => new Date(d).getFullYear().toString())
+  )].sort((a, b) => Number(b) - Number(a));
+
+  const handleClosePanel = () => {
+    if (search.trim()) {
+      saveRecentSearch(search);
+      setRecentSearches(loadRecentSearches());
+    }
+    setIsSearchActive(false);
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -145,7 +179,11 @@ export default function ExperienceLibrary() {
             onClearFilters={handleClearFilters}
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
-            onClosePanel={() => setIsSearchActive(false)}
+            onClosePanel={handleClosePanel}
+            recentSearches={recentSearches}
+            yearOptions={yearOptions}
+            showDrafts={showDrafts}
+            onShowDraftsChange={setShowDrafts}
           />
         </div>
       </div>
