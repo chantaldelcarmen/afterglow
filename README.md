@@ -85,6 +85,12 @@ docker compose down
 
 Optional frontend-only notes, including ngrok and viewport presets for browser testing, are in [frontend/README.md](frontend/README.md).
 
+If using ngrok with Docker, set `VITE_ALLOWED_HOSTS` in your root `.env` to the ngrok host (or comma-separated hosts), then restart:
+
+```
+docker compose up --build -d
+```
+
 ### Common commands
 
 ```

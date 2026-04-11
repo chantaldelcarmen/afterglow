@@ -6,6 +6,7 @@ services:
     environment:
       - NODE_ENV=development
       - DEBUG=1
+      - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS}
 
   backend:
     volumes:

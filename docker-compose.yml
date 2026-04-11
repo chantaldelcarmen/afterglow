@@ -8,8 +8,11 @@ services:
                 - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
                 - VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=${VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY}
                 - VITE_API_URL=${VITE_API_URL}
+                - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS}
         container_name: react-frontend
         restart: unless-stopped
+        environment:
+            - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS}
         networks:
             - client
         ports:
