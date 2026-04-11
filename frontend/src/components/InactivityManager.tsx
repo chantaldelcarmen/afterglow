@@ -5,10 +5,9 @@ import { useInactivityTimer } from "../hooks/useInactivityTimer";
 import { Body, BodySmall } from "./Typography";
 import { GlassButton } from "./GlassButton";
 
-// DEMO: set to 10s timeout / 5s warning for demo purposes
-// PRODUCTION values: TIMEOUT_MS = 15 * 60 * 1000, WARNING_MS = 60 * 1000
-const TIMEOUT_MS = 10 * 1000;
-const WARNING_MS = 5 * 1000;
+// PRODUCTION: 15m timeout / 60s warning
+const TIMEOUT_MS = 15 * 60 * 1000;
+const WARNING_MS = 60 * 1000;
 
 export function InactivityManager() {
   const { user } = useAuth();
