@@ -401,7 +401,7 @@ export default function Upload() {
             onClick={() => setConfirmationModal(false)}
         >
           <div
-              className="relativ w-full max-w-sm overflow-hidden rounded-[28px] border backdrop-blur-xl p-9 flex flex-col gap-2 items-center"
+              className="w-full max-w-sm overflow-hidden rounded-[28px] border backdrop-blur-xl p-9 flex flex-col gap-2 items-center"
               style={{
                 background: "var(--color-surface-glass-card)",
                 borderColor: "var(--color-surface-glass-card-border)",
@@ -412,10 +412,21 @@ export default function Upload() {
           >
             <div className="flex flex-col items-center justify-center text-center gap-3">
                 <Body>Leave this page?</Body>
-                <BodySmall>The changes you made will be lost if you navigate away from this page.</BodySmall>
+                <BodySmall>Your uploaded fragments will not be saved if you leave now.</BodySmall>
             </div>
             <div className="flex gap-7 mt-7 w-full">
-                <GlassButton className="flex-1" onClick={() => confirmLeave()}>Leave</GlassButton>
+                <button
+                  className="flex-1 px-5 py-3.5 rounded-full border backdrop-blur-md transition-all duration-300 text-base"
+                  style={{
+                    background: "transparent",
+                    borderColor: "var(--color-surface-glass-card-border)",
+                    color: "var(--color-text-muted)",
+                    fontFamily: "Inter, sans-serif",
+                  }}
+                  onClick={() => confirmLeave()}
+                >
+                  Leave
+                </button>
                 <GlassButton className="flex-1" onClick={() => setConfirmationModal(false)}>Stay</GlassButton>
             </div>
           </div>
