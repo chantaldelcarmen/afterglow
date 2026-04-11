@@ -12,6 +12,7 @@ import { H1, H2, Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { GlowOverlay } from "../components/GlowOverlay";
 import FragmentGallery from "../components/FragmentGallery";
+import { ConfirmationModal } from "../components/ConfirmationModal";
 import { HelpButton } from "../components/HelpButton";
 import { HELP_CONTENT } from "../data/help-content";
 
@@ -299,12 +300,6 @@ export default function ExperienceDetail() {
       : `0 2px 10px rgba(0,0,0,0.35), 0 0 18px ${colors.button.plumGlassGlow}`,
   };
 
-  const deleteModalPanelStyle = {
-    background: colors.surface.backgroundOuter,
-    borderColor: colors.surface.glassCardBorder,
-    boxShadow: effects.shadows.card,
-  };
-
   const contentSections = (
     <>
       {/* About section */}
@@ -442,24 +437,15 @@ export default function ExperienceDetail() {
 
       {/* Modals -- fixed, work on both layouts */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-sm rounded-2xl border p-6 space-y-4" style={deleteModalPanelStyle}>
-            <H2>Delete experience?</H2>
-            <BodySmall style={{ color: colors.text.muted }}>This will permanently delete this experience and all its fragments. This cannot be undone.</BodySmall>
-            <div className="flex gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
-              >Cancel</button>
-              <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-              >
-                {deleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Delete experience?"
+          body="This will permanently delete this experience and all its fragments. This cannot be undone."
+          confirmLabel={deleting ? "Deleting..." : "Delete"}
+          onConfirm={() => void handleDelete()}
+          onCancel={() => setShowDeleteConfirm(false)}
+          confirmVariant="coral"
+          confirmDisabled={deleting}
+        />
       )}
 
       {editingReflection && (
@@ -491,39 +477,27 @@ export default function ExperienceDetail() {
       )}
 
       {fragmentToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={deleteModalPanelStyle}>
-            <H2>Delete fragment?</H2>
-            <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this fragment from the experience.</BodySmall>
-            <div className="flex gap-3">
-              <button onClick={() => setFragmentToDelete(null)} disabled={deletingFragmentId === fragmentToDelete.id} className="flex-1 rounded-full border py-3 text-sm" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}>Cancel</button>
-              <button onClick={() => void handleDeleteFragment()} disabled={deletingFragmentId === fragmentToDelete.id} className="flex-1 rounded-full py-3 text-sm" style={{ background: colors.accent.coral, color: "#fff" }}>
-                {deletingFragmentId === fragmentToDelete.id ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Delete fragment?"
+          body="This will permanently remove this fragment from the experience."
+          confirmLabel={deletingFragmentId === fragmentToDelete.id ? "Deleting..." : "Delete"}
+          onConfirm={() => void handleDeleteFragment()}
+          onCancel={() => setFragmentToDelete(null)}
+          confirmVariant="coral"
+          confirmDisabled={deletingFragmentId === fragmentToDelete.id}
+        />
       )}
 
       {reflectionToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4" style={deleteModalPanelStyle}>
-            <H2>Delete reflection?</H2>
-            <BodySmall style={{ color: colors.text.muted }}>This will permanently remove this saved reflection.</BodySmall>
-            <div className="flex gap-3">
-              <button onClick={() => setReflectionToDelete(null)} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full border py-3 text-sm transition-all duration-200" style={{ borderColor: colors.surface.glassCardBorder, color: colors.text.muted }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorderHover; e.currentTarget.style.color = colors.text.primary; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.surface.glassCardBorder; e.currentTarget.style.color = colors.text.muted; }}
-              >Cancel</button>
-              <button onClick={() => void handleDeleteReflection()} disabled={deletingReflectionId === reflectionToDelete.id} className="flex-1 rounded-full py-3 text-sm transition-all duration-200" style={{ background: colors.accent.coral, color: "#fff" }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-              >
-                {deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Delete reflection?"
+          body="This will permanently remove this saved reflection."
+          confirmLabel={deletingReflectionId === reflectionToDelete.id ? "Deleting..." : "Delete"}
+          onConfirm={() => void handleDeleteReflection()}
+          onCancel={() => setReflectionToDelete(null)}
+          confirmVariant="coral"
+          confirmDisabled={deletingReflectionId === reflectionToDelete.id}
+        />
       )}
 
       {/* ===== MOBILE LAYOUT ===== */}
