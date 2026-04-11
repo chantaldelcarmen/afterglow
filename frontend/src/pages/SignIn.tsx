@@ -132,9 +132,7 @@ export function SignIn() {
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-200"
-              style={{ color: "#000000" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#333333"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#000000"; }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
