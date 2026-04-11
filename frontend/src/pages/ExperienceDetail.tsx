@@ -552,9 +552,14 @@ export default function ExperienceDetail() {
         </div>
 
         {/* Hero / Text anchor section */}
-        <div className="relative h-[336px] overflow-hidden">
+        <div className={`relative ${anchorTextContent ? 'h-105' : 'h-84'} overflow-hidden`}>
           {anchorTextContent ? (
-            <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
+            <div
+              className="absolute inset-0 backdrop-blur-xl"
+              style={{
+                background: colors.surface.glassCard
+              }}
+            />
           ) : coverImage && anchorIsVideo ? (
             <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
           ) : coverImage ? (
@@ -562,11 +567,12 @@ export default function ExperienceDetail() {
           ) : (
             <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
           )}
-          <ImageOverlay />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }} />
           <GlowOverlay />
           {anchorTextContent && (
-            <div className="absolute inset-x-6 inset-y-6 flex flex-col">
+            <div className="absolute inset-x-6 top-28 bottom-40">
               <Body
+                className="line-clamp-5"
                 style={{ color: colors.text.primary, lineHeight: "1.7", fontSize: "15px" }}
               >
                 {anchorTextContent}
@@ -650,7 +656,12 @@ export default function ExperienceDetail() {
             style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
           >
             {anchorTextContent ? (
-              <div className="absolute inset-0 p-8 flex items-center justify-center" style={{ background: colors.surface.glassCard }}>
+              <div
+                className="absolute inset-0 p-8 flex items-center justify-center"
+                style={{
+                  background: `rgba(32, 18, 32, 0.35)`
+                }}
+              >
                 <Body
                   style={{ color: colors.text.primary, lineHeight: "1.8", fontSize: "16px", textAlign: "center" }}
                 >
@@ -664,12 +675,8 @@ export default function ExperienceDetail() {
             ) : (
               <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
             )}
-            {!anchorTextContent && (
-              <>
-                <ImageOverlay />
-                <GlowOverlay />
-              </>
-            )}
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }} />
+            <GlowOverlay />
           </div>
 
           {/* Right: scrollable content */}
