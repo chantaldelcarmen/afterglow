@@ -65,7 +65,7 @@ export default function Upload() {
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
           ? 'Write a note, quote, or memory to preserve'
-          : 'Click the main orb to see the sub-orbs and add fragments';
+          : 'Tap the glowing orb on mobile to see the orbs to add photo, video, text fragments';
 
   const desktopHelperText =
     selectedType === 'video'
@@ -74,7 +74,7 @@ export default function Upload() {
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
           ? 'Write a note, quote, or memory to preserve'
-          : 'Click a button above to add fragments';
+          : 'Tap camera, video or text orb.';
 
   const loadFragments = useCallback(async (expId: string) => {
     try {

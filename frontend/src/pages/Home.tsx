@@ -156,7 +156,7 @@ export default function Home() {
 
             <div
               className="absolute inset-0 pointer-events-none"
-              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }}
+              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.2) 100%)" }}
             />
             <div
               className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
@@ -164,17 +164,17 @@ export default function Home() {
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <BodySmall className="mb-2" style={{ color: "var(--color-text-muted)", fontFamily: "var(--font-serif)" }}>
+              <BodySmall className="mb-2" style={{ color: "var(--color-text-primary)", fontFamily: "var(--font-serif)", textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)" }}>
                 Continue Reliving
               </BodySmall>
               <h3
                 className="text-2xl mb-1"
-                style={{ fontFamily: "var(--font-serif)", color: "var(--color-text-primary)", textShadow: "var(--shadow-text-strong)" }}
+                style={{ fontFamily: "var(--font-serif)", color: "var(--color-text-primary)", textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)" }}
               >
                 {featured.title}
               </h3>
               {featured.experience_date && (
-                <BodySmall className="mb-4" style={{ color: "var(--color-text-muted)" }}>
+                <BodySmall className="mb-4" style={{ color: "var(--color-text-muted)", textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)" }}>
                   {new Date(featured.experience_date).toLocaleDateString()}
                 </BodySmall>
               )}
@@ -240,14 +240,18 @@ export default function Home() {
 
                   <div
                     className="absolute inset-0 pointer-events-none"
-                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }}
+                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)" }}
+                  />
+                  <div
+                    className="absolute inset-0 rounded-[20px] opacity-30 pointer-events-none"
+                    style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15), transparent 70%)" }}
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <Body className="font-medium truncate" style={{ color: "var(--color-text-primary)", fontSize: "14px" }}>
+                    <Body className="font-medium truncate" style={{ color: "var(--color-text-primary)", fontSize: "14px", textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)" }}>
                       {exp.title}
                     </Body>
                     {exp.experience_date && (
-                      <BodySmall style={{ color: "var(--color-text-muted)", fontSize: "11px" }}>
+                      <BodySmall style={{ color: "var(--color-text-muted)", fontSize: "11px", textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)" }}>
                         {new Date(exp.experience_date).toLocaleDateString()}
                       </BodySmall>
                     )}

@@ -51,7 +51,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
 
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }}
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)" }}
       />
       <div
         className="absolute inset-0 rounded-[28px] opacity-30 pointer-events-none"
@@ -73,7 +73,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
           className="text-base mb-1"
           style={{
             fontFamily: typography.fonts.serif,
-            textShadow: typography.shadows.textStrong,
+            textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)",
             color: colors.text.onImage,
           }}
         >
@@ -83,7 +83,7 @@ export const ExperienceCard: React.FC<ExperienceCardProps> = ({
           className="text-xs mb-2"
           style={{
             fontFamily: typography.fonts.sansSerif,
-            textShadow: typography.shadows.textStrong,
+            textShadow: "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)",
             color: colors.text.onImage,
           }}
         >
