@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { H2, Body, BodySmall, Subtitle } from "../components/Typography";
+import { Eye, EyeOff } from "lucide-react";
 import { AppLogo } from "../components/AppLogo";
 import supabase from "../utils/supabase";
 import { useAuth } from "../utils/AuthContext";
@@ -23,6 +24,7 @@ export function SignIn() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [awaitingRole, setAwaitingRole] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setMounted(false);
@@ -107,28 +109,40 @@ export function SignIn() {
           <label htmlFor="password" className="block mb-2">
             <BodySmall style={{ color: "var(--color-text-muted)" }}>Password</BodySmall>
           </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-            className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 transition-all duration-300 focus:outline-none"
-            style={inputStyle}
-            onFocus={(e) => {
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)";
-              e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border-hover)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
-              e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
-            }}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              className="w-full rounded-[28px] border backdrop-blur-xl px-5 py-4 pr-12 transition-all duration-300 focus:outline-none"
+              style={inputStyle}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-button-warm-glow)";
+                e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border-hover)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = "inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3)";
+                e.currentTarget.style.borderColor = "var(--color-surface-glass-card-border)";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-200"
+              style={{ color: "#000000" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#333333"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#000000"; }}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
         </div>
 
         {/* Forgot Password Button */}
-        <div className="text-right pt-2">
+        <div className="text-center pt-2">
           <button
             type="button"
             onClick={() => navigate("/forgot-password")}
@@ -164,7 +178,7 @@ export function SignIn() {
             {loading ? "Signing in..." : "Sign In"}
           </Body>
         </button>
-        
+
         {/* Sign Up Link */}
         <div className="text-center pt-4">
           <Body style={{ color: "var(--color-text-muted)" }}>

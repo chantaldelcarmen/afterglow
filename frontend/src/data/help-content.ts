@@ -36,6 +36,18 @@ export const HELP_CONTENT: Record<string, HelpContent> = {
       "Most Active Time of Day is based on when you created experiences",
     ],
   },
+   "/experience-detail": {
+    title: "Experience Detail",
+    description: "View and manage everything about this memory.",
+    tips: [
+      "Double tap any fragment to set it as the anchor — the emotional peak of your experience",
+      "The anchor fragment appears as the cover image and is the highlight of your Relive flow",
+      "You need an anchor fragment set before you can publish or relive this experience",
+      "Add or remove fragments using the Edit button in the Fragments section",
+      "Reflections are written at the end of a Relive session and can be edited anytime",
+      "Hit Relive Experience to move through your memory in cinematic mode",
+    ],
+  },
   "/profile": {
     title: "Your Profile",
     description: "View your account and memory stats.",
