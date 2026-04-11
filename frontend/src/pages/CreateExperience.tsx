@@ -48,6 +48,10 @@ export default function CreateExperience() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const userHasEdited = useRef(false);
+  const [touched, setTouched] = useState<{ title: boolean; date: boolean }>({
+    title: false,
+    date: false,
+  });
 
   // Restore draft on mount
   useEffect(() => {
@@ -86,6 +90,7 @@ export default function CreateExperience() {
   const hasDraft = !!(title || date || location || description || emotionTags.length);
 
   const handleCreate = async () => {
+    setTouched({ title: true, date: true });
     if (!title.trim() || !date.trim()) return;
     setError("");
     setLoading(true);
@@ -116,11 +121,17 @@ export default function CreateExperience() {
     }
   };
 
+  const handleBlur = (field: "title" | "date") => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
   const isFormValid = !!title.trim() && !!date.trim();
   const today = new Date();
   const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
     .toISOString()
     .split("T")[0];
+  const showTitleError = touched.title && !title.trim();
+  const showDateError  = touched.date  && !date.trim();
 
   return (
     <div className="h-full flex flex-col">
@@ -151,9 +162,17 @@ export default function CreateExperience() {
                   className="w-full px-5 py-4 rounded-[28px] border backdrop-blur-xl transition-all duration-300 focus:outline-none"
                   style={inputStyle}
                   onFocus={(e) => Object.assign(e.currentTarget.style, inputFocusStyle)}
-                  onBlur={(e) => Object.assign(e.currentTarget.style, inputBlurStyle)}
+                  onBlur={(e) => {Object.assign(e.currentTarget.style, inputBlurStyle); handleBlur("title"); }}
                 />
               </label>
+              {showTitleError && (
+                <BodySmall
+                  className="mt-1 pl-2"
+                  style={{ color: "var(--color-accent-coral)", fontSize: "12px" }}
+                >
+                  Title is required
+                </BodySmall>
+              )}
             </div>
 
             {/* Date */}
@@ -165,14 +184,25 @@ export default function CreateExperience() {
                 <input
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setTouched((prev) => ({ ...prev, date: true }));
+                  }}
                   max={localToday}
                   className="w-full px-5 py-4 rounded-[28px] border backdrop-blur-xl transition-all duration-300 focus:outline-none"
                   style={{ ...inputStyle, colorScheme: "dark" }}
                   onFocus={(e) => Object.assign(e.currentTarget.style, inputFocusStyle)}
-                  onBlur={(e) => Object.assign(e.currentTarget.style, inputBlurStyle)}
+                  onBlur={(e) => { Object.assign(e.currentTarget.style, inputBlurStyle); handleBlur("date"); }}
                 />
               </label>
+              {showDateError && (
+                <BodySmall
+                  className="mt-1 pl-2"
+                  style={{ color: "var(--color-accent-coral)", fontSize: "12px" }}
+                >
+                  Date is required
+                </BodySmall>
+              )}
             </div>
 
             {/* Location */}
