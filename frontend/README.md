@@ -74,15 +74,30 @@ export default defineConfig([
 
 ## Ngrok for Mobile Testing
 
-Use this when testing the frontend on a physical phone or an external device.
+Use this when testing the frontend locally outside the Docker workflow on a physical phone or an external device.
 
-1. Start the frontend dev server on port 3000.
-2. Start ngrok and point it to port 3000.
-3. Open the generated ngrok URL on your phone.
+1. Add your ngrok host to `frontend/.env.local`.
+2. Start the frontend dev server on port 3000.
+3. Start ngrok and point it to port 3000.
+4. Open the generated ngrok URL on your phone.
+
+Example `frontend/.env.local`:
+
+```bash
+VITE_ALLOWED_HOSTS=your-subdomain.ngrok-free.dev
+```
+
+`frontend/.env.local` is local-only and should not be committed.
+
+You can also allow multiple hosts (comma-separated):
+
+```bash
+VITE_ALLOWED_HOSTS=host1.ngrok-free.dev,host2.ngrok-free.dev
+```
 
 Commands:
 
 - npm run dev
 - ngrok http 3000
 
-This project allows the ngrok host in the Vite config through server.allowedHosts in [vite.config.ts](vite.config.ts).
+If you are using Docker for the main app flow, keep that as the default and use this section only for frontend-local testing.

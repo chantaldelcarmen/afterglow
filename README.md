@@ -83,6 +83,8 @@ docker compose up --build
 docker compose down
 ```
 
+Optional frontend-only notes, including ngrok and viewport presets for browser testing, are in [frontend/README.md](frontend/README.md).
+
 ### Common commands
 
 ```
@@ -92,6 +94,21 @@ docker compose logs -f backend  # follow logs from a specific service
 docker compose restart          # restart all services
 docker compose down -v          # stop and remove volumes (fresh start)
 ```
+
+### Viewport testing in Chrome DevTools
+
+Use these steps to test responsive layouts consistently.
+
+1. Open the app in Google Chrome.
+2. Open DevTools (`F12` or `Ctrl+Shift+I`).
+3. Toggle device toolbar (`Ctrl+Shift+M`).
+4. In the top device bar, choose a preset or enter custom width/height.
+5. Set the device pixel ratio (DPR) value if needed.
+
+Recommended presets for this project:
+
+- iPhone 16: width `393`, height `852`, DPR `3`
+- Desktop balanced: width `1440`, height `900`, DPR `1`
 
 ---
 
