@@ -187,7 +187,7 @@ export function EditExperience() {
                   max={localToday}
                   className="w-full px-5 py-4 rounded-[28px] border backdrop-blur-xl transition-all duration-300 focus:outline-none"
                   style={{ ...inputStyle, colorScheme: "dark" }}
-                  onFocus={(e) => { Object.assign(e.currentTarget.style, inputFocusStyle); handleBlur("date"); }}
+                  onFocus={(e) => Object.assign(e.currentTarget.style, inputFocusStyle)}
                   onBlur={(e) => { Object.assign(e.currentTarget.style, inputBlurStyle); handleBlur("date"); }}
                 />
               </label>
