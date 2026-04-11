@@ -10,14 +10,16 @@ import type { Reflection } from "../lib/reflections";
 import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
-import { ImageOverlay } from "../components/ImageOverlay";
 import { GlowOverlay } from "../components/GlowOverlay";
 import FragmentGallery from "../components/FragmentGallery";
 import { ConfirmationModal } from "../components/ConfirmationModal";
+import { HelpButton } from "../components/HelpButton";
+import { HELP_CONTENT } from "../data/help-content";
 
 export default function ExperienceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const heroTextShadow = "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)";
   const [experience, setExperience] = useState<Experience | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [fragments, setFragments] = useState<Fragment[]>([]);
@@ -111,7 +113,7 @@ export default function ExperienceDetail() {
       }
     }
     void loadCoverImage();
-  }, [experience?.id, experience?.anchor_fragment_id, coverRefreshKey]);
+  }, [experience?.id, experience?.anchor_fragment_id, fragments, coverRefreshKey]);
 
   async function handleDelete() {
     if (!id) return;
@@ -130,7 +132,7 @@ export default function ExperienceDetail() {
     if (!id) return;
     setPublishing(true);
     try {
-      await updateExperience(id, {is_draft: false});
+      await updateExperience(id, { is_draft: false });
       navigate("/library");
     } catch (err) {
       console.error(err);
@@ -264,6 +266,10 @@ export default function ExperienceDetail() {
     (fragment) => fragment.id === experience.anchor_fragment_id,
   );
   const anchorIsVideo = anchorFragment?.type === 'video';
+  const anchorTextContent =
+    anchorFragment?.type === 'text'
+      ? anchorFragment.text_context ?? anchorFragment.caption ?? 'Text fragment'
+      : null;
 
   const displayDate = experience.experience_date ?? experience.start_date ?? null;
   const formattedDate = displayDate
@@ -292,12 +298,6 @@ export default function ExperienceDetail() {
     boxShadow: isButtonHovered
       ? `0 4px 16px rgba(0,0,0,0.35), 0 0 25px ${colors.button.plumGlassGlowHover}`
       : `0 2px 10px rgba(0,0,0,0.35), 0 0 18px ${colors.button.plumGlassGlow}`,
-  };
-
-  const deleteModalPanelStyle = {
-    background: colors.surface.backgroundOuter,
-    borderColor: colors.surface.glassCardBorder,
-    boxShadow: effects.shadows.card,
   };
 
   const contentSections = (
@@ -355,7 +355,7 @@ export default function ExperienceDetail() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            + Add fragment
+            Edit
           </button>
         </div>
         {fragmentError && <BodySmall className="mb-3" style={{ color: colors.accent.coral }}>{fragmentError}</BodySmall>}
@@ -367,7 +367,7 @@ export default function ExperienceDetail() {
               <Anchor size={11} style={{ color: colors.text.mutedDim, flexShrink: 0 }} />
               <BodySmall style={{ color: colors.text.mutedDim, fontSize: "12px" }}>
                 {experience.anchor_fragment_id
-                  ? "Tap any fragment to change the peak moment."
+                  ? "Double tap any fragment to change the peak moment."
                   : "Tap a fragment to set it as the peak moment before publishing."}
               </BodySmall>
             </div>
@@ -504,7 +504,7 @@ export default function ExperienceDetail() {
       <div className="md:hidden">
         {/* Buttons overlaid on hero */}
         <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
+          <button onClick={() => navigate("/library")} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
             <ArrowLeft size={20} style={{ color: colors.text.primary }} />
           </button>
           <div className="flex gap-2">
@@ -513,7 +513,7 @@ export default function ExperienceDetail() {
                 style={iconBtnStyle}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
-                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px" }}>
                   Publish
                 </BodySmall>
               </button>
@@ -527,20 +527,40 @@ export default function ExperienceDetail() {
           </div>
         </div>
 
-        {/* Hero image */}
-        <div className="relative h-[336px] overflow-hidden">
-          {coverImage && anchorIsVideo ? (
+        {/* Hero / Text anchor section */}
+        <div className={`relative ${anchorTextContent ? 'h-105' : 'h-84'} overflow-hidden`}>
+          {anchorTextContent ? (
+            <div
+              className="absolute inset-0 backdrop-blur-xl"
+              style={{
+                background: colors.surface.glassCard
+              }}
+            />
+          ) : coverImage && anchorIsVideo ? (
             <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
           ) : coverImage ? (
             <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
             <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
           )}
-          <ImageOverlay />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)" }} />
           <GlowOverlay />
+          {anchorTextContent && (
+            <div className="absolute inset-x-6 top-28 bottom-40">
+              <Body
+                className="line-clamp-5"
+                style={{ color: colors.text.primary, lineHeight: "1.7", fontSize: "15px" }}
+              >
+                {anchorTextContent}
+              </Body>
+            </div>
+          )}
           <div className="absolute bottom-8 left-6 right-6">
-            <H1 className="mb-2">{experience.title}</H1>
-            {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+            <div className="flex items-start justify-between">
+              <H1 className="mb-2" style={{ textShadow: heroTextShadow }}>{experience.title}</H1>
+              <HelpButton content={HELP_CONTENT["/experience-detail"]} />
+            </div>
+            {formattedDate && <BodySmall style={{ color: colors.text.muted, textShadow: heroTextShadow }}>{formattedDate}</BodySmall>}
             <div className="mt-4">
               {isDraft ? (
                 <div className="space-y-2">
@@ -587,7 +607,7 @@ export default function ExperienceDetail() {
                 style={iconBtnStyle}
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
-                <BodySmall style={{ color: colors.text.primary, fontSize: "13px"}}>
+                <BodySmall style={{ color: colors.text.primary, fontSize: "13px" }}>
                   Publish
                 </BodySmall>
               </button>
@@ -614,22 +634,38 @@ export default function ExperienceDetail() {
             className="relative overflow-hidden rounded-3xl border backdrop-blur-xl sticky top-8 h-[calc(100vh-120px)]"
             style={{ background: colors.surface.glassCard, borderColor: colors.surface.glassCardBorder, boxShadow: effects.shadows.card }}
           >
-            {coverImage && anchorIsVideo ? (
+            {anchorTextContent ? (
+              <div
+                className="absolute inset-0 p-8 flex items-center justify-center"
+                style={{
+                  background: `rgba(32, 18, 32, 0.35)`
+                }}
+              >
+                <Body
+                  style={{ color: colors.text.primary, lineHeight: "1.8", fontSize: "16px", textAlign: "center" }}
+                >
+                  {anchorTextContent}
+                </Body>
+              </div>
+            ) : coverImage && anchorIsVideo ? (
               <video src={coverImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
             ) : coverImage ? (
               <img src={coverImage} alt={experience.title} className="absolute inset-0 w-full h-full object-cover" />
             ) : (
               <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
             )}
-            <ImageOverlay />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)" }} />
             <GlowOverlay />
           </div>
 
           {/* Right: scrollable content */}
           <div className="space-y-6">
-            <div>
-              <H1 className="mb-1">{experience.title}</H1>
-              {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+            <div className="flex items-start justify-between">
+              <div>
+                <H1 className="mb-1" style={{ textShadow: heroTextShadow }}>{experience.title}</H1>
+                {formattedDate && <BodySmall style={{ color: colors.text.muted, textShadow: heroTextShadow }}>{formattedDate}</BodySmall>}
+              </div>
+              <HelpButton content={HELP_CONTENT["/experience-detail"]} />
             </div>
             {isDraft ? (
               <div className="space-y-2">

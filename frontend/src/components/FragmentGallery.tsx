@@ -132,7 +132,7 @@ export default function FragmentGallery({
             {anchorFragmentId === f.id && (
               <div
                 aria-label="Anchor fragment"
-                className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full"
+                className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full"
                 style={{
                   background: 'rgba(13, 0, 15, 0.9)',
                   color: 'var(--color-accent-gold)',
@@ -147,10 +147,10 @@ export default function FragmentGallery({
             {onSetAnchor && anchorFragmentId !== f.id && (
               <button
                 type="button"
-                onDoubleClick={() => onSetAnchor(f)}
+                onClick={() => onSetAnchor(f)}
                 disabled={settingAnchorId === f.id}
-                aria-label={`Double-click to set ${f.caption ?? `${f.type} fragment`} as peak moment`}
-                className="absolute inset-0 rounded-2xl transition-all duration-200 disabled:cursor-not-allowed"
+                aria-label={`Tap to set ${f.caption ?? `${f.type} fragment`} as peak moment`}
+                className="absolute inset-0 z-0 rounded-2xl transition-all duration-200 disabled:cursor-not-allowed"
                 style={{ background: 'transparent' }}
               />
             )}
@@ -162,7 +162,7 @@ export default function FragmentGallery({
                 onClick={() => onRequestDelete(f)}
                 disabled={deletingFragmentId === f.id}
                 aria-label={`Delete ${f.caption ?? `${f.type} fragment`}`}
-                className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
                   background: 'rgba(13, 0, 15, 0.9)',
                   color: 'var(--color-accent-coral)',

@@ -18,6 +18,7 @@ import FragmentGallery from '../components/FragmentGallery';
 import { revokePhotoPreviewUrl } from '../utils/photoPreviewUrl';
 import { EMPTY_PHOTO_DRAFT, useUploadDraft } from '../utils/uploadDraftContext';
 import { typography } from '../design-tokens';
+import { GlassButton } from '../components/GlassButton';
 
 interface ExperienceData {
   id: string;
@@ -44,6 +45,7 @@ export default function Upload() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [confirmationModal, setConfirmationModal] = useState(false);
 
   useEffect(() => {
     setMounted(false);
@@ -63,7 +65,7 @@ export default function Upload() {
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
           ? 'Write a note, quote, or memory to preserve'
-          : 'Click the main orb to see the sub-orbs and add fragments';
+          : 'Tap the glowing orb on mobile to see the orbs to add photo, video, text fragments';
 
   const desktopHelperText =
     selectedType === 'video'
@@ -72,7 +74,7 @@ export default function Upload() {
         ? 'Your selected photo is ready to upload'
         : selectedType === 'text'
           ? 'Write a note, quote, or memory to preserve'
-          : 'Click a button above to add fragments';
+          : 'Tap camera, video or text orb.';
 
   const loadFragments = useCallback(async (expId: string) => {
     try {
@@ -135,7 +137,22 @@ export default function Upload() {
     }
   }
 
+  function confirmLeave() {
+    if (hasActivePhotoDraft) {
+      revokePhotoPreviewUrl(photoDraft.file);
+    }
+
+    setPhotoDraft(EMPTY_PHOTO_DRAFT);
+    setSelectedType(null);
+    navigate(-1);
+  }
+
   function handleCancel() {
+    if (fragments.length > 0) {
+      setConfirmationModal(true);
+      return;
+    }
+
     if (hasActivePhotoDraft) {
       revokePhotoPreviewUrl(photoDraft.file);
     }
@@ -377,6 +394,44 @@ export default function Upload() {
           )}
         </div>
       </div>
+      {confirmationModal && (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.5)" }}
+            onClick={() => setConfirmationModal(false)}
+        >
+          <div
+              className="w-full max-w-sm overflow-hidden rounded-[28px] border backdrop-blur-xl p-9 flex flex-col gap-2 items-center"
+              style={{
+                background: "var(--color-surface-glass-card)",
+                borderColor: "var(--color-surface-glass-card-border)",
+                maxHeight: "80vh",
+                overflowY: "auto",
+              }}
+              onClick={((e) => e.stopPropagation())}
+          >
+            <div className="flex flex-col items-center justify-center text-center gap-3">
+                <Body>Leave this page?</Body>
+                <BodySmall>Your uploaded fragments will not be saved if you leave now.</BodySmall>
+            </div>
+            <div className="flex gap-7 mt-7 w-full">
+                <button
+                  className="flex-1 px-5 py-3.5 rounded-full border backdrop-blur-md transition-all duration-300 text-base"
+                  style={{
+                    background: "transparent",
+                    borderColor: "var(--color-surface-glass-card-border)",
+                    color: "var(--color-text-muted)",
+                    fontFamily: "Inter, sans-serif",
+                  }}
+                  onClick={() => confirmLeave()}
+                >
+                  Leave
+                </button>
+                <GlassButton className="flex-1" onClick={() => setConfirmationModal(false)}>Stay</GlassButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
