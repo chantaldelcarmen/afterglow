@@ -19,6 +19,7 @@ import { HELP_CONTENT } from "../data/help-content";
 export default function ExperienceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const heroTextShadow = "0 1px 3px rgba(0,0,0,1), 0 3px 16px rgba(0,0,0,1), 0 6px 32px rgba(0,0,0,0.9)";
   const [experience, setExperience] = useState<Experience | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [fragments, setFragments] = useState<Fragment[]>([]);
@@ -569,7 +570,7 @@ export default function ExperienceDetail() {
           ) : (
             <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
           )}
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)" }} />
           <GlowOverlay />
           {anchorTextContent && (
             <div className="absolute inset-x-6 top-28 bottom-40">
@@ -583,10 +584,10 @@ export default function ExperienceDetail() {
           )}
           <div className="absolute bottom-8 left-6 right-6">
             <div className="flex items-start justify-between">
-              <H1 className="mb-2">{experience.title}</H1>
+              <H1 className="mb-2" style={{ textShadow: heroTextShadow }}>{experience.title}</H1>
               <HelpButton content={HELP_CONTENT["/experience-detail"]} />
             </div>
-            {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+            {formattedDate && <BodySmall style={{ color: colors.text.muted, textShadow: heroTextShadow }}>{formattedDate}</BodySmall>}
             <div className="mt-4">
               {isDraft ? (
                 <div className="space-y-2">
@@ -680,7 +681,7 @@ export default function ExperienceDetail() {
             ) : (
               <div className="absolute inset-0" style={{ background: colors.surface.glassCard }} />
             )}
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)" }} />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)" }} />
             <GlowOverlay />
           </div>
 
@@ -688,8 +689,8 @@ export default function ExperienceDetail() {
           <div className="space-y-6">
             <div className="flex items-start justify-between">
               <div>
-                <H1 className="mb-1">{experience.title}</H1>
-                {formattedDate && <BodySmall style={{ color: colors.text.muted }}>{formattedDate}</BodySmall>}
+                <H1 className="mb-1" style={{ textShadow: heroTextShadow }}>{experience.title}</H1>
+                {formattedDate && <BodySmall style={{ color: colors.text.muted, textShadow: heroTextShadow }}>{formattedDate}</BodySmall>}
               </div>
               <HelpButton content={HELP_CONTENT["/experience-detail"]} />
             </div>
