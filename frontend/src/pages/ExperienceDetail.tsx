@@ -10,7 +10,6 @@ import type { Reflection } from "../lib/reflections";
 import { colors, effects } from "../design-tokens";
 import { H1, H2, Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
-import { ImageOverlay } from "../components/ImageOverlay";
 import { GlowOverlay } from "../components/GlowOverlay";
 import FragmentGallery from "../components/FragmentGallery";
 import { HelpButton } from "../components/HelpButton";
