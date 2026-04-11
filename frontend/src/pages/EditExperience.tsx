@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Body, BodySmall } from "../components/Typography";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { SubpageHeader } from "../components/SubpageHeader";
+import { ConfirmationModal } from "../components/ConfirmationModal";
 import { apiFetch } from "../lib/api";
 
 const EMOTION_OPTIONS = ["Joy", "Nostalgic", "Calm", "Bittersweet", "Overwhelmed", "Grateful", "Anxious"];
@@ -376,54 +377,14 @@ export function EditExperience() {
         </div>
       </div>
       {showDiscardModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-6"
-          style={{ background: "rgba(0,0,0,0.5)" }}
-          onClick={() => setShowDiscardModal(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-[28px] border backdrop-blur-xl p-6 space-y-4"
-            style={{
-              background: "var(--color-surface-glass-card)",
-              borderColor: "var(--color-surface-glass-card-border)",
-              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.3)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="space-y-2 text-center">
-              <Body style={{ color: "var(--color-text-primary)", fontSize: "18px" }}>
-                Discard changes?
-              </Body>
-              <BodySmall style={{ color: "var(--color-text-muted-dim)", lineHeight: "1.6" }}>
-                You have unsaved edits. Leaving now will discard your changes.
-              </BodySmall>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => setShowDiscardModal(false)}
-                className="flex-1 rounded-full border backdrop-blur-xl px-4 py-3 transition-all duration-300"
-                style={{
-                  background: "var(--color-surface-glass)",
-                  borderColor: "var(--color-button-warm-border)",
-                }}
-              >
-                <BodySmall style={{ color: "var(--color-text-muted)" }}>Stay</BodySmall>
-              </button>
-
-              <button
-                onClick={handleDiscardChanges}
-                className="flex-1 rounded-full border backdrop-blur-xl px-4 py-3 transition-all duration-300"
-                style={{
-                  background: "var(--color-button-plum-bg)",
-                  borderColor: "var(--color-button-plum-border)",
-                }}
-              >
-                <BodySmall style={{ color: "var(--color-text-primary)" }}>Discard</BodySmall>
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Discard changes?"
+          body="You have unsaved edits. Leaving now will discard your changes."
+          confirmLabel="Discard"
+          cancelLabel="Stay"
+          onConfirm={handleDiscardChanges}
+          onCancel={() => setShowDiscardModal(false)}
+        />
       )}
     </div>
   );
