@@ -6,6 +6,7 @@ stages:          # List of stages for jobs, and their order of execution
 
 default:
   image: node:22-alpine
+  interruptible: true
   cache:
     key:
       files:
@@ -14,11 +15,37 @@ default:
       - 'backend/api/node_modules/'
 
 
-build-backend-job:       # This job runs in the build stage, which runs when any non-doc changes happen in backend
+prepare-backend-deps-job:
   stage: build
   script:
     - cd backend/api
     - npm ci
+  artifacts:
+    paths:
+      - 'backend/api/node_modules/'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'push'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
+    - when: never
+
+
+build-backend-job:       # This job runs in the build stage, which runs when any non-doc changes happen in backend
+  stage: build
+  needs:
+    - job: prepare-backend-deps-job
+      artifacts: true
+  script:
+    - cd backend/api
     - npm run build
   artifacts:
     paths:
@@ -72,24 +99,50 @@ build-frontend-job:     # This job runs in build stage, when any non-doc changes
 
 unit-tests-job:   # This job runs in the test stage (unit tests in backend/api/src)
   stage: test
+  needs:
+    - job: prepare-backend-deps-job
+      artifacts: true
   script:
     - cd backend/api
-    - npm ci
     - npm run test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
     - if: $CI_COMMIT_BRANCH == 'main'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
+    - when: never
 
 
 e2e-tests-job:    # runs e2e tests in backend/api/test
   stage: test
+  needs:
+    - job: prepare-backend-deps-job
+      artifacts: true
   script:
     - cd backend/api
-    - npm ci
     - npm run test:e2e
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
     - if: $CI_COMMIT_BRANCH == 'main'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
+    - when: never
 
 
 ### frontend -> backend
@@ -108,15 +161,27 @@ e2e-tests-job:    # runs e2e tests in backend/api/test
 # eslint is allowed to fail but will give warnings
 eslint-backend-job:   # This job also runs in the test stage in parallel with e2e testing
   stage: test
-  dependencies: []
+  needs:
+    - job: prepare-backend-deps-job
+      artifacts: true
   script:
     - cd backend/api
-    - npm ci
     - npx eslint .
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - 'backend/**/*'
+        - '!backend/**/*.md'
+        - '!backend/**/README*'
+      when: on_success
+    - when: never
 
 
 deploy-job:      # This job runs in the deploy stage, using artifacts from frontend + backend builds
