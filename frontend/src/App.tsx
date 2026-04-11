@@ -28,7 +28,6 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingOrbProvider } from "./utils/FloatingOrbProvider";
 import { UploadDraftProvider } from "./utils/UploadDraftProvider";
 import { useAuth } from "./utils/AuthContext";
-import { InactivityManager } from "./components/InactivityManager";
 
 const PUBLIC_PATHS = ["/signin", "/signup", "/forgot-password", "/logout", "/unauthorized"];
 const FULLSCREEN_PATHS = ["/relive/"];
@@ -58,7 +57,6 @@ export default function App() {
       <FloatingOrbProvider>
         <UploadDraftProvider>
           <AmbientBackground>
-            <InactivityManager />
             <Routes>
               {/* Full-bleed routes — no sidebar, no max-w */}
               <Route path="/relive/:id" element={<ProtectedRoute><ReliveExperience /></ProtectedRoute>} />
