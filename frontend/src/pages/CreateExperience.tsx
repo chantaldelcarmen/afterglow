@@ -2,9 +2,20 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Body, BodySmall } from "../components/Typography";
 import { SubpageHeader } from "../components/SubpageHeader";
+import { ConfirmationModal } from "../components/ConfirmationModal";
 import { apiFetch } from "../lib/api";
 
 const DRAFT_KEY = "afterglow_create_draft";
+const UNTITLED_DRAFT_TITLE = "Untitled draft";
+
+type LocalCreateDraft = {
+  title?: string;
+  date?: string;
+  location?: string;
+  description?: string;
+  emotionTags?: string[];
+  draftExperienceId?: string;
+};
 
 const EMOTION_OPTIONS = [
   "Joy",
@@ -46,7 +57,10 @@ export default function CreateExperience() {
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [draftExperienceId, setDraftExperienceId] = useState<string | null>(null);
   const userHasEdited = useRef(false);
   const [touched, setTouched] = useState<{ title: boolean; date: boolean }>({
     title: false,
@@ -57,20 +71,21 @@ export default function CreateExperience() {
   useEffect(() => {
     const draft = localStorage.getItem(DRAFT_KEY);
     if (draft) {
-      const parsed = JSON.parse(draft);
+      const parsed = JSON.parse(draft) as LocalCreateDraft;
       setTitle(parsed.title ?? "");
       setDate(parsed.date ?? "");
       setLocation(parsed.location ?? "");
       setDescription(parsed.description ?? "");
       setEmotionTags(parsed.emotionTags ?? []);
+      setDraftExperienceId(parsed.draftExperienceId ?? null);
     }
   }, []);
 
   // Save draft on every change, but skip the initial render to avoid overwriting a restored draft
   useEffect(() => {
     if (!userHasEdited.current) { userHasEdited.current = true; return; }
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, date, location, description, emotionTags }));
-  }, [title, date, location, description, emotionTags]);
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, date, location, description, emotionTags, draftExperienceId }));
+  }, [title, date, location, description, emotionTags, draftExperienceId]);
 
   useEffect(() => {
     setMounted(false);
@@ -89,24 +104,67 @@ export default function CreateExperience() {
 
   const hasDraft = !!(title || date || location || description || emotionTags.length);
 
+  const upsertServerDraft = async (): Promise<string> => {
+    const payload = {
+      title: title.trim() || UNTITLED_DRAFT_TITLE,
+      experience_date: date || undefined,
+      location: location.trim() || undefined,
+      description: description.trim() || undefined,
+      emotion_tags: emotionTags,
+      is_draft: true,
+    };
+
+    if (draftExperienceId) {
+      await apiFetch(`/experiences/${draftExperienceId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      return draftExperienceId;
+    }
+
+    const res = await apiFetch("/experiences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const created = await res.json();
+    const createdId = created.id as string;
+    setDraftExperienceId(createdId);
+    return createdId;
+  };
+
   const handleCreate = async () => {
     setTouched({ title: true, date: true });
     if (!title.trim() || !date.trim()) return;
     setError("");
     setLoading(true);
     try {
-      const res = await apiFetch("/experiences", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          experience_date: date,
-          location: location.trim() || undefined,
-          description: description.trim() || undefined,
-          emotion_tags: emotionTags,
-        }),
-      });
-      const created = await res.json();
+      const payload = {
+        title: title.trim(),
+        experience_date: date,
+        location: location.trim() || undefined,
+        description: description.trim() || undefined,
+        emotion_tags: emotionTags,
+      };
+
+      let created: { id: string };
+      if (draftExperienceId) {
+        const res = await apiFetch(`/experiences/${draftExperienceId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        created = await res.json();
+      } else {
+        const res = await apiFetch("/experiences", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        created = await res.json();
+      }
+
       localStorage.removeItem(DRAFT_KEY);
       navigate(`/upload?experienceId=${created.id}`);
     } catch (err) {
@@ -133,9 +191,52 @@ export default function CreateExperience() {
   const showTitleError = touched.title && !title.trim();
   const showDateError  = touched.date  && !date.trim();
 
+  const handleAttemptLeave = () => {
+    if (hasDraft) {
+      setShowDiscardModal(true);
+      return;
+    }
+
+    localStorage.removeItem(DRAFT_KEY);
+    navigate(-1);
+  };
+
+  const handleDiscardDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setShowDiscardModal(false);
+    navigate(-1);
+  };
+
+  const handleBackSaveDraft = async () => {
+    if (!hasDraft) {
+      navigate(-1);
+      return;
+    }
+
+    setError("");
+    setSavingDraft(true);
+    try {
+      await upsertServerDraft();
+      localStorage.removeItem(DRAFT_KEY);
+      navigate(-1);
+    } catch (err) {
+      if (err instanceof Error && err.message === "SESSION_EXPIRED") {
+        setError("SESSION_EXPIRED");
+      } else {
+        setError("Couldn't save your draft right now. Please try again.");
+      }
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
-      <SubpageHeader title="Create Experience" subtitle="Craft a container for your memory fragments" hideBack />
+      <SubpageHeader
+        title="Create Experience"
+        subtitle="Craft a container for your memory fragments"
+        onBack={() => void handleBackSaveDraft()}
+      />
 
       {/* Scrollable Content */}
       <div
@@ -285,7 +386,7 @@ export default function CreateExperience() {
               <p className="text-sm" style={{ color: "var(--color-accent-coral)" }}>
                 {error === "SESSION_EXPIRED"
                   ? "Your session has expired."
-                  : "Couldn't save your experience. Check your connection and try again."}
+                    : error}
               </p>
               {error === "SESSION_EXPIRED" ? (
                 <button
@@ -307,7 +408,7 @@ export default function CreateExperience() {
 
           <div className="pt-6 space-y-3">
             <button
-              onClick={() => { localStorage.removeItem(DRAFT_KEY); navigate(-1); }}
+              onClick={handleAttemptLeave}
               className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
               style={{
                 background: "var(--color-surface-glass)",
@@ -322,7 +423,7 @@ export default function CreateExperience() {
 
             <button
               onClick={handleCreate}
-              disabled={!isFormValid || loading}
+              disabled={!isFormValid || loading || savingDraft}
               className="w-full rounded-full border backdrop-blur-xl px-6 py-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: "var(--color-button-plum-bg)",
@@ -335,7 +436,9 @@ export default function CreateExperience() {
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}
             >
-              <Body style={{ color: "var(--color-text-primary)" }}>{loading ? "Creating..." : "Create Experience"}</Body>
+              <Body style={{ color: "var(--color-text-primary)" }}>
+                {savingDraft ? "Saving draft..." : loading ? "Creating..." : "Create Experience"}
+              </Body>
             </button>
           </div>
 
@@ -352,6 +455,16 @@ export default function CreateExperience() {
           </BodySmall>
         </div>
       </div>
+      {showDiscardModal && (
+        <ConfirmationModal
+          title="Discard draft?"
+          body="You have unsaved changes. Leaving now will discard this experience draft."
+          confirmLabel="Discard"
+          cancelLabel="Stay"
+          onConfirm={handleDiscardDraft}
+          onCancel={() => setShowDiscardModal(false)}
+        />
+      )}
     </div>
   );
 }
