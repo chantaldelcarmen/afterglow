@@ -526,8 +526,7 @@ export default function ExperienceDetail() {
       <div className="md:hidden">
         {/* Buttons overlaid on hero */}
         <div className="absolute top-8 left-0 right-0 z-10 flex justify-between px-6">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
-            <ArrowLeft size={20} style={{ color: colors.text.primary }} />
+          <button onClick={() => navigate("/library")} className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl transition-all duration-300" style={iconBtnStyle} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 18px ${colors.button.warmGlow}`; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = `0 0 12px ${colors.button.warmGlow}`; }}>
           </button>
           <div className="flex gap-2">
             {isDraft && (
