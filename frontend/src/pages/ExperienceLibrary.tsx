@@ -63,9 +63,10 @@ export default function ExperienceLibrary() {
     setDateRange({ start: "", end: "" });
   };
 
+  const showDrafts = activeFilters.includes("Drafts");
+
   const filteredExperiences = experiences.filter((exp: Experience) => {
-    // Exclude draft experiences from library view
-    if (exp.is_draft) return false;
+    if (exp.is_draft && !showDrafts) return false;
 
     const q = search.toLowerCase().trim();
     const matchesSearch =

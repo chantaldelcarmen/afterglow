@@ -15,7 +15,7 @@ interface SearchPanelProps {
 }
 
 const recentSearches = ["Golden Beach", "Graduation"];
-const filterOptions = ["2024", "2023", "2022"];
+const filterOptions = ["Drafts", "2024", "2023", "2022"];
 
 export function SearchPanel({
   isVisible,
