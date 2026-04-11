@@ -5,15 +5,18 @@ interface SubpageHeaderProps {
   title: string;
   subtitle?: string;
   onBack?: () => void;
+  hideBack?: boolean;
 }
 
-export function SubpageHeader({ title, subtitle, onBack }: SubpageHeaderProps) {
+export function SubpageHeader({ title, subtitle, onBack, hideBack }: SubpageHeaderProps) {
   return (
     <div className="sticky top-0 z-20 pt-6 pb-6 px-6">
       <div className="relative flex items-center justify-center mb-1">
-        <div className="absolute left-0">
-          <BackButton onClick={onBack} />
-        </div>
+        {!hideBack && (
+          <div className="absolute left-0">
+            <BackButton onClick={onBack} />
+          </div>
+        )}
         <H2>{title}</H2>
       </div>
       {subtitle && (

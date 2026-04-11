@@ -12,10 +12,11 @@ interface SearchPanelProps {
   dateRange: { start: string; end: string };
   onDateRangeChange: (range: { start: string; end: string }) => void;
   onClosePanel: () => void;
+  recentSearches: string[];
+  yearOptions: string[];
+  showDrafts: "published" | "drafts" | "all";
+  onShowDraftsChange: (val: "published" | "drafts" | "all") => void;
 }
-
-const recentSearches = ["Golden Beach", "Graduation"];
-const filterOptions = ["2024", "2023", "2022"];
 
 export function SearchPanel({
   isVisible,
@@ -26,6 +27,10 @@ export function SearchPanel({
   dateRange,
   onDateRangeChange,
   onClosePanel,
+  recentSearches,
+  yearOptions,
+  showDrafts,
+  onShowDraftsChange,
 }: SearchPanelProps) {
   const [tempDateRange, setTempDateRange] = React.useState(dateRange);
 
@@ -63,7 +68,7 @@ export function SearchPanel({
       />
 
       {/* Recent */}
-      <div className="relative z-10 space-y-3">
+      {recentSearches.length > 0 && <div className="relative z-10 space-y-3">
         <Label className="uppercase tracking-wider">Recent</Label>
         <div className="space-y-2">
           {recentSearches.map((search) => (
@@ -78,7 +83,7 @@ export function SearchPanel({
             </button>
           ))}
         </div>
-      </div>
+      </div>}
 
       {/* Filters */}
       <div className="relative z-10 space-y-3">
@@ -94,13 +99,33 @@ export function SearchPanel({
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
-          {filterOptions.map((option) => (
+          {yearOptions.map((option) => (
             <FilterChip
               key={option}
               label={option}
               isActive={activeFilters.includes(option)}
               onClick={() => onFilterToggle(option)}
             />
+          ))}
+        </div>
+      </div>
+
+      {/* Status */}
+      <div className="relative z-10 space-y-3">
+        <Label className="uppercase tracking-wider">Show</Label>
+        <div className="flex flex-col gap-2">
+          {([["Published only", "published"], ["Drafts only", "drafts"], ["All", "all"]] as const).map(([label, value]) => (
+            <label key={label} className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                checked={showDrafts === value}
+                onChange={() => onShowDraftsChange(value)}
+                className="accent-purple-400 w-4 h-4 cursor-pointer"
+              />
+              <Body style={{ color: showDrafts === value ? colors.text.primary : colors.text.muted }}>
+                {label}
+              </Body>
+            </label>
           ))}
         </div>
       </div>
