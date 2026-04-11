@@ -90,7 +90,7 @@ export function EditExperience() {
             emotionTags: parsed.emotionTags ?? loadedValues.emotionTags,
           };
 
-          setInitialValues(parsedValues); 
+          setInitialValues(loadedValues);
           setTitle(parsedValues.title);
           setDate(parsedValues.date);
           setLocation(parsedValues.location);
@@ -147,7 +147,7 @@ export function EditExperience() {
 
   const isFormValid = !!title.trim() && !!date.trim();
   const isDirty =
-    title !== initialValues.title ||
+    title.trim() !== initialValues.title ||
     date !== initialValues.date ||
     location !== initialValues.location ||
     description !== initialValues.description ||
@@ -177,7 +177,7 @@ export function EditExperience() {
 
   return (
     <div className="h-full flex flex-col">
-      <SubpageHeader title="Edit Experience" subtitle="Update your memory" onBack={handleAttemptLeave} />
+      <SubpageHeader title="Edit Experience" subtitle="Update your memory" hideBack />
 
       {/* Scrollable Content */}
       <div
@@ -310,10 +310,9 @@ export function EditExperience() {
 
           {/* Buttons */}
           <div className="pt-6 space-y-3">
-            {/* Cancel - mobile only */}
             <button
               onClick={handleAttemptLeave}
-              className="md:hidden w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
+              className="w-full rounded-full border backdrop-blur-xl px-6 py-3 transition-all duration-300"
               style={{
                 background: "var(--color-surface-glass)",
                 borderColor: "var(--color-button-warm-border)",
