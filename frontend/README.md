@@ -71,3 +71,18 @@ export default defineConfig([
   },
 ])
 ```
+
+## Ngrok for Mobile Testing
+
+Use this when testing the frontend on a physical phone or an external device.
+
+1. Start the frontend dev server on port 3000.
+2. Start ngrok and point it to port 3000.
+3. Open the generated ngrok URL on your phone.
+
+Commands:
+
+- npm run dev
+- ngrok http 3000
+
+This project allows the ngrok host in the Vite config through server.allowedHosts in [vite.config.ts](vite.config.ts).
